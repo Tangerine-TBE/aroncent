@@ -1,0 +1,137 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'kotlin-android-extensions'
+}
+
+android {
+    compileSdk 32
+
+    defaultConfig {
+        applicationId "com.aroncent"
+        minSdk 23
+        targetSdk 31
+        versionCode 1
+        versionName "1.0"
+        flavorDimensions "versionCode"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        //dialogX库的模糊效果
+        renderscriptTargetApi 21
+        renderscriptSupportModeEnabled true
+    }
+    signingConfigs {
+        debug{
+            storeFile file("../xlite.jks")
+            storePassword "123456"
+            keyAlias "xlite"
+            keyPassword "123456"
+            v1SigningEnabled true
+            v2SigningEnabled true
+        }
+        release {
+            storeFile file("../xlite.jks")
+            storePassword "123456"
+            keyAlias "xlite"
+            keyPassword "123456"
+            v1SigningEnabled true
+            v2SigningEnabled true
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    productFlavors {
+        aroncent {
+            buildConfigField "String", "env", "\"aroncent\""
+            manifestPlaceholders = [
+                    APP_NAME            : "@string/app_name",
+                    APP_ICON            : "@drawable/ic_app_logo",
+            ]
+        }
+        aroncentUat {
+            buildConfigField "String", "env", "\"uat\""
+            manifestPlaceholders = [
+                    APP_NAME            : "@string/app_name",
+                    APP_ICON            : "@drawable/ic_app_logo_2",
+            ]
+        }
+    }
+    // 批量打包
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            def outputFile = output.outputFile
+            if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                //输出apk名称为：渠道名_版本名_时间.apk
+//                def fileName = "${variant.productFlavors[0].name}_${releaseTime()}.apk"
+                def fileName = "${variant.productFlavors[0].name}_v${defaultConfig.versionName}.apk"
+                outputFileName = fileName
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.4.0'
+    implementation 'com.google.android.material:material:1.6.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.4'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
+
+    // 网络请求库
+    implementation rootProject.ext.networkLibs
+    // RxJava3
+    implementation rootProject.ext.rxJavaLibs
+    implementation rootProject.ext.otherLibs
+    kapt rootProject.ext.kaptLibs
+
+    //运行时权限
+    implementation 'pub.devrel:easypermissions:3.0.0'
+
+    //蓝牙库
+    implementation 'com.github.Jasonchenlijian:FastBle:2.4.0'
+
+    //log库
+    implementation 'com.github.zhaokaiqiang.klog:library:1.6.0'
+
+    implementation 'org.greenrobot:eventbus:3.3.1'
+
+    implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.47'
+
+    //信息存储库
+    implementation 'com.tencent:mmkv-static:1.1.1'
+
+    //工具集合库
+    implementation 'com.blankj:utilcodex:1.31.0'
+
+    //异常上报库
+    implementation 'com.tencent.bugly:crashreport:4.0.4'
+
+    //下拉刷新、上拉加载
+    implementation 'io.github.scwang90:refresh-layout-kernel:2.0.5'
+    implementation  'io.github.scwang90:refresh-header-classics:2.0.5'    //经典刷新头
+    implementation  'io.github.scwang90:refresh-header-falsify:2.0.5'     //虚拟刷新头
+    implementation  'io.github.scwang90:refresh-header-material:2.0.5'    //谷歌刷新头
+    implementation  'io.github.scwang90:refresh-footer-classics:2.0.5'    //经典加载
+
+    implementation 'com.github.bumptech.glide:glide:4.10.0'
+
+    implementation 'com.github.getActivity:MultiLanguages:8.0'
+
+    implementation "com.github.kongzue.DialogX:DialogX:0.0.46"
+
+}
