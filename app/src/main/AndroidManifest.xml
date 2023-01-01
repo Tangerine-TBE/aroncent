@@ -37,6 +37,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".module.login.RegisterActivity1" />
+        <activity android:name=".module.login.LoginActivity" />
+        <activity android:name=".module.login.RegisterActivity2" />
+        <activity android:name=".module.login.RegisterActivity3" />
+        <activity android:name=".module.login.RegisterActivity4" />
+        <activity android:name=".module.login.RegisterActivity5" />
     </application>
 
 </manifest>
