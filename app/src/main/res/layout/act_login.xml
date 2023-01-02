@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="@color/purple_700"
+    android:background="@drawable/app_bg"
     android:layout_height="match_parent">
 
     <EditText
@@ -49,7 +48,7 @@
         app:layout_constraintTop_toBottomOf="@+id/editTextTextPassword" />
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/tv_register"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="No Account?"
@@ -67,9 +66,9 @@
         android:textColor="#9B9B9F"
         android:textSize="@dimen/sp_12"
         android:layout_marginEnd="@dimen/dp_24"
-        app:layout_constraintBottom_toBottomOf="@+id/textView2"
-        app:layout_constraintEnd_toStartOf="@+id/textView2"
-        app:layout_constraintTop_toTopOf="@+id/textView2" />
+        app:layout_constraintBottom_toBottomOf="@+id/tv_register"
+        app:layout_constraintEnd_toStartOf="@+id/tv_register"
+        app:layout_constraintTop_toTopOf="@+id/tv_register" />
 
     <ImageView
         android:id="@+id/imageView"

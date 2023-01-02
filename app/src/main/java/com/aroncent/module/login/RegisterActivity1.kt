@@ -1,6 +1,8 @@
 package com.aroncent.module.login
 
+import android.util.Log
 import com.aroncent.R
+import com.blankj.utilcode.util.RegexUtils
 import com.xlitebt.base.BaseActivity
 
 class RegisterActivity1 : BaseActivity() {
@@ -12,9 +14,11 @@ class RegisterActivity1 : BaseActivity() {
     }
 
     override fun initView() {
+        RegexUtils.isMatch("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}\$", "Ha123456")
     }
 
     override fun initListener() {
+
     }
 
     override fun start() {

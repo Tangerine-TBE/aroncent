@@ -37,8 +37,8 @@ object AppConfig {
     val BASE_URL: String
         get() {
             return when (Environment) {
-                EnvironmentEnum.RELEASE -> "http://oss.ltwoo-app.top/"
-                EnvironmentEnum.UAT -> "http://oss.ltwoo-app.top/"
+                EnvironmentEnum.RELEASE -> "http://jc.rebirthtec.com/index.php/"
+                EnvironmentEnum.UAT -> "http://jc.rebirthtec.com/index.php/"
             }
         }
 
@@ -49,10 +49,4 @@ object AppConfig {
         return "v"+AppUtils.getAppVersionName()
     }
 
-
-    @JvmStatic
-    val updateFilePath: String //更新固件文件的存储路径
-        get() {
-            return PathUtils.getInternalAppCachePath() + "/" + "XUpdate.bin"
-        }
 }
