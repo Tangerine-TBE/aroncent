@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">aroncent</string>
+    <string name="please_wait">Please wait…</string>
+
 </resources>

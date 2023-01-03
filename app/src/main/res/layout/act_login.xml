@@ -11,21 +11,23 @@
         android:layout_marginStart="@dimen/dp_36"
         android:layout_marginEnd="@dimen/dp_36"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:text="Name"
+        android:hint="Please Input Your Email"
+        android:textColorHint="@color/white"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.35" />
+        app:layout_constraintVertical_bias="0.30" />
 
     <EditText
         android:id="@+id/editTextTextPassword"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_16"
-        android:ems="10"
+        android:hint="Please Input Your Password"
+        android:textColorHint="@color/white"
+        android:textColor="@color/white"
         android:inputType="textPassword"
         app:layout_constraintEnd_toEndOf="@+id/editTextTextPersonName"
         app:layout_constraintStart_toStartOf="@+id/editTextTextPersonName"
@@ -38,9 +40,9 @@
         android:background="@drawable/btn_shape"
         android:layout_height="wrap_content"
         android:text="Login"
-        android:textSize="@dimen/sp_16"
-        android:paddingTop="@dimen/dp_4"
-        android:paddingBottom="@dimen/dp_4"
+        android:textSize="@dimen/sp_18"
+        android:paddingTop="@dimen/dp_8"
+        android:paddingBottom="@dimen/dp_8"
         android:textColor="@color/white"
         android:layout_marginTop="@dimen/dp_36"
         app:layout_constraintEnd_toEndOf="@+id/editTextTextPassword"
@@ -51,11 +53,11 @@
         android:id="@+id/tv_register"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_20"
         android:text="No Account?"
-        android:layout_marginTop="@dimen/dp_8"
         android:textColor="#9B9B9F"
         android:textSize="@dimen/sp_12"
-        app:layout_constraintEnd_toEndOf="@+id/textView"
+        app:layout_constraintStart_toStartOf="@+id/textView"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <TextView
@@ -65,9 +67,8 @@
         android:text="Forgot Password?"
         android:textColor="#9B9B9F"
         android:textSize="@dimen/sp_12"
-        android:layout_marginEnd="@dimen/dp_24"
         app:layout_constraintBottom_toBottomOf="@+id/tv_register"
-        app:layout_constraintEnd_toStartOf="@+id/tv_register"
+        app:layout_constraintEnd_toEndOf="@+id/textView"
         app:layout_constraintTop_toTopOf="@+id/tv_register" />
 
     <ImageView

@@ -1,9 +1,10 @@
 package com.aroncent.module.login
 
-import android.util.Log
+import android.content.Intent
 import com.aroncent.R
 import com.blankj.utilcode.util.RegexUtils
 import com.xlitebt.base.BaseActivity
+import kotlinx.android.synthetic.main.act_register_1.*
 
 class RegisterActivity1 : BaseActivity() {
     override fun layoutId(): Int {
@@ -18,7 +19,9 @@ class RegisterActivity1 : BaseActivity() {
     }
 
     override fun initListener() {
-
+        tv_ok.setOnClickListener {
+            startActivity(Intent(this,RegisterActivity2::class.java))
+        }
     }
 
     override fun start() {

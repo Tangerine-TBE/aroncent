@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:background="@drawable/app_bg"
     android:layout_height="match_parent">
@@ -12,7 +11,7 @@
         android:layout_height="wrap_content"
         android:text="Register Your Account"
         android:textColor="@color/white"
-        android:textSize="@dimen/sp_13"
+        android:textSize="@dimen/sp_18"
         android:layout_marginTop="@dimen/dp_100"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,22 +25,32 @@
         android:layout_marginEnd="@dimen/dp_36"
         android:layout_height="wrap_content"
         android:hint="Please Input Your Email"
+        android:background="@null"
         android:textColorHint="@color/textGrey"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView5" />
 
+    <View
+        android:layout_marginTop="@dimen/dp_4"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="@color/white"
+        app:layout_constraintEnd_toEndOf="@+id/et_email"
+        app:layout_constraintStart_toStartOf="@+id/et_email"
+        app:layout_constraintTop_toBottomOf="@+id/et_email" />
+
     <TextView
         android:id="@+id/tv_ok"
         android:layout_width="0dp"
         android:gravity="center"
-        android:paddingBottom="@dimen/dp_4"
-        android:paddingTop="@dimen/dp_4"
+        android:paddingBottom="@dimen/dp_8"
+        android:paddingTop="@dimen/dp_8"
         android:layout_height="wrap_content"
         android:text="NEXT STEP"
         android:textColor="@color/white"
-        android:textSize="@dimen/sp_12"
-        android:layout_marginTop="@dimen/dp_36"
+        android:textSize="@dimen/sp_18"
+        android:layout_marginTop="@dimen/dp_42"
         android:background="@drawable/btn_shape"
         app:layout_constraintEnd_toEndOf="@+id/et_email"
         app:layout_constraintStart_toStartOf="@+id/et_email"

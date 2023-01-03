@@ -1,6 +1,7 @@
 package com.aroncent.api
 
 import com.aroncent.base.BaseBean
+import com.aroncent.module.login.CountryListBean
 import io.reactivex.rxjava3.core.Observable
 import okhttp3.MultipartBody
 import retrofit2.http.*
@@ -95,5 +96,8 @@ interface ApiService {
     @POST("api/User/editavatar")
     fun editavatar(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
 
-
+    /**获取注册时的国家地区列表**/
+    @FormUrlEncoded
+    @POST("api/Country/getList")
+    fun getCountryList(@FieldMap map: HashMap<String, String>) : Observable<CountryListBean>
 }

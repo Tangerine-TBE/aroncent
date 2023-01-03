@@ -27,6 +27,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Aroncent"
+        android:networkSecurityConfig="@xml/network_config"
         tools:targetApi="31">
         <activity
             android:name=".module.main.MainActivity"
@@ -42,7 +43,6 @@
         <activity android:name=".module.login.RegisterActivity2" />
         <activity android:name=".module.login.RegisterActivity3" />
         <activity android:name=".module.login.RegisterActivity4" />
-        <activity android:name=".module.login.RegisterActivity5" />
     </application>
 
 </manifest>

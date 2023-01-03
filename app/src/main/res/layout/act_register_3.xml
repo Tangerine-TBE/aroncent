@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="@drawable/app_bg"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
     android:layout_height="match_parent">
 
     <TextView
@@ -12,38 +14,51 @@
         android:layout_height="wrap_content"
         android:text="Register Your Account"
         android:textColor="@color/white"
-        android:textSize="@dimen/sp_13"
+        android:textSize="@dimen/sp_18"
         android:layout_marginTop="@dimen/dp_100"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <EditText
-        android:id="@+id/et_name"
-        android:layout_width="0dp"
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Please select your country below"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_18"
         android:layout_marginTop="@dimen/dp_36"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_country"
+        android:layout_width="match_parent"
+        android:layout_marginTop="@dimen/dp_24"
         android:layout_marginStart="@dimen/dp_36"
         android:layout_marginEnd="@dimen/dp_36"
-        android:layout_height="wrap_content"
-        android:hint="Please Input Your Name"
-        android:textColorHint="@color/textGrey"
+        android:layout_height="0dp"
+        tools:listitem="@layout/item_country"
+        android:layout_weight="1"
+        android:background="@null"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView5" />
 
     <TextView
         android:id="@+id/tv_ok"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:gravity="center"
-        android:paddingBottom="@dimen/dp_4"
-        android:paddingTop="@dimen/dp_4"
+        android:layout_marginBottom="@dimen/dp_48"
+        android:layout_marginStart="@dimen/dp_36"
+        android:layout_marginEnd="@dimen/dp_36"
+        android:paddingBottom="@dimen/dp_8"
+        android:paddingTop="@dimen/dp_8"
         android:layout_height="wrap_content"
         android:text="NEXT STEP"
         android:textColor="@color/white"
-        android:textSize="@dimen/sp_12"
-        android:layout_marginTop="@dimen/dp_36"
+        android:textSize="@dimen/sp_18"
+        android:layout_marginTop="@dimen/dp_24"
         android:background="@drawable/btn_shape"
-        app:layout_constraintEnd_toEndOf="@+id/et_name"
-        app:layout_constraintStart_toStartOf="@+id/et_name"
-        app:layout_constraintTop_toBottomOf="@+id/et_name" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        app:layout_constraintEnd_toEndOf="@+id/rv_country"
+        app:layout_constraintStart_toStartOf="@+id/rv_country"
+        app:layout_constraintTop_toBottomOf="@+id/rv_country" />
+</LinearLayout>

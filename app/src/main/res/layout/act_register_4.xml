@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:gravity="center_horizontal"
     android:layout_height="match_parent"
     android:background="@drawable/app_bg">
 
@@ -13,14 +15,55 @@
         android:layout_marginTop="@dimen/dp_100"
         android:text="Register Your Account"
         android:textColor="@color/white"
-        android:textSize="@dimen/sp_13"
+        android:textSize="@dimen/sp_18"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
+    <EditText
+        android:id="@+id/et_name"
+        android:layout_width="match_parent"
+        android:layout_marginTop="@dimen/dp_36"
+        android:layout_marginStart="@dimen/dp_36"
+        android:layout_marginEnd="@dimen/dp_36"
+        android:layout_height="wrap_content"
+        android:hint="Please Input Your Name"
+        android:textColor="@color/white"
+        android:background="@null"
+        android:textColorHint="@color/textGrey"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView5" />
+    <View
+        android:layout_marginTop="@dimen/dp_4"
+        android:layout_width="match_parent"
+        android:background="@color/white"
+        android:layout_marginStart="@dimen/dp_36"
+        android:layout_marginEnd="@dimen/dp_36"
+        android:layout_height="1dp"/>
+    <EditText
+        android:id="@+id/et_password"
+        android:layout_width="match_parent"
+        android:layout_marginTop="@dimen/dp_36"
+        android:layout_marginStart="@dimen/dp_36"
+        android:layout_marginEnd="@dimen/dp_36"
+        android:layout_height="wrap_content"
+        android:hint="Please Input Your Password"
+        android:background="@null"
+        android:textColor="@color/white"
+        android:textColorHint="@color/textGrey"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView5" />
+    <View
+        android:layout_marginTop="@dimen/dp_4"
+        android:layout_width="match_parent"
+        android:background="@color/white"
+        android:layout_marginStart="@dimen/dp_36"
+        android:layout_marginEnd="@dimen/dp_36"
+        android:layout_height="1dp"/>
     <RadioGroup
         android:id="@+id/rg_sex"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_marginStart="@dimen/dp_36"
@@ -45,27 +88,21 @@
             android:text="Female"
             android:textColor="@color/white" />
 
-        <RadioButton
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="Other"
-            android:textColor="@color/white" />
     </RadioGroup>
 
     <TextView
         android:id="@+id/tv_ok"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dp_36"
-        android:background="@drawable/btn_shape"
+        android:layout_width="match_parent"
         android:gravity="center"
-        android:paddingTop="@dimen/dp_4"
-        android:paddingBottom="@dimen/dp_4"
+        android:layout_marginBottom="@dimen/dp_48"
+        android:layout_marginStart="@dimen/dp_36"
+        android:layout_marginEnd="@dimen/dp_36"
+        android:paddingBottom="@dimen/dp_8"
+        android:paddingTop="@dimen/dp_8"
+        android:layout_height="wrap_content"
         android:text="NEXT STEP"
         android:textColor="@color/white"
-        android:textSize="@dimen/sp_12"
-        app:layout_constraintEnd_toEndOf="@+id/rg_sex"
-        app:layout_constraintStart_toStartOf="@+id/rg_sex"
-        app:layout_constraintTop_toBottomOf="@+id/rg_sex" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:textSize="@dimen/sp_18"
+        android:layout_marginTop="@dimen/dp_36"
+        android:background="@drawable/btn_shape" />
+</LinearLayout>
