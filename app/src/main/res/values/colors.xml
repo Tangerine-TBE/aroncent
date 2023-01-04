@@ -9,4 +9,6 @@
     <color name="white">#FFFFFFFF</color>
     <color name="textGrey">#F1F0F0</color>
     <color name="textCountry">#6B67DC</color>
+    <color name="tabTextNormal">#ABAADE</color>
+    <color name="colorPrimary">#C7C5FF</color>
 </resources>

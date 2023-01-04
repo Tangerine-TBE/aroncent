@@ -1,11 +1,14 @@
 package com.aroncent.module.login
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import com.aroncent.R
 import com.aroncent.base.RxSubscriber
+import com.aroncent.utils.showToast
+import com.aroncent.utils.startActivity
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.ltwoo.estep.api.RetrofitManager
@@ -17,6 +20,9 @@ import kotlinx.android.synthetic.main.act_register_3.*
 import kotlinx.android.synthetic.main.item_country.view.*
 
 class RegisterActivity3 : BaseActivity() {
+    private var countryId =""
+    private var smsCode =""
+    private var email =""
     override fun layoutId(): Int {
         return R.layout.act_register_3
     }
@@ -25,6 +31,8 @@ class RegisterActivity3 : BaseActivity() {
     }
 
     override fun initView() {
+        email = intent.getStringExtra("email")!!
+        smsCode = intent.getStringExtra("smsCode")!!
         rv_country.layoutManager = GridLayoutManager(this,3)
         getCountryList()
     }
@@ -72,11 +80,23 @@ class RegisterActivity3 : BaseActivity() {
                     it.isCheck = false
                 }
                 item.isCheck = true
+                countryId = item.id.toString()
                 notifyDataSetChanged()
             }
         }
     }
     override fun initListener() {
+        tv_ok.setOnClickListener {
+            if (countryId == ""){
+                showToast("Please select a country")
+                return@setOnClickListener
+            }
+            startActivity(Intent(this,RegisterActivity4::class.java)
+                .putExtra("countryId",countryId)
+                .putExtra("smsCode",smsCode)
+                .putExtra("email",email)
+            )
+        }
     }
 
     override fun start() {

@@ -6,6 +6,8 @@ import com.xlitebt.base.BaseActivity
 import kotlinx.android.synthetic.main.act_register_2.*
 
 class RegisterActivity2 : BaseActivity() {
+    private var email =""
+
     override fun layoutId(): Int {
         return R.layout.act_register_2
     }
@@ -14,11 +16,15 @@ class RegisterActivity2 : BaseActivity() {
     }
 
     override fun initView() {
+        email = intent.getStringExtra("email")!!
     }
 
     override fun initListener() {
         tv_ok.setOnClickListener {
-            startActivity(Intent(this,RegisterActivity3::class.java))
+            startActivity(Intent(this,RegisterActivity3::class.java)
+                .putExtra("email",email)
+                .putExtra("smsCode",et_email_code.text.toString())
+            )
         }
     }
 
