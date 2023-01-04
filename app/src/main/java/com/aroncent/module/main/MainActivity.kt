@@ -101,11 +101,12 @@ class MainActivity : BaseActivity() {
     }
 
     override fun initView() {
-//        if (MMKV.defaultMMKV().getString("token","")==""){
-//            startActivity(LoginActivity::class.java)
-//        } else {
+        if (MMKV.defaultMMKV().getString("token","")==""){
+            finish()
+            startActivity(LoginActivity::class.java)
+        } else {
             setSelect(0)
-//        }
+        }
     }
 
     override fun initListener() {

@@ -2,6 +2,7 @@ package com.aroncent.api
 
 import com.aroncent.base.BaseBean
 import com.aroncent.module.login.CountryListBean
+import com.aroncent.module.login.RegisterBean
 import io.reactivex.rxjava3.core.Observable
 import okhttp3.MultipartBody
 import retrofit2.http.*
@@ -16,7 +17,7 @@ interface ApiService {
     /**注册**/
     @FormUrlEncoded
     @POST("api/user/register")
-    fun register(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
+    fun register(@FieldMap map: HashMap<String, String>) : Observable<RegisterBean>
 
     /**登录**/
     @FormUrlEncoded

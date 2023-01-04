@@ -5,9 +5,13 @@ import android.widget.RadioButton
 import com.aroncent.R
 import com.aroncent.base.BaseBean
 import com.aroncent.base.RxSubscriber
+import com.aroncent.module.main.MainActivity
 import com.aroncent.utils.showToast
+import com.aroncent.utils.startActivity
+import com.blankj.utilcode.util.ActivityUtils
 import com.blankj.utilcode.util.RegexUtils
 import com.ltwoo.estep.api.RetrofitManager
+import com.tencent.mmkv.MMKV
 import com.xlitebt.base.BaseActivity
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
@@ -54,14 +58,14 @@ class RegisterActivity4 : BaseActivity() {
         map["email"] = email
         map["code"] = smsCode
         map["sex"] = findViewById<RadioButton>(rg_sex.checkedRadioButtonId).text.toString()
-        map["Username"] = et_name.text.toString()
+        map["username"] = et_name.text.toString()
         map["age"] = et_age.text.toString()
         map["country"] = countryId
         map["password"] = et_password.text.toString()
         RetrofitManager.service.register(map)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : RxSubscriber<BaseBean?>(this, true) {
+            .subscribe(object : RxSubscriber<RegisterBean?>(this, true) {
                 override fun _onError(message: String?) {
                 }
 
@@ -70,10 +74,17 @@ class RegisterActivity4 : BaseActivity() {
                 }
 
                 @SuppressLint("SetTextI18n")
-                override fun _onNext(t: BaseBean?) {
+                override fun _onNext(t: RegisterBean?) {
                     t?.let {
                         if (t.code == 1) {
-
+                            MMKV.defaultMMKV().putString("token",t.data.userinfo.token)
+                            MMKV.defaultMMKV().putString("avatar",t.data.userinfo.avatar)
+                            MMKV.defaultMMKV().putString("username",t.data.userinfo.username)
+                            MMKV.defaultMMKV().putString("nickname",t.data.userinfo.nickname)
+                            ActivityUtils.finishAllActivities()
+                            startActivity(MainActivity::class.java)
+                        }else{
+                            showToast(t.msg)
                         }
                     }
                 }
