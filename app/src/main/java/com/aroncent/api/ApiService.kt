@@ -2,6 +2,7 @@ package com.aroncent.api
 
 import com.aroncent.base.BaseBean
 import com.aroncent.module.login.CountryListBean
+import com.aroncent.module.login.LoginBean
 import com.aroncent.module.login.RegisterBean
 import io.reactivex.rxjava3.core.Observable
 import okhttp3.MultipartBody
@@ -22,7 +23,7 @@ interface ApiService {
     /**登录**/
     @FormUrlEncoded
     @POST("api/user/login")
-    fun login(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
+    fun login(@FieldMap map: HashMap<String, String>) : Observable<LoginBean>
 
     /**重置密码**/
     @FormUrlEncoded

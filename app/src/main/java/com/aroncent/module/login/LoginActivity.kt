@@ -16,7 +16,6 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.act_login.*
-import kotlinx.android.synthetic.main.act_register_1.*
 
 class LoginActivity : BaseActivity() {
     override fun layoutId(): Int {
@@ -42,7 +41,7 @@ class LoginActivity : BaseActivity() {
         RetrofitManager.service.login(map)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : RxSubscriber<BaseBean?>(this, true) {
+            .subscribe(object : RxSubscriber<LoginBean?>(this, true) {
                 override fun _onError(message: String?) {
                 }
 
@@ -51,13 +50,13 @@ class LoginActivity : BaseActivity() {
                 }
 
                 @SuppressLint("SetTextI18n")
-                override fun _onNext(t: BaseBean?) {
+                override fun _onNext(t: LoginBean?) {
                     t?.let {
                         if (t.code == 1) {
-//                            MMKV.defaultMMKV().putString("token",t.data.userinfo.token)
-//                            MMKV.defaultMMKV().putString("avatar",t.data.userinfo.avatar)
-//                            MMKV.defaultMMKV().putString("username",t.data.userinfo.username)
-//                            MMKV.defaultMMKV().putString("nickname",t.data.userinfo.nickname)
+                            MMKV.defaultMMKV().putString("token",t.data.userinfo.token)
+                            MMKV.defaultMMKV().putString("avatar",t.data.userinfo.avatar)
+                            MMKV.defaultMMKV().putString("username",t.data.userinfo.username)
+                            MMKV.defaultMMKV().putString("nickname",t.data.userinfo.nickname)
                             ActivityUtils.finishAllActivities()
                             startActivity(MainActivity::class.java)
                         }else{
