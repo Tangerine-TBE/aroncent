@@ -1,9 +1,11 @@
 package com.aroncent.module.mine
 
+import android.content.Intent
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.aroncent.R
 import com.aroncent.base.BaseFragment
+import com.aroncent.module.light_color.LightColorActivity
 import com.blankj.utilcode.util.ClickUtils
 import com.bumptech.glide.Glide
 import com.chad.library.adapter.base.BaseQuickAdapter
@@ -48,15 +50,7 @@ class MineFragment : BaseFragment() {
             }
             ClickUtils.applySingleDebouncing(itemView, 500) {
                 when (item.type) {
-//                    1 -> isLoginAndStartActivity(MyInfoActivity::class.java)
-//                    2 -> isLoginAndStartActivity(SettingActivity::class.java)
-//                    3 -> isLoginAndStartActivity(MyDeviceListActivity::class.java)
-//                    4 -> startActivity(
-//                        Intent(requireContext(), WebViewActivity::class.java)
-//                            .putExtra("title", getString(R.string.menu_help))
-//                            .putExtra("url", AppConfig.help_html_url)
-//                    )
-//                    5 -> isLoginAndStartActivity(AboutActivity::class.java)
+                    3 -> startActivity(Intent(requireContext(), LightColorActivity::class.java))
                 }
             }
         }

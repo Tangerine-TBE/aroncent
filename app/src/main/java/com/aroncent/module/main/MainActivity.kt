@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import com.aroncent.R
 import com.aroncent.module.history.HistoryFragment
+import com.aroncent.module.home.BindPartnerFragment
 import com.aroncent.module.home.HomeFragment
 import com.aroncent.module.login.LoginActivity
 import com.aroncent.module.mine.MineFragment
@@ -45,10 +46,13 @@ class MainActivity : BaseActivity() {
         hideFragment(transaction)
         when (i) {
             0 -> {
-                mTab1 = supportFragmentManager.findFragmentByTag(HomeFragment::class.java.name)
                 if (mTab1 == null) {
-                    mTab1 = HomeFragment()
-                    transaction.add(R.id.view_stub_main, mTab1!!, HomeFragment::class.java.name)
+                    mTab1 = if (MMKV.defaultMMKV().getBoolean("isBind",false)){
+                        HomeFragment()
+                    }else{
+                        BindPartnerFragment()
+                    }
+                    transaction.add(R.id.view_stub_main, mTab1!!)
                 } else {
                     transaction.show(mTab1!!)
                 }
@@ -58,10 +62,9 @@ class MainActivity : BaseActivity() {
                 tv_tab_1.setTextColor(ContextCompat.getColor(this,R.color.white))
             }
             1 -> {
-                mTab2 = supportFragmentManager.findFragmentByTag(HistoryFragment::class.java.name)
                 if (mTab2 == null) {
                     mTab2 = HistoryFragment()
-                    transaction.add(R.id.view_stub_main, mTab2!!, HistoryFragment::class.java.name)
+                    transaction.add(R.id.view_stub_main, mTab2!!)
 
                 } else {
                     transaction.show(mTab2!!)
@@ -72,10 +75,9 @@ class MainActivity : BaseActivity() {
                 tv_tab_2.setTextColor(ContextCompat.getColor(this,R.color.white))
             }
             2 -> {
-                mTab3 = supportFragmentManager.findFragmentByTag(MineFragment::class.java.name)
                 if (mTab3 == null) {
                     mTab3 = MineFragment()
-                    transaction.add(R.id.view_stub_main, mTab3!!, MineFragment::class.java.name)
+                    transaction.add(R.id.view_stub_main, mTab3!!)
                 } else {
                     transaction.show(mTab3!!)
                 }
