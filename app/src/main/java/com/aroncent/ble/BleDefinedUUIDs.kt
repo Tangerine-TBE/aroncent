@@ -1,18 +1,12 @@
-package com.xlitebt.ble
+package com.aroncent.ble
 
 import java.util.*
 
 /**
  * Created by quan on 2017/11/16.
  */
-class BleDefinedUUIDs {
-    object Service {
-        val NORDIC_UART = UUID.fromString("00001820-0000-1000-8000-00805f9b34fb")
-        val BatteryService = UUID.fromString("0000180f-0000-1000-8000-00805f9b34fb")
-    }
-
-    object Characteristic {
-        val CHARACTERISTIC = UUID.fromString("00002a20-0000-1000-8000-00805f9b34fb")
-        val BatteryCHARACTERISTIC = UUID.fromString("00002a19-0000-1000-8000-00805f9b34fb")
-    }
+object BleDefinedUUIDs {
+        val SERVICE = UUID.fromString("0000fff0-0000-1000-8000-00805f9b34fb")
+        val CHARACTERISTIC_NOTIFY = UUID.fromString("0000fff1-0000-1000-8000-00805f9b34fb")
+        val CHARACTERISTIC_WRITE = UUID.fromString("0000fff2-0000-1000-8000-00805f9b34fb")
 }

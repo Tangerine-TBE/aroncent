@@ -44,6 +44,7 @@ fun Context.showToastLong(content: String) {
         .setDurationIsLong(true)
         .show(content)
 }
+
 fun ImageView.setGlideResource(context: Context, resource: Int) {
     Glide.with(context).load(resource).into(this)
 }

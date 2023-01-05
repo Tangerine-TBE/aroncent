@@ -9,7 +9,6 @@ import com.clj.fastble.callback.BleWriteCallback
 import com.clj.fastble.data.BleDevice
 import com.clj.fastble.exception.BleException
 import com.clj.fastble.utils.HexUtil
-import com.xlitebt.ble.BleDefinedUUIDs
 
 
 object BleTool {
@@ -78,29 +77,31 @@ object BleTool {
                 addZeroForNum(binaryToHexString(musicType),2)).uppercase()
     }
 
-    fun sendInstruct(mBleDevice: BleDevice,callback: BleWriteCallback = mBleWriteCallback) {//发送指令
-        if (BleManager.getInstance().isConnected(mBleDevice) && bleKey.isNotEmpty()){
+    fun sendInstruct(instructions: String,callback: BleWriteCallback = mBleWriteCallback) {//发送指令
+        if (BleManager.getInstance().isConnected(mBleDevice)){
             BleManager.getInstance().write(
                 mBleDevice,
-                BleDefinedUUIDs.Service.NORDIC_UART.toString(),
-                BleDefinedUUIDs.Characteristic.CHARACTERISTIC.toString(),
-                HexUtil.hexStringToBytes(createInstructions()), callback)
+                BleDefinedUUIDs.SERVICE.toString(),
+                BleDefinedUUIDs.CHARACTERISTIC_WRITE.toString(),
+                HexUtil.hexStringToBytes(instructions), callback)
         }
     }
 
-    fun return2Factory(mBleDevice: BleDevice) {//发送指令
-        if (BleManager.getInstance().isConnected(mBleDevice) && bleKey.isNotEmpty()){
-            BleManager.getInstance().write(
-                mBleDevice,
-                BleDefinedUUIDs.Service.NORDIC_UART.toString(),
-                BleDefinedUUIDs.Characteristic.CHARACTERISTIC.toString(),
-                HexUtil.hexStringToBytes(createInstructions()),object :BleWriteCallback() {
-                    override fun onWriteSuccess(current: Int, total: Int, justWrite: ByteArray) {}
-                    override fun onWriteFailure(exception: BleException) {}
-                })
+    fun getXOR(instruct: String):String{
+        val arr = arrayOfNulls<String>(instruct.length / 2)
+        var str1 = ""
+        for (i in instruct.indices) {
+            str1 += instruct[i]
+            if ((i + 1) % 2 == 0) {
+                arr[i / 2] = str1
+                str1 = ""
+            }
         }
+        var xorValue = 0
+        arr.forEach {
+            xorValue = xorValue xor it!!.toInt(16)
+        }
+        return xorValue.toString(16)
     }
-
-
 
 }

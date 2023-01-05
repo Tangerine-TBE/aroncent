@@ -1,5 +1,12 @@
 <resources>
     <string name="app_name">aroncent</string>
     <string name="please_wait">Please wait…</string>
+    <string name="android_12_ble_permission_hint">Android 12 version must accept the permission to use the bluetooth function</string>
+    <string name="enable_bluetooth_hint">please turn on Bluetooth</string>
+    <string name="opening_location_permission">The function requires enabled location permission.</string>
+
+    <string name="device_disconnected">Device disconnected</string>
+    <string name="connect_fail">Connection failed</string>
+
 
 </resources>
