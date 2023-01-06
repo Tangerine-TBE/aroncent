@@ -11,4 +11,6 @@
     <color name="textCountry">#6B67DC</color>
     <color name="tabTextNormal">#ABAADE</color>
     <color name="colorPrimary">#C7C5FF</color>
+    <color name="dialogMaskColor">#9A000000</color>
+
 </resources>

@@ -7,11 +7,16 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothGatt
 import android.content.Intent
 import android.util.Log
+import android.view.View
+import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import com.aroncent.R
+import com.aroncent.base.BaseBean
+import com.aroncent.base.RxSubscriber
 import com.aroncent.ble.BleDefinedUUIDs
 import com.aroncent.ble.BleTool
 import com.aroncent.ble.ByteTransformUtil
@@ -20,10 +25,7 @@ import com.aroncent.module.home.BindPartnerFragment
 import com.aroncent.module.home.HomeFragment
 import com.aroncent.module.login.LoginActivity
 import com.aroncent.module.mine.MineFragment
-import com.aroncent.utils.hasPermission
-import com.aroncent.utils.isAndroid12
-import com.aroncent.utils.showToast
-import com.aroncent.utils.startActivity
+import com.aroncent.utils.*
 import com.blankj.utilcode.util.ClickUtils
 import com.blankj.utilcode.util.LogUtils
 import com.blankj.utilcode.util.ThreadUtils
@@ -36,10 +38,18 @@ import com.clj.fastble.callback.BleScanAndConnectCallback
 import com.clj.fastble.data.BleDevice
 import com.clj.fastble.exception.BleException
 import com.clj.fastble.scan.BleScanRuleConfig
+import com.kongzue.dialogx.dialogs.CustomDialog
 import com.kongzue.dialogx.dialogs.WaitDialog
+import com.kongzue.dialogx.interfaces.DialogLifecycleCallback
+import com.kongzue.dialogx.interfaces.OnBindView
+import com.ltwoo.estep.api.RetrofitManager
 import com.tencent.mmkv.MMKV
 import com.xlitebt.base.BaseActivity
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.frag_bind_partner.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -124,6 +134,7 @@ class MainActivity : BaseActivity() {
     }
 
     override fun initData() {
+        getPartnerRequest()
     }
     fun resetBg() {
         Glide.with(this)
@@ -225,6 +236,8 @@ class MainActivity : BaseActivity() {
                 }
 //            }
         }
+
+
     }
 
     private fun connectBle(){
@@ -271,6 +284,9 @@ class MainActivity : BaseActivity() {
             }
 
             override fun onScanFinished(scanResult: BleDevice?) {
+                if (scanResult==null){
+                    WaitDialog.dismiss()
+                }
             }
         })
     }
@@ -318,6 +334,72 @@ class MainActivity : BaseActivity() {
         ClickUtils.applySingleDebouncing(LL_tab_3, 300) {
             setSelect(2)
         }
+    }
+
+    private fun getPartnerRequest(){
+        RetrofitManager.service.getPartnerRequest(hashMapOf())
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : RxSubscriber<BaseBean?>(this, true) {
+                override fun _onError(message: String?) {
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                @SuppressLint("SetTextI18n")
+                override fun _onNext(t: BaseBean?) {
+                    t?.let {
+                        if (t.code == 200) {
+                            showToast(t.msg)
+                            CustomDialog
+                                .build()
+                                .setMaskColor(getColor(R.color.dialogMaskColor))
+                                .setCustomView(object : OnBindView<CustomDialog>(R.layout.dialog_partner_add) {
+                                    override fun onBind(dialog: CustomDialog?, v: View?) {
+                                        v!!.let {
+                                            val refuse = v.findViewById<TextView>(R.id.tv_cancel)
+                                            val agree = v.findViewById<TextView>(R.id.tv_confirm)
+                                            refuse.setOnClickListener {
+                                                dialog!!.dismiss()
+                                                confirmEmail("0")
+                                            }
+                                            agree.setOnClickListener {
+                                                dialog!!.dismiss()
+                                                confirmEmail("1")
+                                            }
+                                        }
+                                    }
+                                })
+                                .setCancelable(false)
+                                .show()
+                        }
+                    }
+                }
+            })
+    }
+
+
+    private fun confirmEmail(status:String){
+        RetrofitManager.service.confirmEmail(hashMapOf("status" to status))
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : RxSubscriber<BaseBean?>(this, true) {
+                override fun _onError(message: String?) {
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                @SuppressLint("SetTextI18n")
+                override fun _onNext(t: BaseBean?) {
+                    t?.let {
+                        showToast(t.msg)
+                    }
+                }
+            })
     }
 
     override fun start() {

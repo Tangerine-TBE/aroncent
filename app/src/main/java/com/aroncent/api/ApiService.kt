@@ -70,7 +70,8 @@ interface ApiService {
     fun deletephrase(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
 
     /**获取摩斯短语模板列表记录**/
-    @GET("addons/litestore/api.morsecode/lists")
+    @FormUrlEncoded
+    @POST("addons/litestore/api.morsecode/lists")
     fun getMorseCodeList(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
 
     /**使用常用短语方式发送**/
@@ -89,9 +90,9 @@ interface ApiService {
     fun updateHistory(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
 
     /**上传文件**/
-    @FormUrlEncoded
+    @Multipart
     @POST("api/Common/upload")
-    fun upload(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
+    fun upload(@Part list : List<MultipartBody.Part>) : Observable<BaseBean>
 
     /**修改个人头像**/
     @FormUrlEncoded
@@ -102,4 +103,14 @@ interface ApiService {
     @FormUrlEncoded
     @POST("api/Country/getList")
     fun getCountryList(@FieldMap map: HashMap<String, String>) : Observable<CountryListBean>
+
+    /**检查是否有需要审核好友请求**/
+    @FormUrlEncoded
+    @POST("addons/litestore/api.partner/getrequest")
+    fun getPartnerRequest(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
+
+    /**审核好友请求**/
+    @FormUrlEncoded
+    @POST("addons/litestore/api.partner/confirmemail")
+    fun confirmEmail(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
 }

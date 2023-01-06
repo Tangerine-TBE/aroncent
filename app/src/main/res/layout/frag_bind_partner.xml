@@ -18,16 +18,17 @@
         app:srcCompat="@drawable/circle_logo" />
 
     <LinearLayout
-        android:layout_marginTop="@dimen/dp_12"
+        android:id="@+id/ll_bind"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_12"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView4">
 
         <EditText
-            android:id="@+id/et_email_code"
+            android:id="@+id/et_bind_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/dp_36"
@@ -64,5 +65,20 @@
             android:textColor="@color/white"
             android:textSize="@dimen/sp_18" />
     </LinearLayout>
+
+    <TextView
+        android:visibility="gone"
+        android:id="@+id/tv_tip"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_36"
+        android:layout_marginEnd="@dimen/dp_36"
+        android:layout_marginTop="@dimen/dp_36"
+        android:textSize="@dimen/sp_18"
+        android:textColor="@color/white"
+        android:text="Your friend is confirming your friend request, please wait"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView4" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

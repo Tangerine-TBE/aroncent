@@ -21,6 +21,7 @@ import com.bumptech.glide.load.resource.gif.GifDrawable
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.tencent.bugly.proguard.x
+import com.tencent.mmkv.MMKV
 import pub.devrel.easypermissions.EasyPermissions
 import java.lang.reflect.Field
 import java.lang.reflect.InvocationTargetException
@@ -43,6 +44,10 @@ fun Context.showToastLong(content: String) {
         .setGravity(Gravity.CENTER, 0, 0)
         .setDurationIsLong(true)
         .show(content)
+}
+
+fun getUserToken():String{
+    return MMKV.defaultMMKV().decodeString("token","")
 }
 
 fun ImageView.setGlideResource(context: Context, resource: Int) {

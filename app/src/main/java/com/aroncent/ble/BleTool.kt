@@ -43,7 +43,7 @@ object BleTool {
 
     val mBleWriteCallback = object :BleWriteCallback() {
         override fun onWriteSuccess(current: Int, total: Int, justWrite: ByteArray) {
-            LogUtils.eTag("OnSuccessWhite", HexUtil.formatHexString(justWrite, true))
+            LogUtils.eTag("OnSuccessWhite", HexUtil.formatHexString(justWrite, true).uppercase())
 
         }
 

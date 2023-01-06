@@ -137,6 +137,8 @@ dependencies {
 
     implementation 'com.github.QuadFlask:colorpicker:0.0.15'
 
+    // PictureSelector 基础 (必须)
+    implementation 'io.github.lucksiege:pictureselector:v3.10.7'
 
 
 }

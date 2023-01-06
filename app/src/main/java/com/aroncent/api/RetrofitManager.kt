@@ -2,6 +2,7 @@ package com.ltwoo.estep.api
 
 import com.aroncent.AppConfig
 import com.aroncent.api.ApiService
+import com.aroncent.api.LogInterceptor
 import com.aroncent.app.KVKey
 import com.aroncent.app.MyApplication
 import com.aroncent.app.MyApplication.Companion.context
@@ -113,7 +114,7 @@ object RetrofitManager {
         return OkHttpClient.Builder()
             .addInterceptor(addHeaderInterceptor()) // 添加头部
             .addInterceptor(httpLoggingInterceptor) //日志,所有的请求响应度看到
-
+            .addInterceptor(LogInterceptor())
             .cache(cache)  //添加缓存
             .connectTimeout(30L, TimeUnit.SECONDS)
             .readTimeout(30L, TimeUnit.SECONDS)
