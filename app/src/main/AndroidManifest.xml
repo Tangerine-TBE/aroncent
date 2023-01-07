@@ -58,6 +58,7 @@
         <activity android:name=".module.login.RegisterActivity3" />
         <activity android:name=".module.login.RegisterActivity4" />
         <activity android:name=".module.light_color.LightColorActivity" />
+        <activity android:name=".module.shake_flash_settings.ShakeFlashSettingActivity" />
     </application>
 
 </manifest>

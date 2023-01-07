@@ -1,8 +1,6 @@
 package com.aroncent.module.mine
 
-import android.annotation.SuppressLint
 import android.content.Intent
-import android.util.Log
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.aroncent.R
@@ -12,6 +10,7 @@ import com.aroncent.base.BaseFragment
 import com.aroncent.base.RxSubscriber
 import com.aroncent.module.light_color.LightColorActivity
 import com.aroncent.module.login.LoginActivity
+import com.aroncent.module.shake_flash_settings.ShakeFlashSettingActivity
 import com.aroncent.utils.UploadUtils
 import com.aroncent.utils.showToast
 import com.blankj.utilcode.util.ActivityUtils
@@ -21,7 +20,6 @@ import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.luck.picture.lib.basic.PictureSelector
 import com.luck.picture.lib.config.SelectMimeType
-import com.luck.picture.lib.config.VideoQuality
 import com.luck.picture.lib.entity.LocalMedia
 import com.luck.picture.lib.interfaces.OnResultCallbackListener
 import com.luck.picture.lib.language.LanguageConfig
@@ -38,11 +36,10 @@ class MineFragment : BaseFragment() {
     }
 
     override fun initView() {
+        tv_name.text = "Hello,"+MMKV.defaultMMKV().decodeString(KVKey.username,"")
         Glide.with(this)
-            .load(R.drawable.tab_history)
-            .circleCrop()
+            .load(MMKV.defaultMMKV().decodeString(KVKey.avatar,""))
             .into(iv_head)
-
         rv_mine.layoutManager = LinearLayoutManager(requireContext())
         rv_mine.adapter = ProfileAdapter(
             R.layout.item_menu, arrayListOf(
@@ -69,6 +66,7 @@ class MineFragment : BaseFragment() {
             }
             ClickUtils.applySingleDebouncing(itemView, 500) {
                 when (item.type) {
+                    1 -> startActivity(Intent(requireContext(), ShakeFlashSettingActivity::class.java))
                     2 -> startActivity(Intent(requireContext(), LightColorActivity::class.java))
                     6->{
                         PictureSelector.create(requireContext())

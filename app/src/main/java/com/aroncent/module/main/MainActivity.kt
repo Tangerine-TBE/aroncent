@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import com.aroncent.R
+import com.aroncent.app.KVKey
 import com.aroncent.base.BaseBean
 import com.aroncent.base.RxSubscriber
 import com.aroncent.ble.BleDefinedUUIDs
@@ -24,6 +25,7 @@ import com.aroncent.module.history.HistoryFragment
 import com.aroncent.module.home.BindPartnerFragment
 import com.aroncent.module.home.HomeFragment
 import com.aroncent.module.login.LoginActivity
+import com.aroncent.module.login.RequestUserInfoBean
 import com.aroncent.module.mine.MineFragment
 import com.aroncent.utils.*
 import com.blankj.utilcode.util.ClickUtils
@@ -39,6 +41,7 @@ import com.clj.fastble.data.BleDevice
 import com.clj.fastble.exception.BleException
 import com.clj.fastble.scan.BleScanRuleConfig
 import com.kongzue.dialogx.dialogs.CustomDialog
+import com.kongzue.dialogx.dialogs.TipDialog
 import com.kongzue.dialogx.dialogs.WaitDialog
 import com.kongzue.dialogx.interfaces.DialogLifecycleCallback
 import com.kongzue.dialogx.interfaces.OnBindView
@@ -134,7 +137,11 @@ class MainActivity : BaseActivity() {
     }
 
     override fun initData() {
-        getPartnerRequest()
+        if (getUserToken()!=""){
+            getPartnerRequest()
+            getSettings()
+            getUserInfo()
+        }
     }
     fun resetBg() {
         Glide.with(this)
@@ -157,7 +164,7 @@ class MainActivity : BaseActivity() {
         when (i) {
             0 -> {
                 if (mTab1 == null) {
-                    mTab1 = if (MMKV.defaultMMKV().getBoolean("isBind",false)){
+                    mTab1 = if (MMKV.defaultMMKV().getBoolean(KVKey.isBind,false)){
                         HomeFragment()
                     }else{
                         BindPartnerFragment()
@@ -213,31 +220,13 @@ class MainActivity : BaseActivity() {
     }
 
     override fun initView() {
-        if (MMKV.defaultMMKV().getString("token","")==""){
+        if (getUserToken()==""){
             finish()
             startActivity(LoginActivity::class.java)
         } else {
             setSelect(0)
             EventBus.getDefault().register(this)
-//            if (MMKV.defaultMMKV().getBoolean("hasBle",false)){
-                if (isAndroid12()) {
-                    //检查是否有BLUETOOTH_CONNECT权限
-                    if (hasPermission(this,Manifest.permission.BLUETOOTH_CONNECT)) {
-                        //打开蓝牙
-                        enableBluetooth.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
-                    } else {
-                        //请求权限
-                        requestBluetoothConnect.launch(Manifest.permission.BLUETOOTH_CONNECT)
-                    }
-                    return
-                } else {
-                    //不是Android12 直接打开蓝牙
-                    enableBluetooth.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
-                }
-//            }
         }
-
-
     }
 
     private fun connectBle(){
@@ -262,6 +251,7 @@ class MainActivity : BaseActivity() {
             override fun onConnectSuccess(bleDevice: BleDevice, gatt: BluetoothGatt?, status: Int) {
                 Log.e(TAG, "onConnectSuccess")
                 WaitDialog.dismiss()
+                showToast("Connection succeeded")
                 BleTool.setBleDevice(bleDevice)
                 ThreadUtils.runOnUiThreadDelayed({
                     openBleNotify(bleDevice)
@@ -374,6 +364,74 @@ class MainActivity : BaseActivity() {
                                 })
                                 .setCancelable(false)
                                 .show()
+                        }
+                    }
+                }
+            })
+    }
+    private fun getSettings(){
+        RetrofitManager.service.getsettings(hashMapOf())
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : RxSubscriber<SettingBean?>(this, true) {
+                override fun _onError(message: String?) {
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                @SuppressLint("SetTextI18n")
+                override fun _onNext(t: SettingBean?) {
+                    t?.let {
+                        if (t.code == 200) {
+                            if (t.data!=null){
+                                MMKV.defaultMMKV().encode(KVKey.long_shake,t.data.long_shake)
+                                MMKV.defaultMMKV().encode(KVKey.short_shake,t.data.short_shake)
+                                MMKV.defaultMMKV().encode(KVKey.light_color,t.data.lightcolor)
+                                MMKV.defaultMMKV().encode(KVKey.long_flash,t.data.long_light)
+                                MMKV.defaultMMKV().encode(KVKey.short_flash,t.data.short_light)
+                                if (t.data.equipment!=""){
+                                    MMKV.defaultMMKV().encode(KVKey.hasBle, true)
+                                    if (isAndroid12()) {
+                                        //检查是否有BLUETOOTH_CONNECT权限
+                                        if (hasPermission(this@MainActivity, Manifest.permission.BLUETOOTH_CONNECT)) {
+                                            //打开蓝牙
+                                            enableBluetooth.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
+                                        } else {
+                                            //请求权限
+                                            requestBluetoothConnect.launch(Manifest.permission.BLUETOOTH_CONNECT)
+                                        }
+                                    } else {
+                                        //不是Android12 直接打开蓝牙
+                                        enableBluetooth.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+    }
+    private fun getUserInfo(){
+        RetrofitManager.service.getUserInfo(hashMapOf())
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : RxSubscriber<RequestUserInfoBean?>(this, true) {
+                override fun _onError(message: String?) {
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                @SuppressLint("SetTextI18n")
+                override fun _onNext(t: RequestUserInfoBean?) {
+                    t?.let {
+                        if (t.code == 200) {
+                            if (t.data!=null){
+//                               setUserInfoToSp(t.data.userinfo)
+                            }
                         }
                     }
                 }

@@ -140,5 +140,7 @@ dependencies {
     // PictureSelector 基础 (必须)
     implementation 'io.github.lucksiege:pictureselector:v3.10.7'
 
+    implementation 'com.github.warkiz.widget:indicatorseekbar:2.1.2'
+
 
 }

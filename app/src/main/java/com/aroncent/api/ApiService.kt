@@ -2,8 +2,8 @@ package com.aroncent.api
 
 import com.aroncent.base.BaseBean
 import com.aroncent.module.login.CountryListBean
-import com.aroncent.module.login.LoginBean
-import com.aroncent.module.login.RegisterBean
+import com.aroncent.module.login.RequestUserInfoBean
+import com.aroncent.module.main.SettingBean
 import io.reactivex.rxjava3.core.Observable
 import okhttp3.MultipartBody
 import retrofit2.http.*
@@ -18,12 +18,12 @@ interface ApiService {
     /**注册**/
     @FormUrlEncoded
     @POST("api/user/register")
-    fun register(@FieldMap map: HashMap<String, String>) : Observable<RegisterBean>
+    fun register(@FieldMap map: HashMap<String, String>) : Observable<RequestUserInfoBean>
 
     /**登录**/
     @FormUrlEncoded
     @POST("api/user/login")
-    fun login(@FieldMap map: HashMap<String, String>) : Observable<LoginBean>
+    fun login(@FieldMap map: HashMap<String, String>) : Observable<RequestUserInfoBean>
 
     /**重置密码**/
     @FormUrlEncoded
@@ -51,8 +51,9 @@ interface ApiService {
     fun setlightcolor(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
 
     /**获取个人硬件设置的默认信息**/
-    @GET("addons/litestore/api.usersettings/getsettings")
-    fun getsettings(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
+    @FormUrlEncoded
+    @POST("addons/litestore/api.usersettings/getsettings")
+    fun getsettings(@FieldMap map: HashMap<String, String>) : Observable<SettingBean>
 
     /**添加摩斯短语**/
     @FormUrlEncoded
@@ -113,4 +114,9 @@ interface ApiService {
     @FormUrlEncoded
     @POST("addons/litestore/api.partner/confirmemail")
     fun confirmEmail(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
+
+    /**审核好友请求**/
+    @FormUrlEncoded
+    @POST("api/user/getuserinfoapp")
+    fun getUserInfo(@FieldMap map: HashMap<String, String>) : Observable<RequestUserInfoBean>
 }

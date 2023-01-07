@@ -3,23 +3,20 @@ package com.aroncent.module.login
 import android.annotation.SuppressLint
 import android.widget.RadioButton
 import com.aroncent.R
-import com.aroncent.base.BaseBean
 import com.aroncent.base.RxSubscriber
 import com.aroncent.module.main.MainActivity
+import com.aroncent.utils.setUserInfoToSp
 import com.aroncent.utils.showToast
 import com.aroncent.utils.startActivity
 import com.blankj.utilcode.util.ActivityUtils
 import com.blankj.utilcode.util.RegexUtils
 import com.ltwoo.estep.api.RetrofitManager
-import com.tencent.mmkv.MMKV
 import com.xlitebt.base.BaseActivity
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
-import kotlinx.android.synthetic.main.act_register_3.*
 import kotlinx.android.synthetic.main.act_register_4.*
 import kotlinx.android.synthetic.main.act_register_4.tv_ok
-import kotlinx.android.synthetic.main.act_register_4.view.*
 
 class RegisterActivity4 : BaseActivity() {
     private var countryId =""
@@ -65,7 +62,7 @@ class RegisterActivity4 : BaseActivity() {
         RetrofitManager.service.register(map)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : RxSubscriber<RegisterBean?>(this, true) {
+            .subscribe(object : RxSubscriber<RequestUserInfoBean?>(this, true) {
                 override fun _onError(message: String?) {
                 }
 
@@ -74,13 +71,10 @@ class RegisterActivity4 : BaseActivity() {
                 }
 
                 @SuppressLint("SetTextI18n")
-                override fun _onNext(t: RegisterBean?) {
+                override fun _onNext(t: RequestUserInfoBean?) {
                     t?.let {
                         if (t.code == 1) {
-                            MMKV.defaultMMKV().putString("token",t.data.userinfo.token)
-                            MMKV.defaultMMKV().putString("avatar",t.data.userinfo.avatar)
-                            MMKV.defaultMMKV().putString("username",t.data.userinfo.username)
-                            MMKV.defaultMMKV().putString("nickname",t.data.userinfo.nickname)
+                            setUserInfoToSp(t.data.userinfo)
                             ActivityUtils.finishAllActivities()
                             startActivity(MainActivity::class.java)
                         }else{

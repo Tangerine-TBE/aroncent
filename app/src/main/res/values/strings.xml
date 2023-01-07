@@ -8,5 +8,11 @@
     <string name="device_disconnected">Device disconnected</string>
     <string name="connect_fail">Connection failed</string>
 
-
+    <array name="setting_long_time">
+        <item>0.8</item>
+        <item>0.9</item>
+        <item>1.0</item>
+        <item>1.1</item>
+        <item>1.2</item>
+    </array>
 </resources>

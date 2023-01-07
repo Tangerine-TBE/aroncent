@@ -1,5 +1,6 @@
 package com.aroncent.api;
 
+import com.aroncent.app.KVKey;
 import com.aroncent.utils.ExtensionsKt;
 import com.tencent.mmkv.MMKV;
 
@@ -34,8 +35,8 @@ public class LogInterceptor implements Interceptor {
             if (oldBody instanceof FormBody) {
                 FormBody.Builder formBodyBuilder = new FormBody.Builder();
                 MMKV kv = MMKV.defaultMMKV();
-                if (kv.containsKey("token")) {
-                    formBodyBuilder.add("token", ExtensionsKt.getUserToken());
+                if (kv.containsKey(KVKey.TOKEN)) {
+                    formBodyBuilder.add(KVKey.TOKEN, ExtensionsKt.getUserToken());
                 }
                 newRequestBuild = oldRequest.newBuilder();
                 RequestBody formBody = formBodyBuilder.build();
@@ -64,8 +65,8 @@ public class LogInterceptor implements Interceptor {
                     .scheme(oldRequest.url().scheme())
                     .host(oldRequest.url().host());
             MMKV kv = MMKV.defaultMMKV();
-            if (kv.containsKey("token")) {
-                commonParamsUrlBuilder.addQueryParameter("token",ExtensionsKt.getUserToken());
+            if (kv.containsKey(KVKey.TOKEN)) {
+                commonParamsUrlBuilder.addQueryParameter(KVKey.TOKEN,ExtensionsKt.getUserToken());
             }
             newRequestBuild = oldRequest.newBuilder()
                     .method(oldRequest.method(), oldRequest.body())

@@ -13,6 +13,8 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
+import com.aroncent.app.KVKey
+import com.aroncent.module.login.UserinfoBean
 import com.blankj.utilcode.util.ToastUtils
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -20,6 +22,7 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.gif.GifDrawable
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import com.tencent.bugly.proguard.t
 import com.tencent.bugly.proguard.x
 import com.tencent.mmkv.MMKV
 import pub.devrel.easypermissions.EasyPermissions
@@ -47,7 +50,18 @@ fun Context.showToastLong(content: String) {
 }
 
 fun getUserToken():String{
-    return MMKV.defaultMMKV().decodeString("token","")
+    return MMKV.defaultMMKV().decodeString(KVKey.TOKEN,"")
+}
+
+fun setUserInfoToSp(data : UserinfoBean){
+    MMKV.defaultMMKV().encode(KVKey.TOKEN, data.token)
+    MMKV.defaultMMKV().encode(KVKey.avatar,data.avatar)
+    MMKV.defaultMMKV().encode(KVKey.username,data.username)
+    MMKV.defaultMMKV().encode(KVKey.nickname,data.nickname)
+    MMKV.defaultMMKV().encode(KVKey.partnerStatus,data.partnerstatus)
+    if (data.partnerstatus == "3"){
+        MMKV.defaultMMKV().encode(KVKey.isBind,true)
+    }
 }
 
 fun ImageView.setGlideResource(context: Context, resource: Int) {
