@@ -363,7 +363,7 @@ class MainActivity : BaseActivity() {
                                             }
                                             agree.setOnClickListener {
                                                 dialog!!.dismiss()
-                                                confirmEmail("1")
+                                                confirmEmail("3")
                                             }
                                         }
                                     }
@@ -436,7 +436,7 @@ class MainActivity : BaseActivity() {
                     t?.let {
                         if (t.code == 200) {
                             if (t.data!=null){
-//                               setUserInfoToSp(t.data.userinfo)
+                               setUserInfoToSp(t.data.userInfo)
                             }
                         }
                     }

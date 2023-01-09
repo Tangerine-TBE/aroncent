@@ -1,6 +1,8 @@
 package com.aroncent.api
 
 import com.aroncent.base.BaseBean
+import com.aroncent.module.history.HistoryListBean
+import com.aroncent.module.home.MorseCodeListBean
 import com.aroncent.module.login.CountryListBean
 import com.aroncent.module.login.RequestUserInfoBean
 import com.aroncent.module.main.SettingBean
@@ -73,7 +75,7 @@ interface ApiService {
     /**获取摩斯短语模板列表记录**/
     @FormUrlEncoded
     @POST("addons/litestore/api.morsecode/lists")
-    fun getMorseCodeList(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
+    fun getMorseCodeList(@FieldMap map: HashMap<String, String>) : Observable<MorseCodeListBean>
 
     /**使用常用短语方式发送**/
     @FormUrlEncoded
@@ -119,4 +121,9 @@ interface ApiService {
     @FormUrlEncoded
     @POST("api/user/getuserinfoapp")
     fun getUserInfo(@FieldMap map: HashMap<String, String>) : Observable<RequestUserInfoBean>
+
+    /**获取用户聊天记录**/
+    @FormUrlEncoded
+    @POST("addons/litestore/api.Sendphrase/gethistory")
+    fun getHistory(@FieldMap map: HashMap<String, String>) : Observable<HistoryListBean>
 }

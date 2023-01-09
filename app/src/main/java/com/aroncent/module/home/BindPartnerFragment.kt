@@ -3,6 +3,7 @@ package com.aroncent.module.home
 import android.annotation.SuppressLint
 import android.view.View
 import com.aroncent.R
+import com.aroncent.app.KVKey
 import com.aroncent.base.BaseBean
 import com.aroncent.base.BaseFragment
 import com.aroncent.base.RxSubscriber
@@ -22,7 +23,7 @@ class BindPartnerFragment : BaseFragment() {
     }
 
     override fun initView() {
-        if (MMKV.defaultMMKV().getString("partnerStatus","") == "4"){
+        if (MMKV.defaultMMKV().getString(KVKey.partnerStatus,"") == "4"){
             tv_tip.visibility = View.VISIBLE
             ll_bind.visibility = View.GONE
         }
@@ -37,7 +38,7 @@ class BindPartnerFragment : BaseFragment() {
         }
     }
 
-    fun bind() {
+   private fun bind() {
         if (et_bind_email.text.toString()==""){
             showToast("Please fill in the email")
             return

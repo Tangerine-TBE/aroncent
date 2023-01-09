@@ -7,6 +7,6 @@ public class RequestUserInfoBean {
     public DataBean data;
 
     public static class DataBean {
-        public UserinfoBean userinfo;
+        public UserinfoBean userInfo;
     }
 }

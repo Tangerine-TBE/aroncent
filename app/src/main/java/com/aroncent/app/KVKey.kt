@@ -23,6 +23,7 @@ object KVKey {
     const val avatar = "avatar"
     const val username = "username"
     const val nickname = "nickname"
+    const val user_id = "user_id"
 
     /**
      * 情侣的状态

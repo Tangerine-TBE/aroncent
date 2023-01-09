@@ -74,7 +74,7 @@ class RegisterActivity4 : BaseActivity() {
                 override fun _onNext(t: RequestUserInfoBean?) {
                     t?.let {
                         if (t.code == 1) {
-                            setUserInfoToSp(t.data.userinfo)
+                            setUserInfoToSp(t.data.userInfo)
                             ActivityUtils.finishAllActivities()
                             startActivity(MainActivity::class.java)
                         }else{
