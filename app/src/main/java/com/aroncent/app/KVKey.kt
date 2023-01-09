@@ -10,11 +10,15 @@ object KVKey {
     const val SP_LANGUAGE = "SP_LANGUAGE"
     const val SP_COUNTRY = "SP_COUNTRY"
 
+    //硬件设备配置
     const val light_color = "light_color"
     const val long_shake = "long_shake"
     const val short_shake = "short_shake"
     const val long_flash = "long_flash"
     const val short_flash = "short_flash"
+    const val shaking_levels = "shaking_levels"
+
+    //用户信息
     const val TOKEN = "token"
     const val avatar = "avatar"
     const val username = "username"

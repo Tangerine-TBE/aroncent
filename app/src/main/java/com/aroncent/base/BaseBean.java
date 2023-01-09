@@ -1,7 +1,8 @@
 package com.aroncent.base;
 
 public class BaseBean {
-    public String msg;
     public int code;
-    public Object data;
+    public String msg;
+    public String time;
+    public String data;
 }

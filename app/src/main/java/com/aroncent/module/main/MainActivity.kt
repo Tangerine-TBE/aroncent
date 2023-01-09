@@ -18,6 +18,7 @@ import com.aroncent.R
 import com.aroncent.app.KVKey
 import com.aroncent.base.BaseBean
 import com.aroncent.base.RxSubscriber
+import com.aroncent.ble.BleAnswerEvent
 import com.aroncent.ble.BleDefinedUUIDs
 import com.aroncent.ble.BleTool
 import com.aroncent.ble.ByteTransformUtil
@@ -301,6 +302,11 @@ class MainActivity : BaseActivity() {
                     ViewUtils.runOnUiThread {
                         LogUtils.eTag("$TAG Answer", ByteTransformUtil.bytesToHex(data).uppercase())
                         val str = ByteTransformUtil.bytesToHex(data).uppercase()
+                        when{
+                            str.contains("0241434B")->{
+                                EventBus.getDefault().post(BleAnswerEvent("notify", str))
+                            }
+                        }
                     }
                 }
             })

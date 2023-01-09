@@ -13,24 +13,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/imageView9"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:adjustViewBounds="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/include"
-        app:srcCompat="@drawable/wavy_line" />
-
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dp_12"
         android:gravity="center"
         android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@+id/imageView9">
+        app:layout_constraintTop_toBottomOf="@+id/include">
 
         <ImageView
             android:layout_width="wrap_content"
@@ -82,7 +71,7 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dp_16">
+            android:layout_marginTop="@dimen/dp_12">
 
             <ImageView
                 android:layout_width="match_parent"
@@ -147,7 +136,7 @@
         <FrameLayout
             android:layout_width="@dimen/dp_200"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dp_16">
+            android:layout_marginTop="@dimen/dp_12">
 
             <ImageView
                 android:layout_width="match_parent"
@@ -211,7 +200,7 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dp_16">
+            android:layout_marginTop="@dimen/dp_12">
 
             <ImageView
                 android:layout_width="match_parent"
@@ -276,7 +265,7 @@
         <FrameLayout
             android:layout_width="@dimen/dp_200"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dp_16">
+            android:layout_marginTop="@dimen/dp_12">
 
             <ImageView
                 android:layout_width="match_parent"
@@ -299,6 +288,68 @@
                 app:isb_min="0.3"
                 app:isb_progress="0.3"
                 app:isb_progress_value_float="true"
+                app:isb_seek_smoothly="true"
+                app:isb_show_indicator="rounded_rectangle"
+                app:isb_show_tick_marks_type="none"
+                app:isb_show_tick_texts="false"
+                app:isb_thumb_drawable="@drawable/ic_progress_thumb"
+                app:isb_thumb_size="@dimen/dp_30"
+                app:isb_tick_marks_drawable="@null"
+                app:isb_tick_marks_size="13dp"
+                app:isb_tick_texts_color="@color/white"
+                app:isb_tick_texts_size="@dimen/sp_13"
+                app:isb_ticks_count="4"
+                app:isb_track_background_color="#00000000"
+                app:isb_track_background_size="@dimen/dp_6"
+                app:isb_track_progress_color="@color/colorProgress"
+                app:isb_track_progress_size="@dimen/dp_6"
+                app:isb_track_rounded_corners="true" />
+        </FrameLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_32"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_shake" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_8"
+                android:text="Shaking Levels"
+                android:textColor="@color/white"
+                android:textSize="@dimen/sp_14" />
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="@dimen/dp_200"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_12">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="@dimen/dp_4"
+                android:layout_marginEnd="@dimen/dp_4"
+                android:adjustViewBounds="true"
+                android:src="@drawable/seekbar_short" />
+
+            <com.warkiz.widget.IndicatorSeekBar
+                android:id="@+id/seekBar_shaking_levels"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                app:isb_indicator_color="@color/colorPrimary"
+                app:isb_indicator_text_color="@color/white"
+                app:isb_indicator_text_size="@dimen/sp_16"
+                app:isb_max="3"
+                app:isb_min="0"
+                app:isb_progress="0"
                 app:isb_seek_smoothly="true"
                 app:isb_show_indicator="rounded_rectangle"
                 app:isb_show_tick_marks_type="none"
