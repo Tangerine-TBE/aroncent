@@ -6,13 +6,19 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        // hms
+        maven { url 'https://developer.huawei.com/repo/'}
+        // fcm
+        maven { url "https://maven.google.com" }
     }
     dependencies {
         classpath "com.android.tools.build:gradle:7.0.4"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+        // fcm
+        classpath 'com.google.gms:google-services:4.3.8'
+        // hms
+        classpath 'com.huawei.agconnect:agcp:1.6.0.300'
     }
 }
 allprojects {
@@ -21,6 +27,11 @@ allprojects {
         google()
         maven { url 'https://maven.aliyun.com/repository/jcenter' }
         maven { url "https://jitpack.io" }
+
+        //hms
+        maven {url 'https://developer.huawei.com/repo/'}
+        //fcm
+        maven { url "https://maven.google.com" }
     }
 }
 task clean(type: Delete) {

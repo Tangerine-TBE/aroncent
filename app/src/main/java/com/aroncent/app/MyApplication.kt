@@ -2,6 +2,7 @@ package com.aroncent.app
 
 import android.app.Application
 import android.content.Context
+import cn.jpush.android.api.JPushInterface
 import com.clj.fastble.BleManager
 import com.hjq.language.MultiLanguages
 import com.kongzue.dialogx.DialogX
@@ -35,6 +36,8 @@ class MyApplication : Application(){
     override fun onCreate() {
         super.onCreate()
         KLog.init(BuildConfig.DEBUG,"xlite")
+        JPushInterface.setDebugMode(true);
+        JPushInterface.init(this);
         MultiLanguages.init(this)
         DialogX.init(this)
         sDefault = this

@@ -20,6 +20,19 @@ android {
         //dialogX库的模糊效果
         renderscriptTargetApi 21
         renderscriptSupportModeEnabled true
+
+        ndk {
+            //选择要添加的对应 cpu 类型的 .so 库。
+            abiFilters 'armeabi', 'armeabi-v7a', 'arm64-v8a'
+            // 还可以添加 'x86', 'x86_64', 'mips', 'mips64'
+        }
+        manifestPlaceholders = [
+                JPUSH_PKGNAME : applicationId,
+                JPUSH_APPKEY : "c821f2c696372bd487a676ba",
+                JPUSH_CHANNEL : "developer-default", //暂时填写默认值即可.
+                XIAOMI_APPID : "MI-小米的APPID",
+                XIAOMI_APPKEY : "MI-小米的APPKEY",
+        ]
     }
     signingConfigs {
         debug{
@@ -141,6 +154,9 @@ dependencies {
     implementation 'io.github.lucksiege:pictureselector:v3.10.7'
 
     implementation 'com.github.warkiz.widget:indicatorseekbar:2.1.2'
+
+    implementation 'cn.jiguang.sdk:jcore:3.3.0'  // 此处以JCore 3.3.0 版本为例。
+    implementation 'cn.jiguang.sdk:jpush:4.7.2'  // 此处以JPush 4.7.2 版本为例
 
 
 }
