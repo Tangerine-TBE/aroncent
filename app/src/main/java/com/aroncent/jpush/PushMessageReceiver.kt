@@ -9,9 +9,9 @@ import cn.jpush.android.api.JPushMessage
 import cn.jpush.android.api.NotificationMessage
 import cn.jpush.android.service.JPushMessageReceiver
 import com.aroncent.ble.BleTool
+import com.aroncent.ble.DeviceConfig
 import com.aroncent.event.ReadMsgEvent
-import com.aroncent.utils.addZeroForNum
-import com.aroncent.utils.toBinary
+import com.aroncent.utils.*
 import org.greenrobot.eventbus.EventBus
 
 class PushMessageReceiver : JPushMessageReceiver() {
@@ -35,10 +35,27 @@ class PushMessageReceiver : JPushMessageReceiver() {
                 morseData += char
             }
 
-            //这里得到摩斯密码表示的长按和短按
+            morseData = morseData.substring(0,length.toInt(16))
+            //这里得到摩斯密码表示的长按和短按 eg: 010100
             Log.e("morseData",morseData.substring(0,length.toInt(16)))
 
-            val instruct = "A5AAAC"+length+"01"+"C5CCCA"
+            //组装01指令的数据域
+            var instructData = ""
+            morseData.forEach {
+                instructData += if (it.toString()=="0"){
+                    getShortPressHex()
+                }else{
+                    getLongPressHex()
+                }
+            }
+            //帧数长度
+            val frame_length = addZeroForNum((instructData.length/8).toString(16),2).uppercase()
+            val instruct = "A5AAAC" +
+                    BleTool.getXOR("01$frame_length" + DeviceConfig.loop_number + instructData) +
+                    "01$frame_length" + DeviceConfig.loop_number + instructData + "C5CCCA"
+
+            Log.e("03指令转成01指令：",instruct)
+            BleTool.sendInstruct(instruct)
         }else{
             //01指令则直接发送
             BleTool.sendInstruct(customMessage.message)

@@ -7,6 +7,7 @@ import android.content.Context.ACTIVITY_SERVICE
 import android.content.Intent
 import android.location.LocationManager
 import android.os.Build
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.widget.ImageView
@@ -14,7 +15,9 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import com.aroncent.app.KVKey
+import com.aroncent.ble.DeviceConfig
 import com.aroncent.module.login.UserinfoBean
+import com.blankj.utilcode.util.NumberUtils
 import com.blankj.utilcode.util.ToastUtils
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -138,14 +141,115 @@ fun toBinary(num: String,length:Int) : String{
  * 二进制转16进制
  * */
 fun binaryToHexString(num: String):String{
-    return num.toInt(2).toString(16)
+    return addZeroForNum(num.toInt(2).toString(16),2)
 }
 
-fun isTopActivity(activity: Activity): Boolean {
-    val am = activity.getSystemService(ACTIVITY_SERVICE) as ActivityManager
-    val name  = am.getRunningTasks(1)[0].topActivity!!.className
-    return name == activity::class.java.name
+/**
+ * 获取短按的16进制字符（用于03指令转01指令）
+ * */
+fun getShortPressHex():String{
+    when{
+        //这个是短闪时长大于短震时长的情况
+        DeviceConfig.short_flash.toFloat() - DeviceConfig.short_shake.toFloat() > 0 ->{
+            //第一帧的时长为偏短的那个时长，所以用short_shake
+            val first_frame = DeviceConfig.lightColor + addZeroForNum(binaryToHexString(toBinary(DeviceConfig.shaking_levels,3)
+                    + toBinary((DeviceConfig.short_shake.toFloat()*10).toInt().toString(16),5)),2)
+
+            //第二帧的时长
+            val second_frame_time = NumberUtils.format(DeviceConfig.short_flash.toFloat() - DeviceConfig.short_shake.toFloat(),1).toFloat()
+            val second_frame = DeviceConfig.lightColor + addZeroForNum(binaryToHexString(toBinary(DeviceConfig.shaking_levels,3)
+                    + toBinary((second_frame_time*10).toInt().toString(16),5)),2)
+
+            //第三帧，为间隔时间，默认0.3s
+            val third_frame = "00000003"
+            Log.e("getShortPressHex",first_frame+second_frame+third_frame)
+            return (first_frame+second_frame+third_frame).uppercase()
+        }
+
+        //这个是短闪时长小于短震时长的情况
+        DeviceConfig.short_flash.toFloat() - DeviceConfig.short_shake.toFloat() < 0 ->{
+            //第一帧的时长为偏短的那个时长，short_flash
+            val first_frame = DeviceConfig.lightColor + addZeroForNum(binaryToHexString(toBinary(DeviceConfig.shaking_levels,3)
+                    + toBinary((DeviceConfig.short_flash.toFloat()*10).toInt().toString(16),5)),2)
+
+            //第二帧的时长
+            val second_frame_time = NumberUtils.format(DeviceConfig.short_shake.toFloat() - DeviceConfig.short_flash.toFloat(),1).toFloat()
+            val second_frame = "000000" + addZeroForNum(binaryToHexString(toBinary(DeviceConfig.shaking_levels,3)
+                    + toBinary((second_frame_time*10).toInt().toString(16),5)),2)
+
+            //第三帧，为间隔时间，默认0.3s
+            val third_frame = "00000003"
+            Log.e("getShortPressHex",first_frame+second_frame+third_frame)
+            return (first_frame+second_frame+third_frame).uppercase()
+        }
+
+        else->{//这个是短震跟短闪时长一样的情况
+
+            //第一帧
+            val first_frame = DeviceConfig.lightColor + addZeroForNum(binaryToHexString(toBinary(DeviceConfig.shaking_levels,3)
+                    + toBinary((DeviceConfig.short_flash.toFloat()*10).toInt().toString(16),5)),2)
+
+            //第二帧，为间隔时间，默认0.3s
+            val second_frame = "00000003"
+            Log.e("getShortPressHex",first_frame+second_frame)
+            return (first_frame+second_frame).uppercase()
+        }
+    }
 }
+
+/**
+ * 获取长按的16进制字符（用于03指令转01指令）
+ * */
+fun getLongPressHex():String{
+    when{
+        //这个是长闪时长大于长震时长的情况
+        DeviceConfig.long_flash.toFloat() - DeviceConfig.long_shake.toFloat() > 0 ->{
+            //第一帧的时长为偏短的那个时长，所以用short_shake
+            val first_frame = DeviceConfig.lightColor + addZeroForNum(binaryToHexString(toBinary(DeviceConfig.shaking_levels,3)
+                    + toBinary((DeviceConfig.long_shake.toFloat()*10).toInt().toString(16),5)),2)
+
+            //第二帧的时长
+            val second_frame_time = NumberUtils.format(DeviceConfig.long_flash.toFloat() - DeviceConfig.long_shake.toFloat(),1).toFloat()
+            val second_frame = DeviceConfig.lightColor + addZeroForNum(binaryToHexString(toBinary(DeviceConfig.shaking_levels,3)
+                    + toBinary((second_frame_time*10).toInt().toString(16),5)),2)
+
+            //第三帧，为间隔时间，默认0.3s
+            val third_frame = "00000003"
+            Log.e("getLongPressHex",first_frame+second_frame+third_frame)
+            return (first_frame+second_frame+third_frame).uppercase()
+        }
+
+        //这个是长闪时长小于长震时长的情况
+        DeviceConfig.long_flash.toFloat() - DeviceConfig.long_shake.toFloat() < 0 ->{
+            //第一帧的时长为偏短的那个时长，short_flash
+            val first_frame = DeviceConfig.lightColor + addZeroForNum(binaryToHexString(toBinary(DeviceConfig.shaking_levels,3)
+                    + toBinary((DeviceConfig.long_flash.toFloat()*10).toInt().toString(16),5)),2)
+
+            //第二帧的时长
+            val second_frame_time = NumberUtils.format(DeviceConfig.long_shake.toFloat() - DeviceConfig.long_flash.toFloat(),1).toFloat()
+            val second_frame = "000000" + addZeroForNum(binaryToHexString(toBinary(DeviceConfig.shaking_levels,3)
+                    + toBinary((second_frame_time*10).toInt().toString(16),5)),2)
+
+            //第三帧，为间隔时间，默认0.3s
+            val third_frame = "00000003"
+            Log.e("getLongPressHex",first_frame+second_frame+third_frame)
+            return (first_frame+second_frame+third_frame).uppercase()
+        }
+
+        else->{//这个是长震跟长闪时长一样的情况
+
+            //第一帧
+            val first_frame = DeviceConfig.lightColor + addZeroForNum(binaryToHexString(toBinary(DeviceConfig.shaking_levels,3)
+                    + toBinary((DeviceConfig.long_flash.toFloat()*10).toInt().toString(16),5)),2)
+
+            //第二帧，为间隔时间，默认0.3s
+            val second_frame = "00000003"
+            Log.e("getLongPressHex",first_frame+second_frame)
+            return (first_frame+second_frame).uppercase()
+        }
+    }
+}
+
 
 
 

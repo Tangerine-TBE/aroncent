@@ -43,6 +43,12 @@ object DeviceConfig {
     @JvmStatic
     val loop_number : String
         get() {
-            return MMKV.defaultMMKV().decodeString(KVKey.loop_number,"0")
+            return MMKV.defaultMMKV().decodeString(KVKey.loop_number,"01")
+        }
+
+    @JvmStatic
+    val interval_time : String
+        get() {
+            return "0.3"
         }
 }

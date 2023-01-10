@@ -57,7 +57,7 @@ object BleTool {
         arr.forEach {
             xorValue = xorValue xor it!!.toInt(16)
         }
-        return xorValue.toString(16)
+        return addZeroForNum(xorValue.toString(16),2).uppercase()
     }
 
     /**
