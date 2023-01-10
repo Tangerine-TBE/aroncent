@@ -1,19 +1,24 @@
 package com.aroncent.module.history
 
 import android.annotation.SuppressLint
+import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.aroncent.R
 import com.aroncent.base.BaseFragment
 import com.aroncent.base.RxSubscriber
+import com.aroncent.ble.BleTool
+import com.aroncent.event.ConnectStatusEvent
 import com.aroncent.event.GetHistoryEvent
 import com.chad.library.adapter.base.BaseMultiItemQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
+import com.clj.fastble.BleManager
 import com.ltwoo.estep.api.RetrofitManager
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.frag_history.*
 import kotlinx.android.synthetic.main.item_history_left.view.*
+import kotlinx.android.synthetic.main.top_bar.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -27,6 +32,10 @@ class HistoryFragment : BaseFragment() {
     fun onReceiveMsg(msg: GetHistoryEvent) {
         getHistory()
     }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onReceiveMsg(msg: ConnectStatusEvent) {
+        tv_connected.visibility = if (msg.type == 1) View.VISIBLE else View.GONE
+    }
     override fun initView() {
         EventBus.getDefault().register(this)
         rv_history.layoutManager = LinearLayoutManager(requireContext())
@@ -34,7 +43,11 @@ class HistoryFragment : BaseFragment() {
 
     override fun lazyLoad() {
        getHistory()
+        if (BleManager.getInstance().isConnected(BleTool.mBleDevice)){
+            tv_connected.visibility = View.VISIBLE
+        }
     }
+
 
     override fun onDestroy() {
         super.onDestroy()

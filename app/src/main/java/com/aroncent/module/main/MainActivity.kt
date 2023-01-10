@@ -18,6 +18,7 @@ import com.aroncent.app.KVKey
 import com.aroncent.base.BaseBean
 import com.aroncent.base.RxSubscriber
 import com.aroncent.ble.*
+import com.aroncent.event.ConnectStatusEvent
 import com.aroncent.event.GetHistoryEvent
 import com.aroncent.event.ReadMsgEvent
 import com.aroncent.module.history.HistoryFragment
@@ -253,6 +254,7 @@ class MainActivity : BaseActivity() {
                 WaitDialog.dismiss()
                 showToast("Connection succeeded")
                 BleTool.setBleDevice(bleDevice)
+                EventBus.getDefault().post(ConnectStatusEvent(1))
                 ThreadUtils.runOnUiThreadDelayed({
                     openBleNotify(bleDevice)
                 },100)
@@ -263,6 +265,7 @@ class MainActivity : BaseActivity() {
                 gatt: BluetoothGatt?, status: Int
             ) {
                 Log.e(TAG, "onDisConnected")
+                EventBus.getDefault().post(ConnectStatusEvent(0))
                 showToast(getString(R.string.device_disconnected))
             }
 
@@ -383,7 +386,7 @@ class MainActivity : BaseActivity() {
         RetrofitManager.service.getPartnerRequest(hashMapOf())
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : RxSubscriber<BaseBean?>(this, true) {
+            .subscribe(object : RxSubscriber<BaseBean?>(this, false) {
                 override fun _onError(message: String?) {
                 }
 
@@ -426,7 +429,7 @@ class MainActivity : BaseActivity() {
         RetrofitManager.service.getsettings(hashMapOf())
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : RxSubscriber<SettingBean?>(this, true) {
+            .subscribe(object : RxSubscriber<SettingBean?>(this, false) {
                 override fun _onError(message: String?) {
                 }
 
@@ -468,7 +471,7 @@ class MainActivity : BaseActivity() {
         RetrofitManager.service.getUserInfo(hashMapOf())
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : RxSubscriber<RequestUserInfoBean?>(this, true) {
+            .subscribe(object : RxSubscriber<RequestUserInfoBean?>(this, false) {
                 override fun _onError(message: String?) {
                 }
 
