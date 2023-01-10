@@ -155,8 +155,11 @@ dependencies {
 
     implementation 'com.github.warkiz.widget:indicatorseekbar:2.1.2'
 
+    //Popwindow
+    implementation 'com.github.pinguo-zhouwei:CustomPopwindow:2.1.1'
+
+    //极光
     implementation 'cn.jiguang.sdk:jcore:3.3.0'  // 此处以JCore 3.3.0 版本为例。
     implementation 'cn.jiguang.sdk:jpush:4.7.2'  // 此处以JPush 4.7.2 版本为例
-
 
 }

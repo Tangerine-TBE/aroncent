@@ -39,4 +39,10 @@ object DeviceConfig {
         get() {
             return MMKV.defaultMMKV().decodeString(KVKey.shaking_levels,"0")
         }
+
+    @JvmStatic
+    val loop_number : String
+        get() {
+            return MMKV.defaultMMKV().decodeString(KVKey.loop_number,"0")
+        }
 }

@@ -131,4 +131,9 @@ interface ApiService {
     @FormUrlEncoded
     @POST("addons/litestore/api.Sendphrase/read")
     fun readMsg(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
+
+    /**设置设备蓝牙名称**/
+    @FormUrlEncoded
+    @POST("addons/litestore/api.usersettings/setequipment")
+    fun setEquipment(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
 }

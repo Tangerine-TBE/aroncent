@@ -37,6 +37,5 @@ object KVKey {
      *5：有好友要求删除要求需要确认
      * */
     const val partnerStatus = "partnerstatus"
-    const val hasBle = "hasBle" //是否添加了蓝牙设备
     const val isBind = "isBind" //是否绑定了情侣
 }

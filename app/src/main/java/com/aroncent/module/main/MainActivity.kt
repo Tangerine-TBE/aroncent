@@ -22,6 +22,7 @@ import com.aroncent.ble.BleDefinedUUIDs
 import com.aroncent.ble.BleTool
 import com.aroncent.ble.ByteTransformUtil
 import com.aroncent.event.GetHistoryEvent
+import com.aroncent.event.ReadMsgEvent
 import com.aroncent.module.history.HistoryFragment
 import com.aroncent.module.home.BindPartnerFragment
 import com.aroncent.module.home.HomeFragment
@@ -51,6 +52,8 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 
 
 class MainActivity : BaseActivity() {
@@ -215,8 +218,17 @@ class MainActivity : BaseActivity() {
             finish()
             startActivity(LoginActivity::class.java)
         } else {
+            EventBus.getDefault().register(this)
             setSelect(0)
         }
+    }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onReceiveMsg(msg: ReadMsgEvent) {
+        readMsg(msg.msgId)
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        EventBus.getDefault().unregister(this)
     }
 
     private fun connectBle(){
@@ -232,7 +244,7 @@ class MainActivity : BaseActivity() {
             }
 
             override fun onConnectFail(bleDevice: BleDevice?, exception: BleException?) {
-                Log.e(TAG, "onMACConnectFail"+exception.toString())
+                Log.e(TAG, "onConnectFail"+exception.toString())
                 WaitDialog.dismiss()
                 showToast(getString(R.string.connect_fail))
                 BleTool.mBleDevice = null
@@ -240,6 +252,7 @@ class MainActivity : BaseActivity() {
 
             override fun onConnectSuccess(bleDevice: BleDevice, gatt: BluetoothGatt?, status: Int) {
                 Log.e(TAG, "onConnectSuccess")
+                setEquipment(bleDevice.name)
                 WaitDialog.dismiss()
                 showToast("Connection succeeded")
                 BleTool.setBleDevice(bleDevice)
@@ -332,6 +345,27 @@ class MainActivity : BaseActivity() {
                 }
             })
     }
+
+    private fun setEquipment(name:String){
+        RetrofitManager.service.setEquipment(hashMapOf("equipment" to name))
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : RxSubscriber<BaseBean?>(this, false) {
+                override fun _onError(message: String?) {
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                @SuppressLint("SetTextI18n")
+                override fun _onNext(t: BaseBean?) {
+                    if (t!!.code==200){
+
+                    }
+                }
+            })
+    }
     override fun initListener() {
         //设置图标点击缩放
         ClickUtils.applyPressedViewScale(arrayOf(LL_tab_1,LL_tab_2,LL_tab_3),
@@ -414,21 +448,18 @@ class MainActivity : BaseActivity() {
                                 MMKV.defaultMMKV().encode(KVKey.long_flash,t.data.long_light)
                                 MMKV.defaultMMKV().encode(KVKey.short_flash,t.data.short_light)
                                 MMKV.defaultMMKV().encode(KVKey.equipment,t.data.equipment)
-                                if (t.data.equipment!=""){
-                                    MMKV.defaultMMKV().encode(KVKey.hasBle, true)
-                                    if (isAndroid12()) {
-                                        //检查是否有BLUETOOTH_CONNECT权限
-                                        if (hasPermission(this@MainActivity, Manifest.permission.BLUETOOTH_CONNECT)) {
-                                            //打开蓝牙
-                                            enableBluetooth.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
-                                        } else {
-                                            //请求权限
-                                            requestBluetoothConnect.launch(Manifest.permission.BLUETOOTH_CONNECT)
-                                        }
-                                    } else {
-                                        //不是Android12 直接打开蓝牙
+                                if (isAndroid12()) {
+                                    //检查是否有BLUETOOTH_CONNECT权限
+                                    if (hasPermission(this@MainActivity, Manifest.permission.BLUETOOTH_CONNECT)) {
+                                        //打开蓝牙
                                         enableBluetooth.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
+                                    } else {
+                                        //请求权限
+                                        requestBluetoothConnect.launch(Manifest.permission.BLUETOOTH_CONNECT)
                                     }
+                                } else {
+                                    //不是Android12 直接打开蓝牙
+                                    enableBluetooth.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
                                 }
                             }
                         }
@@ -479,6 +510,25 @@ class MainActivity : BaseActivity() {
                     t?.let {
                         showToast(t.msg)
                     }
+                }
+            })
+    }
+
+    private fun readMsg(id:Int){
+        RetrofitManager.service.readMsg(hashMapOf("id" to id.toString()))
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : RxSubscriber<BaseBean?>(this, true) {
+                override fun _onError(message: String?) {
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                @SuppressLint("SetTextI18n")
+                override fun _onNext(t: BaseBean?) {
+
                 }
             })
     }
