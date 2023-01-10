@@ -1,5 +1,6 @@
 package com.aroncent.ble
 
+import android.util.Log
 import com.aroncent.utils.addZeroForNum
 import com.aroncent.utils.binaryToHexString
 import com.aroncent.utils.toBinary
@@ -59,4 +60,19 @@ object BleTool {
         return xorValue.toString(16)
     }
 
+    /**
+     * 将蓝牙指令转换成一个个字节的数组（两个字符为一个字节）
+     * */
+    fun getInstructStringArray(instruct: String) : Array<String?>{
+        val arr = arrayOfNulls<String>(instruct.length / 2)
+        var str1 = ""
+        for (i in instruct.indices) {
+            str1 += instruct[i]
+            if ((i + 1) % 2 == 0) {
+                arr[i / 2] = str1
+                str1 = ""
+            }
+        }
+        return arr
+    }
 }

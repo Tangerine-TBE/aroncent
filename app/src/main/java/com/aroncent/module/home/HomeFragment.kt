@@ -29,6 +29,7 @@ class HomeFragment : BaseFragment() {
         override fun convert(helper: BaseViewHolder, item: MorseCodeListBean.DataBean) {
             val itemView = helper.itemView
             itemView.tv_content.text = item.code
+            itemView.tv_morse_code.text = "• ▬ • ▬ • • ▬ ▬ ▬"
 
             itemView.tv_send.setOnClickListener {
 
@@ -41,6 +42,7 @@ class HomeFragment : BaseFragment() {
             }
         }
     }
+
 
     private fun getMorseCodeList() {
         RetrofitManager.service.getMorseCodeList(hashMapOf())

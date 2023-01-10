@@ -8,6 +8,7 @@ import com.aroncent.base.BaseBean
 import com.aroncent.base.RxSubscriber
 import com.aroncent.ble.BleAnswerEvent
 import com.aroncent.ble.BleTool
+import com.aroncent.ble.DeviceConfig
 import com.aroncent.utils.addZeroForNum
 import com.aroncent.utils.binaryToHexString
 import com.aroncent.utils.showToast
@@ -53,11 +54,12 @@ class ShakeFlashSettingActivity : BaseActivity() {
     }
     override fun initView() {
         EventBus.getDefault().register(this)
-        long_shake = MMKV.defaultMMKV().decodeString(KVKey.long_shake, "0.0")
-        short_shake = MMKV.defaultMMKV().decodeString(KVKey.short_shake, "0.0")
-        long_flash = MMKV.defaultMMKV().decodeString(KVKey.long_flash, "0.0")
-        short_flash = MMKV.defaultMMKV().decodeString(KVKey.short_flash, "0.0")
-        shaking_levels = MMKV.defaultMMKV().decodeString(KVKey.shaking_levels, "0")
+        long_shake = DeviceConfig.long_shake
+        short_shake = DeviceConfig.short_shake
+        long_flash = DeviceConfig.long_flash
+        short_flash = DeviceConfig.short_flash
+        shaking_levels = DeviceConfig.shaking_levels
+
         seekBar_long.setProgress(long_shake.toFloat())
         seekBar_short.setProgress(short_shake.toFloat())
         seekBar_long_flash.setProgress(long_flash.toFloat())
@@ -115,7 +117,7 @@ class ShakeFlashSettingActivity : BaseActivity() {
 
         tv_save.setOnClickListener {
             //给设备设置默认参数，灯光颜色，长短震，长短闪
-            val lightColor = MMKV.defaultMMKV().decodeString(KVKey.light_color,"FFFFFF")
+            val lightColor = DeviceConfig.lightColor
             val binary_short_flash = addZeroForNum((short_flash.toFloat()*10).toInt().toString(2),4)
             val binary_long_flash = addZeroForNum((long_flash.toFloat()*10).toInt().toString(2),4)
             val binary_short_shake = addZeroForNum((short_shake.toFloat()*10).toInt().toString(2),4)

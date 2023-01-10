@@ -5,6 +5,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.aroncent.R
 import com.aroncent.base.BaseFragment
 import com.aroncent.base.RxSubscriber
+import com.aroncent.event.GetHistoryEvent
 import com.chad.library.adapter.base.BaseMultiItemQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.ltwoo.estep.api.RetrofitManager
@@ -13,13 +14,21 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.frag_history.*
 import kotlinx.android.synthetic.main.item_history_left.view.*
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 
 class HistoryFragment : BaseFragment() {
     override fun getLayoutId(): Int {
         return R.layout.frag_history
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onReceiveMsg(msg: GetHistoryEvent) {
+        getHistory()
+    }
     override fun initView() {
+        EventBus.getDefault().register(this)
         rv_history.layoutManager = LinearLayoutManager(requireContext())
     }
 
@@ -27,6 +36,10 @@ class HistoryFragment : BaseFragment() {
        getHistory()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        EventBus.getDefault().unregister(this)
+    }
     inner class HistoryAdapter(data: MutableList<HistoryListBean.DataBean.ListBean>) :
         BaseMultiItemQuickAdapter<HistoryListBean.DataBean.ListBean, BaseViewHolder>(data) {
         init {
@@ -55,7 +68,7 @@ class HistoryFragment : BaseFragment() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : RxSubscriber<HistoryListBean?>(requireContext(), true) {
                 override fun _onError(message: String?) {
-
+                    tv_heartbeat.text = "0"
                 }
 
                 override fun onSubscribe(d: Disposable) {

@@ -17,6 +17,8 @@ object KVKey {
     const val long_flash = "long_flash"
     const val short_flash = "short_flash"
     const val shaking_levels = "shaking_levels"
+    const val loop_number = "loop_number" //循环次数
+    const val equipment = "equipment"
 
     //用户信息
     const val TOKEN = "token"

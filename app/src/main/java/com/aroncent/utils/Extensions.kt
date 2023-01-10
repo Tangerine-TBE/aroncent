@@ -67,21 +67,22 @@ fun setUserInfoToSp(data : UserinfoBean){
     }
 }
 
+fun stringToMorseCode(str:String) :String{
+    var morseStr = ""
+    str.forEach {
+        val char = if (it.toString() == "0") "• " else "▬ "
+        morseStr += char
+    }
+    return morseStr
+}
+
 fun ImageView.setGlideResource(context: Context, resource: Int) {
     Glide.with(context).load(resource).into(this)
 }
 fun ImageView.setGlideResource(context: Context, url: String) {
     Glide.with(context).load(url).into(this)
 }
-/**
- * 手机是否开启位置服务，如果没有开启那么所有app将不能使用定位功能
- */
-fun isLocServiceEnable(context: Context): Boolean {
-    val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-    val gps = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-    val network = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-    return gps || network
-}
+
 
 fun Context.startActivity(className:Class<*>){
     startActivity(Intent(this,className))

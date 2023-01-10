@@ -9,6 +9,7 @@ import com.aroncent.base.BaseBean
 import com.aroncent.base.RxSubscriber
 import com.aroncent.ble.BleAnswerEvent
 import com.aroncent.ble.BleTool
+import com.aroncent.ble.DeviceConfig
 import com.aroncent.utils.addZeroForNum
 import com.aroncent.utils.binaryToHexString
 import com.aroncent.utils.showToast
@@ -52,17 +53,13 @@ class LightColorActivity : BaseActivity() {
 
     override fun initView() {
         EventBus.getDefault().register(this)
-        lightColor = if (MMKV.defaultMMKV().decodeString(KVKey.light_color,"")==""){
-            "FFFFFF"
-        }else{
-            MMKV.defaultMMKV().decodeString(KVKey.light_color,"")
-        }
+        lightColor = DeviceConfig.lightColor
         color_picker_view.setInitialColor(Color.parseColor("#FF$lightColor"),true)
-        long_shake = MMKV.defaultMMKV().decodeString(KVKey.long_shake, "0.0")
-        short_shake = MMKV.defaultMMKV().decodeString(KVKey.short_shake, "0.0")
-        long_flash = MMKV.defaultMMKV().decodeString(KVKey.long_flash, "0.0")
-        short_flash = MMKV.defaultMMKV().decodeString(KVKey.short_flash, "0.0")
-        shaking_levels = MMKV.defaultMMKV().decodeString(KVKey.shaking_levels, "0")
+        long_shake = DeviceConfig.long_shake
+        short_shake = DeviceConfig.short_shake
+        long_flash = DeviceConfig.long_flash
+        short_flash = DeviceConfig.short_flash
+        shaking_levels = DeviceConfig.shaking_levels
     }
 
     override fun onDestroy() {

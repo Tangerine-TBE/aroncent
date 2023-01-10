@@ -85,7 +85,7 @@ interface ApiService {
     /**使用手环按键摩斯方式发送**/
     @FormUrlEncoded
     @POST("addons/litestore/api.Sendphrase/codesend")
-    fun sendPhraseCode(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
+    fun sendMorseCode(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
 
     /**修改发送记录标题**/
     @FormUrlEncoded
@@ -126,4 +126,9 @@ interface ApiService {
     @FormUrlEncoded
     @POST("addons/litestore/api.Sendphrase/gethistory")
     fun getHistory(@FieldMap map: HashMap<String, String>) : Observable<HistoryListBean>
+
+    /**标记摩斯消息为已读**/
+    @FormUrlEncoded
+    @POST("addons/litestore/api.Sendphrase/read")
+    fun readMsg(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
 }

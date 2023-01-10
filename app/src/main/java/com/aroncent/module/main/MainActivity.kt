@@ -10,7 +10,6 @@ import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
@@ -22,6 +21,7 @@ import com.aroncent.ble.BleAnswerEvent
 import com.aroncent.ble.BleDefinedUUIDs
 import com.aroncent.ble.BleTool
 import com.aroncent.ble.ByteTransformUtil
+import com.aroncent.event.GetHistoryEvent
 import com.aroncent.module.history.HistoryFragment
 import com.aroncent.module.home.BindPartnerFragment
 import com.aroncent.module.home.HomeFragment
@@ -35,16 +35,13 @@ import com.blankj.utilcode.util.ThreadUtils
 import com.blankj.utilcode.util.ViewUtils
 import com.bumptech.glide.Glide
 import com.clj.fastble.BleManager
-import com.clj.fastble.callback.BleGattCallback
 import com.clj.fastble.callback.BleNotifyCallback
 import com.clj.fastble.callback.BleScanAndConnectCallback
 import com.clj.fastble.data.BleDevice
 import com.clj.fastble.exception.BleException
 import com.clj.fastble.scan.BleScanRuleConfig
 import com.kongzue.dialogx.dialogs.CustomDialog
-import com.kongzue.dialogx.dialogs.TipDialog
 import com.kongzue.dialogx.dialogs.WaitDialog
-import com.kongzue.dialogx.interfaces.DialogLifecycleCallback
 import com.kongzue.dialogx.interfaces.OnBindView
 import com.ltwoo.estep.api.RetrofitManager
 import com.tencent.mmkv.MMKV
@@ -53,10 +50,7 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.frag_bind_partner.*
 import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
 
 
 class MainActivity : BaseActivity() {
@@ -132,10 +126,6 @@ class MainActivity : BaseActivity() {
         return  R.layout.activity_main
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onReceiveMsg(msg: EventMessage) {
-        BleTool.sendInstruct(msg.instructions)
-    }
 
     override fun initData() {
         if (getUserToken()!=""){
@@ -226,7 +216,6 @@ class MainActivity : BaseActivity() {
             startActivity(LoginActivity::class.java)
         } else {
             setSelect(0)
-            EventBus.getDefault().register(this)
         }
     }
 
@@ -268,7 +257,7 @@ class MainActivity : BaseActivity() {
             }
 
             override fun onScanStarted(success: Boolean) {
-                WaitDialog.show("Connecting...")
+                WaitDialog.show("Device Connecting...")
             }
 
             override fun onScanning(bleDevice: BleDevice?) {
@@ -291,6 +280,9 @@ class MainActivity : BaseActivity() {
             object : BleNotifyCallback() {
                 override fun onNotifySuccess() {
                     LogUtils.eTag(TAG, "notify success")
+//                    //测试指令
+//                    val xorStr = BleTool.getXOR("01"+"0101FFFFFF0A")
+//                    BleTool.sendInstruct("A5AAAC"+xorStr+"01"+"0101FFFFFF0A"+"C5CCCA")
                 }
 
                 override fun onNotifyFailure(exception: BleException?) {
@@ -301,21 +293,45 @@ class MainActivity : BaseActivity() {
                 override fun onCharacteristicChanged(data: ByteArray?) {
                     ViewUtils.runOnUiThread {
                         LogUtils.eTag("$TAG Answer", ByteTransformUtil.bytesToHex(data).uppercase())
+                        //03指令示例： A5AAAC00030400C5CCCA
                         val str = ByteTransformUtil.bytesToHex(data).uppercase()
                         when{
                             str.contains("0241434B")->{
                                 EventBus.getDefault().post(BleAnswerEvent("notify", str))
+                            }
+                            str.substring(8,10)=="03"->{
+                               //发送通知给对方
+                                sendMorseCode(str)
                             }
                         }
                     }
                 }
             })
     }
-    override fun onDestroy() {
-        super.onDestroy()
-        EventBus.getDefault().unregister(this)
-    }
 
+    private fun sendMorseCode(instructions:String){
+        RetrofitManager.service.sendMorseCode(hashMapOf("morsecode" to instructions))
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : RxSubscriber<BaseBean?>(this, false) {
+                override fun _onError(message: String?) {
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                @SuppressLint("SetTextI18n")
+                override fun _onNext(t: BaseBean?) {
+                    if (t!!.code==200){
+                        //告知硬件对方开始显示
+                        val xorStr = BleTool.getXOR("0401")
+                        BleTool.sendInstruct("A5AAAC"+xorStr+"0401C5CCCA")
+                        EventBus.getDefault().post(GetHistoryEvent()) //刷新历史记录
+                    }
+                }
+            })
+    }
     override fun initListener() {
         //设置图标点击缩放
         ClickUtils.applyPressedViewScale(arrayOf(LL_tab_1,LL_tab_2,LL_tab_3),
@@ -397,6 +413,7 @@ class MainActivity : BaseActivity() {
                                 MMKV.defaultMMKV().encode(KVKey.light_color,t.data.lightcolor)
                                 MMKV.defaultMMKV().encode(KVKey.long_flash,t.data.long_light)
                                 MMKV.defaultMMKV().encode(KVKey.short_flash,t.data.short_light)
+                                MMKV.defaultMMKV().encode(KVKey.equipment,t.data.equipment)
                                 if (t.data.equipment!=""){
                                     MMKV.defaultMMKV().encode(KVKey.hasBle, true)
                                     if (isAndroid12()) {
