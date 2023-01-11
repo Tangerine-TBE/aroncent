@@ -43,6 +43,10 @@ class AddPhraseActivity : BaseActivity() {
         tv_save.setOnClickListener {
             addPhrase()
         }
+        iv_del.setOnClickListener {
+            selectCode.removeLast()
+            refreshSelectCode()
+        }
     }
 
     inner class MorseCodeAdapter(data: MutableList<MorseCodeListBean.DataBean>) :

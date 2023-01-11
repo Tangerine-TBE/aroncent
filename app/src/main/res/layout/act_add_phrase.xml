@@ -52,14 +52,28 @@
                 android:textColor="@color/white"
                 android:textSize="@dimen/sp_16" />
 
-            <androidx.recyclerview.widget.RecyclerView
+            <LinearLayout
                 android:layout_marginTop="@dimen/dp_12"
-                android:id="@+id/rv_select_code"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/dp_32"
-                android:layout_marginEnd="@dimen/dp_32"
-                tools:itemCount="1" />
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_height="wrap_content">
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_select_code"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/dp_32"
+                    android:layout_marginEnd="@dimen/dp_16"
+                    tools:itemCount="1" />
+                <ImageView
+                    android:id="@+id/iv_del"
+                    android:layout_marginEnd="@dimen/dp_32"
+                    android:layout_width="wrap_content"
+                    android:src="@drawable/code_del"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+
 
             <TextView
                 android:layout_marginTop="@dimen/dp_24"
