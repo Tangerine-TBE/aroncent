@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothGatt
 import android.content.Intent
 import android.util.Log
+import android.view.Gravity
 import android.view.View
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
@@ -39,8 +40,11 @@ import com.clj.fastble.callback.BleScanAndConnectCallback
 import com.clj.fastble.data.BleDevice
 import com.clj.fastble.exception.BleException
 import com.clj.fastble.scan.BleScanRuleConfig
+import com.kongzue.dialogx.DialogX
+import com.kongzue.dialogx.dialogs.BottomDialog
 import com.kongzue.dialogx.dialogs.CustomDialog
 import com.kongzue.dialogx.dialogs.WaitDialog
+import com.kongzue.dialogx.interfaces.DialogXStyle
 import com.kongzue.dialogx.interfaces.OnBindView
 import com.ltwoo.estep.api.RetrofitManager
 import com.tencent.mmkv.MMKV
@@ -60,6 +64,7 @@ class MainActivity : BaseActivity() {
     private var mTab1: Fragment? = null
     private var mTab2: Fragment? = null
     private var mTab3: Fragment? = null
+    private var connectDeviceDialog: CustomDialog? = null
 
     //请求BLUETOOTH_CONNECT权限意图
     private val requestBluetoothConnect =
@@ -68,7 +73,7 @@ class MainActivity : BaseActivity() {
                 //打开蓝牙
                 enableBluetooth.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
             } else {
-                showToast(getString(R.string.android_12_ble_permission_hint))
+                showToast(getString(com.aroncent.R.string.android_12_ble_permission_hint))
                 finish()
             }
         }
@@ -84,7 +89,7 @@ class MainActivity : BaseActivity() {
                     connectBle()
                 }
             } else {
-                showToast(getString(R.string.android_12_ble_permission_hint))
+                showToast(getString(com.aroncent.R.string.android_12_ble_permission_hint))
                 finish()
             }
         }
@@ -108,7 +113,7 @@ class MainActivity : BaseActivity() {
                     }
                 }
             } else {
-                showToast(getString(R.string.enable_bluetooth_hint))
+                showToast(getString(com.aroncent.R.string.enable_bluetooth_hint))
                 finish()
             }
         }
@@ -119,12 +124,12 @@ class MainActivity : BaseActivity() {
             //扫描蓝牙
             connectBle()
         } else {
-            showToast(getString(R.string.opening_location_permission))
+            showToast(getString(com.aroncent.R.string.opening_location_permission))
             finish()
         }
     }
     override fun layoutId(): Int {
-        return  R.layout.activity_main
+        return  com.aroncent.R.layout.activity_main
     }
 
 
@@ -137,17 +142,17 @@ class MainActivity : BaseActivity() {
     }
     fun resetBg() {
         Glide.with(this)
-            .load(R.drawable.tab_home)
+            .load(com.aroncent.R.drawable.tab_home)
             .into(iv_main_tab_1)
         Glide.with(this)
-            .load(R.drawable.tab_history)
+            .load(com.aroncent.R.drawable.tab_history)
             .into(iv_main_tab_2)
         Glide.with(this)
-            .load(R.drawable.tab_my)
+            .load(com.aroncent.R.drawable.tab_my)
             .into(iv_main_tab_3)
-        tv_tab_1.setTextColor(ContextCompat.getColor(this,R.color.tabTextNormal))
-        tv_tab_2.setTextColor(ContextCompat.getColor(this,R.color.tabTextNormal))
-        tv_tab_3.setTextColor(ContextCompat.getColor(this,R.color.tabTextNormal))
+        tv_tab_1.setTextColor(ContextCompat.getColor(this, com.aroncent.R.color.tabTextNormal))
+        tv_tab_2.setTextColor(ContextCompat.getColor(this, com.aroncent.R.color.tabTextNormal))
+        tv_tab_3.setTextColor(ContextCompat.getColor(this, com.aroncent.R.color.tabTextNormal))
     }
     private fun setSelect(i: Int) {
         resetBg()
@@ -243,15 +248,15 @@ class MainActivity : BaseActivity() {
 
             override fun onConnectFail(bleDevice: BleDevice?, exception: BleException?) {
                 Log.e(TAG, "onConnectFail"+exception.toString())
-                WaitDialog.dismiss()
-                showToast(getString(R.string.connect_fail))
+                connectDeviceDialog!!.dismiss()
+                showToast(getString(com.aroncent.R.string.connect_fail))
                 BleTool.mBleDevice = null
             }
 
             override fun onConnectSuccess(bleDevice: BleDevice, gatt: BluetoothGatt?, status: Int) {
                 Log.e(TAG, "onConnectSuccess")
                 setEquipment(bleDevice.name)
-                WaitDialog.dismiss()
+                connectDeviceDialog!!.dismiss()
                 showToast("Connection succeeded")
                 BleTool.setBleDevice(bleDevice)
                 EventBus.getDefault().post(ConnectStatusEvent(1))
@@ -266,11 +271,26 @@ class MainActivity : BaseActivity() {
             ) {
                 Log.e(TAG, "onDisConnected")
                 EventBus.getDefault().post(ConnectStatusEvent(0))
-                showToast(getString(R.string.device_disconnected))
+                showToast(getString(com.aroncent.R.string.device_disconnected))
+                showDisconnectDialog()
             }
 
             override fun onScanStarted(success: Boolean) {
-                WaitDialog.show("Device Connecting...")
+                connectDeviceDialog =  CustomDialog
+                    .build()
+                    .setMaskColor(getColor(R.color.dialogMaskColor))
+                    .setCustomView(object : OnBindView<CustomDialog>(R.layout.pop_connect_device) {
+                        override fun onBind(dialog: CustomDialog?, v: View?) {
+
+                        }
+                    })
+                    .setFullScreen(true)
+                    .setEnterAnimResId(R.anim.anim_custom_pop_enter)
+                    .setExitAnimResId(R.anim.anim_custom_pop_exit)
+                    .setAlignBaseViewGravity(Gravity.BOTTOM)
+                    .setCancelable(false)
+                    .show()
+
             }
 
             override fun onScanning(bleDevice: BleDevice?) {
@@ -278,7 +298,8 @@ class MainActivity : BaseActivity() {
 
             override fun onScanFinished(scanResult: BleDevice?) {
                 if (scanResult==null){
-                    WaitDialog.dismiss()
+                    connectDeviceDialog!!.dismiss()
+                    showDisconnectDialog()
                 }
             }
         })
@@ -299,7 +320,7 @@ class MainActivity : BaseActivity() {
                 }
 
                 override fun onNotifyFailure(exception: BleException?) {
-                    WaitDialog.dismiss()
+                    connectDeviceDialog!!.dismiss()
                 }
 
                 @SuppressLint("SetTextI18n")
@@ -471,7 +492,7 @@ class MainActivity : BaseActivity() {
         RetrofitManager.service.getUserInfo(hashMapOf())
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : RxSubscriber<RequestUserInfoBean?>(this, false) {
+            .subscribe(object : RxSubscriber<RequestUserInfoBean?>(this, true) {
                 override fun _onError(message: String?) {
                 }
 
@@ -491,8 +512,6 @@ class MainActivity : BaseActivity() {
                 }
             })
     }
-
-
     private fun confirmEmail(status:String){
         RetrofitManager.service.confirmEmail(hashMapOf("status" to status))
             .subscribeOn(Schedulers.io())
@@ -514,6 +533,7 @@ class MainActivity : BaseActivity() {
             })
     }
 
+
     private fun readMsg(id:Int){
         RetrofitManager.service.readMsg(hashMapOf("id" to id.toString()))
             .subscribeOn(Schedulers.io())
@@ -533,6 +553,36 @@ class MainActivity : BaseActivity() {
             })
     }
 
+    private fun showDisconnectDialog(){
+        CustomDialog
+            .build()
+            .setMaskColor(getColor(R.color.dialogMaskColor))
+            .setCustomView(object : OnBindView<CustomDialog>(R.layout.dialog_device_disconnect) {
+                override fun onBind(dialog: CustomDialog?, v: View?) {
+                    v!!.let {
+                        val confirm = v.findViewById<TextView>(R.id.tv_confirm)
+                        confirm.setOnClickListener {
+                            if (isAndroid12()) {
+                                //检查是否有BLUETOOTH_CONNECT权限
+                                if (hasPermission(this@MainActivity, Manifest.permission.BLUETOOTH_CONNECT)) {
+                                    //打开蓝牙
+                                    enableBluetooth.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
+                                } else {
+                                    //请求权限
+                                    requestBluetoothConnect.launch(Manifest.permission.BLUETOOTH_CONNECT)
+                                }
+                            } else {
+                                //不是Android12 直接打开蓝牙
+                                enableBluetooth.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
+                            }
+                            dialog!!.dismiss()
+                        }
+                    }
+                }
+            })
+            .setCancelable(false)
+            .show()
+    }
     override fun start() {
     }
 

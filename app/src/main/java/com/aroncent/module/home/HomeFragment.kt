@@ -45,7 +45,7 @@ class HomeFragment : BaseFragment() {
         override fun convert(helper: BaseViewHolder, item: MorseCodeListBean.DataBean) {
             val itemView = helper.itemView
             itemView.tv_content.text = item.code
-            itemView.tv_morse_code.text = "• ▬ • ▬ • • ▬ ▬ ▬"
+            itemView.tv_morse_code.text = "•一•一••一一一"
 
             itemView.tv_send.setOnClickListener {
 

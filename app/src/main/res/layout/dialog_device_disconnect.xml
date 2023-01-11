@@ -14,60 +14,45 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:layout_marginTop="@dimen/dp_12"
-        android:text="Confirm to add partner?"
-        android:textColor="@color/textCountry"
-        android:textSize="@dimen/sp_16"
-        app:layout_constraintEnd_toEndOf="@+id/tv_name"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/tv_name"
-        app:layout_constraintTop_toBottomOf="@+id/tv_name" />
-
-    <ImageView
-        android:id="@+id/imageView8"
-        android:layout_width="@dimen/dp_64"
-        android:layout_height="wrap_content"
-        android:adjustViewBounds="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/circle_logo" />
-
-    <TextView
-        android:id="@+id/tv_name"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dp_12"
         android:layout_marginEnd="@dimen/dp_12"
-        android:gravity="center"
-        android:text=""
+        android:layout_marginTop="@dimen/dp_12"
+        android:text="No device currently, please connect Bluetooth device"
         android:textColor="@color/textCountry"
+        android:textSize="@dimen/sp_16"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView8" />
 
-    <TextView
-        android:id="@+id/tv_cancel"
-        android:layout_width="wrap_content"
+    <ImageView
+        android:layout_marginTop="@dimen/dp_12"
+        android:id="@+id/imageView8"
+        android:layout_width="@dimen/dp_64"
+        android:layout_marginStart="@dimen/dp_12"
         android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
-        android:text="Refuse"
-        android:layout_marginBottom="@dimen/dp_12"
-        android:textColor="@color/textCountry"
-        android:textSize="@dimen/sp_14"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/textView22"
-        app:layout_constraintTop_toBottomOf="@+id/textView22" />
+        android:adjustViewBounds="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/bar_icon" />
 
     <TextView
         android:id="@+id/tv_confirm"
-        android:layout_width="wrap_content"
+        android:layout_width="@dimen/dp_100"
+        android:gravity="center"
+        android:paddingTop="@dimen/dp_4"
+        android:paddingBottom="@dimen/dp_4"
         android:layout_height="wrap_content"
-        android:text="Agree"
+        android:layout_marginTop="36dp"
+        android:layout_marginBottom="@dimen/dp_12"
+        android:background="@drawable/btn_shape"
+        android:text="Confirm"
+        android:textColor="@color/white"
         android:textSize="@dimen/sp_14"
-        android:textColor="@color/textCountry"
-        app:layout_constraintBottom_toBottomOf="@+id/tv_cancel"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/textView22"
-        app:layout_constraintTop_toTopOf="@+id/tv_cancel" />
+        app:layout_constraintStart_toStartOf="@+id/textView22"
+        app:layout_constraintTop_toBottomOf="@+id/textView22" />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

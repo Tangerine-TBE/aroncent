@@ -59,6 +59,7 @@
         <activity android:name=".module.login.RegisterActivity4" />
         <activity android:name=".module.light_color.LightColorActivity" />
         <activity android:name=".module.shake_flash_settings.ShakeFlashSettingActivity" />
+        <activity android:name=".module.phrase.AddPhraseActivity" />
 
         <!-- Since JCore2.0.0 Required SDK核心功能-->
         <!-- 可配置android:process参数将Service放在其他进程中；android:enabled属性不能是false -->

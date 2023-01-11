@@ -91,10 +91,12 @@ class HistoryFragment : BaseFragment() {
                 @SuppressLint("SetTextI18n")
                 override fun _onNext(t: HistoryListBean?) {
                     t?.let {
-                        if (t.data.list.isNotEmpty()){
-                            val adapter = HistoryAdapter(t.data.list)
-                            tv_heartbeat.text = t.data.list.size.toString()
-                            rv_history.adapter = adapter
+                        if (t.code==200){
+                            if (t.data.list.isNotEmpty()){
+                                val adapter = HistoryAdapter(t.data.list)
+                                tv_heartbeat.text = t.data.list.size.toString()
+                                rv_history.adapter = adapter
+                            }
                         }
                     }
                 }

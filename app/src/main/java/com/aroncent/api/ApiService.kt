@@ -1,6 +1,7 @@
 package com.aroncent.api
 
 import com.aroncent.base.BaseBean
+import com.aroncent.base.UploadBean
 import com.aroncent.module.history.HistoryListBean
 import com.aroncent.module.home.MorseCodeListBean
 import com.aroncent.module.login.CountryListBean
@@ -95,7 +96,7 @@ interface ApiService {
     /**上传文件**/
     @Multipart
     @POST("api/Common/upload")
-    fun upload(@Part list : List<MultipartBody.Part>) : Observable<BaseBean>
+    fun upload(@Part list : List<MultipartBody.Part>) : Observable<UploadBean>
 
     /**修改个人头像**/
     @FormUrlEncoded
@@ -136,4 +137,14 @@ interface ApiService {
     @FormUrlEncoded
     @POST("addons/litestore/api.usersettings/setequipment")
     fun setEquipment(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
+
+    /**上传及设置个人介绍视频**/
+    @FormUrlEncoded
+    @POST("api/user/setmyvideo")
+    fun setMyVideo(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
+
+    /**获取用户个人视频介绍**/
+    @FormUrlEncoded
+    @POST("api/user/getvideo")
+    fun getVideo(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
 }

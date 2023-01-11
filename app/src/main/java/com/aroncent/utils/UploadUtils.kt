@@ -2,6 +2,7 @@ package com.aroncent.utils
 
 import com.aroncent.base.BaseBean
 import com.aroncent.base.RxSubscriber
+import com.aroncent.base.UploadBean
 import com.ltwoo.estep.api.RetrofitManager
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -12,7 +13,7 @@ import java.io.File
 
 object UploadUtils {
     //单文件上传
-    fun uploadFile(file: File, callback: RxSubscriber<BaseBean>) {
+    fun uploadFile(file: File, callback: RxSubscriber<UploadBean>) {
         val builder = MultipartBody.Builder()
         builder.setType(MultipartBody.FORM)
 
