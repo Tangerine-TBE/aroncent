@@ -1,8 +1,11 @@
 package com.aroncent.module.mine
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.view.View
+import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.aroncent.R
 import com.aroncent.app.KVKey
@@ -17,12 +20,16 @@ import com.aroncent.module.login.LoginActivity
 import com.aroncent.module.phrase.AddPhraseActivity
 import com.aroncent.module.shake_flash_settings.ShakeFlashSettingActivity
 import com.aroncent.utils.UploadUtils
+import com.aroncent.utils.hasPermission
+import com.aroncent.utils.isAndroid12
 import com.aroncent.utils.showToast
 import com.blankj.utilcode.util.ActivityUtils
 import com.blankj.utilcode.util.ClickUtils
 import com.bumptech.glide.Glide
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
+import com.kongzue.dialogx.dialogs.CustomDialog
+import com.kongzue.dialogx.interfaces.OnBindView
 import com.ltwoo.estep.api.RetrofitManager
 import com.luck.picture.lib.basic.PictureSelector
 import com.luck.picture.lib.config.SelectMimeType
@@ -138,11 +145,35 @@ class MineFragment : BaseFragment() {
     override fun lazyLoad() {
     }
 
+
+
     override fun initListener() {
         tv_logout.setOnClickListener {
-            MMKV.defaultMMKV().clearAll()
-            ActivityUtils.finishAllActivities()
-            startActivity(Intent(requireContext(), LoginActivity::class.java))
+                CustomDialog
+                    .build()
+                    .setMaskColor(requireContext().getColor(R.color.dialogMaskColor))
+                    .setCustomView(object : OnBindView<CustomDialog>(R.layout.dialog_tips) {
+                        override fun onBind(dialog: CustomDialog?, v: View?) {
+                            v!!.let {
+                                val tip = v.findViewById<TextView>(R.id.tv_tip)
+                                tip.text = "Are you sure to exit?"
+                                val confirm = v.findViewById<TextView>(R.id.tv_confirm)
+                                val cancel = v.findViewById<TextView>(R.id.tv_cancel)
+                                cancel.setOnClickListener {
+                                    dialog!!.dismiss()
+                                }
+                                confirm.setOnClickListener {
+                                    dialog!!.dismiss()
+                                    MMKV.defaultMMKV().clearAll()
+                                    ActivityUtils.finishAllActivities()
+                                    startActivity(Intent(requireContext(), LoginActivity::class.java))
+                                }
+                            }
+                        }
+                    })
+                    .setCancelable(false)
+                    .show()
+
         }
     }
 }

@@ -22,6 +22,7 @@ import com.aroncent.ble.*
 import com.aroncent.event.ConnectStatusEvent
 import com.aroncent.event.GetHistoryEvent
 import com.aroncent.event.ReadMsgEvent
+import com.aroncent.jpush.PushInfoType
 import com.aroncent.module.history.HistoryFragment
 import com.aroncent.module.home.BindPartnerFragment
 import com.aroncent.module.home.HomeFragment
@@ -299,7 +300,7 @@ class MainActivity : BaseActivity() {
             override fun onScanFinished(scanResult: BleDevice?) {
                 if (scanResult==null){
                     connectDeviceDialog!!.dismiss()
-                    showDisconnectDialog()
+//                    showDisconnectDialog()
                 }
             }
         })
@@ -344,7 +345,7 @@ class MainActivity : BaseActivity() {
     }
 
     private fun sendMorseCode(instructions:String){
-        RetrofitManager.service.sendMorseCode(hashMapOf("morsecode" to instructions))
+        RetrofitManager.service.sendMorseCode(hashMapOf("morsecode" to instructions,"infotype" to PushInfoType.Bracelet))
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : RxSubscriber<BaseBean?>(this, false) {

@@ -22,10 +22,10 @@
             android:layout_marginStart="@dimen/dp_12"
             android:layout_marginTop="@dimen/dp_12"
             android:layout_marginEnd="@dimen/dp_12"
-            tools:text="• ▬ • ▬ • • ▬ ▬ ▬ "
             android:textColor="#D2B6FE"
             android:textSize="@dimen/sp_18"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:text="• ▬ • ▬ • • ▬ ▬ ▬ " />
 
         <TextView
             android:id="@+id/tv_content"
@@ -34,10 +34,10 @@
             android:layout_marginStart="@dimen/dp_12"
             android:layout_marginTop="@dimen/dp_12"
             android:layout_marginEnd="@dimen/dp_12"
-            tools:text="Hello, SallyHello, SallyHello, SallyHello, SallyHello, SallyHello, Sally"
             android:textColor="@color/white"
             android:textSize="@dimen/sp_12"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:text="Hello, SallyHello, SallyHello, SallyHello, SallyHello, SallyHello, Sally" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -47,10 +47,16 @@
             android:layout_marginEnd="@dimen/dp_12"
             android:layout_marginBottom="@dimen/dp_12">
 
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
             <TextView
                 android:id="@+id/tv_send"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/dp_12"
                 android:layout_weight="1"
                 android:background="@drawable/phrase_btn_bg"
                 android:gravity="center"
@@ -64,8 +70,6 @@
                 android:id="@+id/tv_edit"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/dp_12"
-                android:layout_marginEnd="@dimen/dp_12"
                 android:layout_weight="1"
                 android:background="@drawable/phrase_btn_bg"
                 android:gravity="center"
@@ -79,6 +83,7 @@
                 android:id="@+id/tv_light"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_12"
                 android:layout_weight="1"
                 android:background="@drawable/phrase_btn_bg"
                 android:gravity="center"
@@ -86,7 +91,8 @@
                 android:paddingBottom="@dimen/dp_4"
                 android:text="Light"
                 android:textColor="@color/white"
-                android:textSize="@dimen/sp_12" />
+                android:textSize="@dimen/sp_12"
+                android:visibility="gone" />
         </LinearLayout>
 
     </LinearLayout>

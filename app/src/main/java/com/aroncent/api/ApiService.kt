@@ -4,6 +4,8 @@ import com.aroncent.base.BaseBean
 import com.aroncent.base.UploadBean
 import com.aroncent.module.history.HistoryListBean
 import com.aroncent.module.home.MorseCodeListBean
+import com.aroncent.module.home.SendPhraseBean
+import com.aroncent.module.home.UserPhraseListBean
 import com.aroncent.module.login.CountryListBean
 import com.aroncent.module.login.RequestUserInfoBean
 import com.aroncent.module.main.SettingBean
@@ -60,8 +62,8 @@ interface ApiService {
 
     /**添加摩斯短语**/
     @FormUrlEncoded
-    @POST("addons/litestore/api.userphrase/addssphrase")
-    fun addssphrase(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
+    @POST("addons/litestore/api.userphrase/addphrase")
+    fun addPhrase(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
 
     /**修改摩斯短语**/
     @FormUrlEncoded
@@ -81,7 +83,7 @@ interface ApiService {
     /**使用常用短语方式发送**/
     @FormUrlEncoded
     @POST("addons/litestore/api.Sendphrase/send")
-    fun sendPhrase(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
+    fun sendPhrase(@FieldMap map: HashMap<String, String>) : Observable<SendPhraseBean>
 
     /**使用手环按键摩斯方式发送**/
     @FormUrlEncoded
@@ -147,4 +149,9 @@ interface ApiService {
     @FormUrlEncoded
     @POST("api/user/getvideo")
     fun getVideo(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
+
+    /**获取个人及伙伴定义的摩斯列表**/
+    @FormUrlEncoded
+    @POST("addons/litestore/api.Userphrase/lists")
+    fun getUserPhraseList(@FieldMap map: HashMap<String, String>) : Observable<UserPhraseListBean>
 }

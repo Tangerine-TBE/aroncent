@@ -1,12 +1,20 @@
 package com.aroncent.module.home
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.aroncent.R
+import com.aroncent.base.BaseBean
 import com.aroncent.base.BaseFragment
 import com.aroncent.base.RxSubscriber
 import com.aroncent.event.ConnectStatusEvent
+import com.aroncent.event.GetHistoryEvent
+import com.aroncent.event.GetUserPhraseEvent
+import com.aroncent.jpush.PushInfoType
+import com.aroncent.module.phrase.EditPhraseActivity
+import com.aroncent.utils.showToast
+import com.blankj.utilcode.util.ClickUtils
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.ltwoo.estep.api.RetrofitManager
@@ -29,10 +37,14 @@ class HomeFragment : BaseFragment() {
     fun onReceiveMsg(msg: ConnectStatusEvent) {
         tv_connected.visibility = if (msg.type == 1) View.VISIBLE else View.GONE
     }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onReceiveMsg(msg: GetUserPhraseEvent) {
+        getUserPhraseList()
+    }
     override fun initView() {
         EventBus.getDefault().register(this)
         rv_phrase.layoutManager = LinearLayoutManager(requireContext())
-        getMorseCodeList()
+        getUserPhraseList()
     }
 
     override fun onDestroy() {
@@ -40,18 +52,33 @@ class HomeFragment : BaseFragment() {
         EventBus.getDefault().unregister(this)
     }
 
-    inner class PhraseAdapter(data: MutableList<MorseCodeListBean.DataBean>) :
-        BaseQuickAdapter<MorseCodeListBean.DataBean, BaseViewHolder>(R.layout.item_phrase_model, data) {
-        override fun convert(helper: BaseViewHolder, item: MorseCodeListBean.DataBean) {
+    inner class PhraseAdapter(data: MutableList<UserPhraseListBean.DataBean>) :
+        BaseQuickAdapter<UserPhraseListBean.DataBean, BaseViewHolder>(R.layout.item_phrase_model, data) {
+        override fun convert(helper: BaseViewHolder, item: UserPhraseListBean.DataBean) {
             val itemView = helper.itemView
-            itemView.tv_content.text = item.code
-            itemView.tv_morse_code.text = "•一•一••一一一"
-
-            itemView.tv_send.setOnClickListener {
-
+            itemView.tv_content.text = item.content
+            var code = ""
+            if (item.shake != null) {
+                item.shake.forEach {
+                    if (it.toString() == "0") {
+                        code = "$code•"
+                    }
+                    if (it.toString() == "1") {
+                        code += "一"
+                    }
+                }
             }
-            itemView.tv_edit.setOnClickListener {
+            itemView.tv_morse_code.text = code
 
+            ClickUtils.applySingleDebouncing(itemView.tv_send,500){
+                sendPhrase(item.id)
+            }
+
+            itemView.tv_edit.setOnClickListener {
+                startActivity(Intent(requireContext(), EditPhraseActivity::class.java)
+                    .putExtra("id",item.id.toString())
+                    .putExtra("content",item.content)
+                )
             }
             itemView.tv_light.setOnClickListener {
 
@@ -59,12 +86,14 @@ class HomeFragment : BaseFragment() {
         }
     }
 
-
-    private fun getMorseCodeList() {
-        RetrofitManager.service.getMorseCodeList(hashMapOf())
+    private fun sendPhrase(id:Int){
+        val map = hashMapOf<String,String>()
+        map["id"] = id.toString()
+        map["infotype"] = PushInfoType.App
+        RetrofitManager.service.sendPhrase(map)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : RxSubscriber<MorseCodeListBean?>(requireContext(), false) {
+            .subscribe(object : RxSubscriber<SendPhraseBean?>(requireContext(), false) {
                 override fun _onError(message: String?) {
                 }
 
@@ -73,11 +102,36 @@ class HomeFragment : BaseFragment() {
                 }
 
                 @SuppressLint("SetTextI18n")
-                override fun _onNext(t: MorseCodeListBean?) {
-                        if (t!!.data.isNotEmpty()) {
-                            val adapter = PhraseAdapter(t.data)
-                            rv_phrase.adapter = adapter
-                        }
+                override fun _onNext(t: SendPhraseBean?) {
+                    if (t!!.code == 200) {
+                        showToast("Success")
+                        EventBus.getDefault().post(GetHistoryEvent()) //刷新历史记录
+                    }
+                }
+            })
+    }
+
+    private fun getUserPhraseList() {
+        RetrofitManager.service.getUserPhraseList(hashMapOf())
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : RxSubscriber<UserPhraseListBean?>(requireContext(), false) {
+                override fun _onError(message: String?) {
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                @SuppressLint("SetTextI18n")
+                override fun _onNext(t: UserPhraseListBean?) {
+                    if (t!!.code == 200) {
+                        val adapter = PhraseAdapter(t.data)
+                        rv_phrase.adapter = adapter
+                    } else {
+                        val adapter = PhraseAdapter(mutableListOf())
+                        rv_phrase.adapter = adapter
+                    }
                 }
             })
     }

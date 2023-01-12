@@ -5,8 +5,18 @@
     android:layout_height="match_parent"
     android:background="@drawable/app_bg"
     android:orientation="vertical">
-
-    <include layout="@layout/top_bar" />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <include layout="@layout/top_bar" />
+        <ImageView
+            android:id="@+id/iv_del_phrase"
+            android:layout_width="wrap_content"
+            android:src="@drawable/phrase_del"
+            android:layout_gravity="center|end"
+            android:layout_marginEnd="@dimen/dp_12"
+            android:layout_height="wrap_content"/>
+    </FrameLayout>
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">

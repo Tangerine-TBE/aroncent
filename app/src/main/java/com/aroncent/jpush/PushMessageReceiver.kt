@@ -24,41 +24,63 @@ class PushMessageReceiver : JPushMessageReceiver() {
         context.sendBroadcast(intent)
         //这里有两种类型的指令，01和03,03指令的需要转换成01的指令
         val type = ""
-        if (type == "03"){
-            val str = customMessage.message
-            //示例： A5 AA AC 00 03 04 00 C5 CC CA  收到的03指令需要转01指令
-            val length = addZeroForNum((str.substring(10,12).toInt(16)*3).toString(16).uppercase(),2)
-            val content = str.substring(12,str.length-6)
-            var morseData = ""
-            BleTool.getInstructStringArray(content).forEach {
-                val char = toBinary(it!!,8).reversed()
-                morseData += char
-            }
+        when (type){
+               PushInfoType.Bracelet->{
+                   val str = customMessage.message
+                   //示例： A5 AA AC 00 03 04 00 C5 CC CA  收到的03指令需要转01指令
+                   val length = addZeroForNum((str.substring(10,12).toInt(16)*3).toString(16).uppercase(),2)
+                   val content = str.substring(12,str.length-6)
+                   var morseData = ""
+                   BleTool.getInstructStringArray(content).forEach {
+                       val char = toBinary(it!!,8).reversed()
+                       morseData += char
+                   }
 
-            morseData = morseData.substring(0,length.toInt(16))
-            //这里得到摩斯密码表示的长按和短按 eg: 010100
-            Log.e("morseData",morseData.substring(0,length.toInt(16)))
+                   morseData = morseData.substring(0,length.toInt(16))
+                   //这里得到摩斯密码表示的长按和短按 eg: 010100
+                   Log.e("morseData",morseData.substring(0,length.toInt(16)))
 
-            //组装01指令的数据域
-            var instructData = ""
-            morseData.forEach {
-                instructData += if (it.toString()=="0"){
-                    getShortPressHex()
-                }else{
-                    getLongPressHex()
+                   //组装01指令的数据域
+                   var instructData = ""
+                   morseData.forEach {
+                       instructData += if (it.toString()=="0"){
+                           getShortPressHex()
+                       }else{
+                           getLongPressHex()
+                       }
+                   }
+                   //帧数长度
+                   val frame_length = addZeroForNum((instructData.length/8).toString(16),2).uppercase()
+                   val instruct = "A5AAAC" +
+                           BleTool.getXOR("01$frame_length" + DeviceConfig.loop_number + instructData) +
+                           "01$frame_length" + DeviceConfig.loop_number + instructData + "C5CCCA"
+
+                   Log.e("03指令转成01指令：",instruct)
+                   BleTool.sendInstruct(instruct)
+               }
+            PushInfoType.App->{
+                val morseData = ""
+                //这里得到摩斯密码表示的长按和短按 eg: 010100
+                Log.e("morseData",morseData)
+
+                //组装01指令的数据域
+                var instructData = ""
+                morseData.forEach {
+                    instructData += if (it.toString()=="0"){
+                        getShortPressHex()
+                    }else{
+                        getLongPressHex()
+                    }
                 }
-            }
-            //帧数长度
-            val frame_length = addZeroForNum((instructData.length/8).toString(16),2).uppercase()
-            val instruct = "A5AAAC" +
-                    BleTool.getXOR("01$frame_length" + DeviceConfig.loop_number + instructData) +
-                    "01$frame_length" + DeviceConfig.loop_number + instructData + "C5CCCA"
+                //帧数长度
+                val frame_length = addZeroForNum((instructData.length/8).toString(16),2).uppercase()
+                val instruct = "A5AAAC" +
+                        BleTool.getXOR("01$frame_length" + DeviceConfig.loop_number + instructData) +
+                        "01$frame_length" + DeviceConfig.loop_number + instructData + "C5CCCA"
 
-            Log.e("03指令转成01指令：",instruct)
-            BleTool.sendInstruct(instruct)
-        }else{
-            //01指令则直接发送
-            BleTool.sendInstruct(customMessage.message)
+                Log.e("摩斯短语转01指令：",instruct)
+                BleTool.sendInstruct(instruct)
+            }
         }
         //标记消息已读
         EventBus.getDefault().post(ReadMsgEvent(0))

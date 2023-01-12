@@ -1,32 +1,40 @@
 package com.aroncent.module.phrase
 
 import android.annotation.SuppressLint
-import android.util.Log
+import android.content.Intent
+import android.view.View
+import android.widget.TextView
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.recyclerview.widget.GridLayoutManager
 import com.aroncent.R
 import com.aroncent.base.BaseBean
 import com.aroncent.base.RxSubscriber
 import com.aroncent.event.GetUserPhraseEvent
 import com.aroncent.module.home.MorseCodeListBean
+import com.aroncent.module.login.LoginActivity
 import com.aroncent.utils.showToast
+import com.blankj.utilcode.util.ActivityUtils
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
+import com.kongzue.dialogx.dialogs.CustomDialog
+import com.kongzue.dialogx.interfaces.OnBindView
 import com.ltwoo.estep.api.RetrofitManager
+import com.tencent.mmkv.MMKV
 import com.xlitebt.base.BaseActivity
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
-import kotlinx.android.synthetic.main.act_add_phrase.*
+import kotlinx.android.synthetic.main.act_edit_phrase.*
 import kotlinx.android.synthetic.main.item_morse_code.view.*
 import kotlinx.android.synthetic.main.item_select_morse_code.view.*
 import org.greenrobot.eventbus.EventBus
 
-class AddPhraseActivity : BaseActivity() {
+class EditPhraseActivity : BaseActivity() {
 
     val selectCode = arrayListOf<MorseCodeListBean.DataBean>()
     val selectCodeArray = arrayListOf<MorseCodeListBean.DataBean>()
     override fun layoutId(): Int {
-        return R.layout.act_add_phrase
+        return R.layout.act_edit_phrase
     }
 
     override fun initData() {
@@ -40,11 +48,36 @@ class AddPhraseActivity : BaseActivity() {
     }
 
     override fun initView() {
+        et_content.setText(intent.getStringExtra("content")?:"")
     }
 
     override fun initListener() {
         tv_save.setOnClickListener {
-            addPhrase()
+            editPhrase()
+        }
+        iv_del_phrase.setOnClickListener {
+            CustomDialog
+                .build()
+                .setMaskColor(getColor(R.color.dialogMaskColor))
+                .setCustomView(object : OnBindView<CustomDialog>(R.layout.dialog_tips) {
+                    override fun onBind(dialog: CustomDialog?, v: View?) {
+                        v!!.let {
+                            val tip = v.findViewById<TextView>(R.id.tv_tip)
+                            tip.text = "Are you sure to delete?"
+                            val confirm = v.findViewById<TextView>(R.id.tv_confirm)
+                            val cancel = v.findViewById<TextView>(R.id.tv_cancel)
+                            cancel.setOnClickListener {
+                                dialog!!.dismiss()
+                            }
+                            confirm.setOnClickListener {
+                                dialog!!.dismiss()
+                                delPhrase()
+                            }
+                        }
+                    }
+                })
+                .setCancelable(false)
+                .show()
         }
         iv_del_code.setOnClickListener {
             if (selectCode.isNotEmpty()){
@@ -135,7 +168,7 @@ class AddPhraseActivity : BaseActivity() {
             })
     }
 
-    private fun addPhrase(){
+    private fun editPhrase(){
         if (et_content.text.toString()==""){
             showToast("Please enter content")
             return
@@ -156,9 +189,34 @@ class AddPhraseActivity : BaseActivity() {
             }
         }
         val map = hashMapOf<String,String>()
+        map["id"] = intent.getStringExtra("id")!!
         map["content"] = et_content.text.toString()
         map["shake"] = shake.substring(1)
-        RetrofitManager.service.addPhrase(map)
+        RetrofitManager.service.editphrase(map)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : RxSubscriber<BaseBean?>(this, true) {
+                override fun _onError(message: String?) {
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                @SuppressLint("SetTextI18n")
+                override fun _onNext(t: BaseBean?) {
+                    if (t!!.code==200) {
+                        EventBus.getDefault().post(GetUserPhraseEvent())
+                        showToast("Success")
+                        finish()
+                    }
+                }
+            })
+    }
+    private fun delPhrase(){
+        val map = hashMapOf<String,String>()
+        map["id"] = intent.getStringExtra("id")!!
+        RetrofitManager.service.deletephrase(map)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : RxSubscriber<BaseBean?>(this, true) {
