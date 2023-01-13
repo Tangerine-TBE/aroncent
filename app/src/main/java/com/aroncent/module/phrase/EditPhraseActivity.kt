@@ -76,7 +76,6 @@ class EditPhraseActivity : BaseActivity() {
                         }
                     }
                 })
-                .setCancelable(false)
                 .show()
         }
         iv_del_code.setOnClickListener {

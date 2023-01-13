@@ -17,6 +17,7 @@ import com.aroncent.module.history.HistoryFragment
 import com.aroncent.module.history.HistoryListBean
 import com.aroncent.module.light_color.LightColorActivity
 import com.aroncent.module.login.LoginActivity
+import com.aroncent.module.main.MainActivity
 import com.aroncent.module.phrase.AddPhraseActivity
 import com.aroncent.module.shake_flash_settings.ShakeFlashSettingActivity
 import com.aroncent.utils.UploadUtils
@@ -64,7 +65,8 @@ class MineFragment : BaseFragment() {
                 MenuBean(3, "My Morsecode Templates Settings"),
                 MenuBean(4, "Bind My Facebook Account"),
                 MenuBean(5, "Do not disturb"),
-                MenuBean(6, "Upload My Video")
+                MenuBean(6, "Upload My Video"),
+                MenuBean(7, "Unbind your partner"),
             )
         )
     }
@@ -115,10 +117,34 @@ class MineFragment : BaseFragment() {
                                 }
                             })
                     }
+                    7->{
+                        CustomDialog
+                            .build()
+                            .setMaskColor(requireContext().getColor(R.color.dialogMaskColor))
+                            .setCustomView(object : OnBindView<CustomDialog>(R.layout.dialog_tips) {
+                                override fun onBind(dialog: CustomDialog?, v: View?) {
+                                    v!!.let {
+                                        val tip = v.findViewById<TextView>(R.id.tv_tip)
+                                        tip.text = "Unbind your partner?"
+                                        val confirm = v.findViewById<TextView>(R.id.tv_confirm)
+                                        val cancel = v.findViewById<TextView>(R.id.tv_cancel)
+                                        cancel.setOnClickListener {
+                                            dialog!!.dismiss()
+                                        }
+                                        confirm.setOnClickListener {
+                                            dialog!!.dismiss()
+                                            unbind()
+                                        }
+                                    }
+                                }
+                            })
+                            .show()
+                    }
                 }
             }
         }
     }
+
 
     private fun setMyVideo(url:String){
         RetrofitManager.service.setMyVideo(hashMapOf("videopath" to url))
@@ -137,6 +163,31 @@ class MineFragment : BaseFragment() {
                 override fun _onNext(t: BaseBean?) {
                     t?.let {
 
+                    }
+                }
+            })
+    }
+    private fun unbind(){
+        RetrofitManager.service.deletepanter(hashMapOf())
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : RxSubscriber<BaseBean?>(requireContext(), true) {
+                override fun _onError(message: String?) {
+
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                @SuppressLint("SetTextI18n")
+                override fun _onNext(t: BaseBean?) {
+                    t?.let {
+                        if (t.code==200){
+                            showToast("Success")
+                            ActivityUtils.finishAllActivities()
+                            startActivity(Intent(requireContext(), MainActivity::class.java))
+                        }
                     }
                 }
             })
@@ -171,7 +222,6 @@ class MineFragment : BaseFragment() {
                             }
                         }
                     })
-                    .setCancelable(false)
                     .show()
 
         }

@@ -18,7 +18,10 @@ import com.aroncent.R
 import com.aroncent.app.KVKey
 import com.aroncent.base.BaseBean
 import com.aroncent.base.RxSubscriber
-import com.aroncent.ble.*
+import com.aroncent.ble.BleAnswerEvent
+import com.aroncent.ble.BleDefinedUUIDs
+import com.aroncent.ble.BleTool
+import com.aroncent.ble.ByteTransformUtil
 import com.aroncent.event.ConnectStatusEvent
 import com.aroncent.event.GetHistoryEvent
 import com.aroncent.event.ReadMsgEvent
@@ -30,10 +33,7 @@ import com.aroncent.module.login.LoginActivity
 import com.aroncent.module.login.RequestUserInfoBean
 import com.aroncent.module.mine.MineFragment
 import com.aroncent.utils.*
-import com.blankj.utilcode.util.ClickUtils
-import com.blankj.utilcode.util.LogUtils
-import com.blankj.utilcode.util.ThreadUtils
-import com.blankj.utilcode.util.ViewUtils
+import com.blankj.utilcode.util.*
 import com.bumptech.glide.Glide
 import com.clj.fastble.BleManager
 import com.clj.fastble.callback.BleNotifyCallback
@@ -41,11 +41,7 @@ import com.clj.fastble.callback.BleScanAndConnectCallback
 import com.clj.fastble.data.BleDevice
 import com.clj.fastble.exception.BleException
 import com.clj.fastble.scan.BleScanRuleConfig
-import com.kongzue.dialogx.DialogX
-import com.kongzue.dialogx.dialogs.BottomDialog
 import com.kongzue.dialogx.dialogs.CustomDialog
-import com.kongzue.dialogx.dialogs.WaitDialog
-import com.kongzue.dialogx.interfaces.DialogXStyle
 import com.kongzue.dialogx.interfaces.OnBindView
 import com.ltwoo.estep.api.RetrofitManager
 import com.tencent.mmkv.MMKV
@@ -74,7 +70,7 @@ class MainActivity : BaseActivity() {
                 //打开蓝牙
                 enableBluetooth.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
             } else {
-                showToast(getString(com.aroncent.R.string.android_12_ble_permission_hint))
+                showToast(getString(R.string.android_12_ble_permission_hint))
                 finish()
             }
         }
@@ -90,7 +86,7 @@ class MainActivity : BaseActivity() {
                     connectBle()
                 }
             } else {
-                showToast(getString(com.aroncent.R.string.android_12_ble_permission_hint))
+                showToast(getString(R.string.android_12_ble_permission_hint))
                 finish()
             }
         }
@@ -114,7 +110,7 @@ class MainActivity : BaseActivity() {
                     }
                 }
             } else {
-                showToast(getString(com.aroncent.R.string.enable_bluetooth_hint))
+                showToast(getString(R.string.enable_bluetooth_hint))
                 finish()
             }
         }
@@ -125,12 +121,12 @@ class MainActivity : BaseActivity() {
             //扫描蓝牙
             connectBle()
         } else {
-            showToast(getString(com.aroncent.R.string.opening_location_permission))
+            showToast(getString(R.string.opening_location_permission))
             finish()
         }
     }
     override fun layoutId(): Int {
-        return  com.aroncent.R.layout.activity_main
+        return  R.layout.activity_main
     }
 
 
@@ -143,17 +139,17 @@ class MainActivity : BaseActivity() {
     }
     fun resetBg() {
         Glide.with(this)
-            .load(com.aroncent.R.drawable.tab_home)
+            .load(R.drawable.tab_home)
             .into(iv_main_tab_1)
         Glide.with(this)
-            .load(com.aroncent.R.drawable.tab_history)
+            .load(R.drawable.tab_history)
             .into(iv_main_tab_2)
         Glide.with(this)
-            .load(com.aroncent.R.drawable.tab_my)
+            .load(R.drawable.tab_my)
             .into(iv_main_tab_3)
-        tv_tab_1.setTextColor(ContextCompat.getColor(this, com.aroncent.R.color.tabTextNormal))
-        tv_tab_2.setTextColor(ContextCompat.getColor(this, com.aroncent.R.color.tabTextNormal))
-        tv_tab_3.setTextColor(ContextCompat.getColor(this, com.aroncent.R.color.tabTextNormal))
+        tv_tab_1.setTextColor(ContextCompat.getColor(this, R.color.tabTextNormal))
+        tv_tab_2.setTextColor(ContextCompat.getColor(this, R.color.tabTextNormal))
+        tv_tab_3.setTextColor(ContextCompat.getColor(this, R.color.tabTextNormal))
     }
     private fun setSelect(i: Int) {
         resetBg()
@@ -250,7 +246,7 @@ class MainActivity : BaseActivity() {
             override fun onConnectFail(bleDevice: BleDevice?, exception: BleException?) {
                 Log.e(TAG, "onConnectFail"+exception.toString())
                 connectDeviceDialog!!.dismiss()
-                showToast(getString(com.aroncent.R.string.connect_fail))
+                showToast(getString(R.string.connect_fail))
                 BleTool.mBleDevice = null
             }
 
@@ -272,7 +268,7 @@ class MainActivity : BaseActivity() {
             ) {
                 Log.e(TAG, "onDisConnected")
                 EventBus.getDefault().post(ConnectStatusEvent(0))
-                showToast(getString(com.aroncent.R.string.device_disconnected))
+                showToast(getString(R.string.device_disconnected))
                 showDisconnectDialog()
             }
 
@@ -529,6 +525,7 @@ class MainActivity : BaseActivity() {
                 override fun _onNext(t: BaseBean?) {
                     t?.let {
                         showToast(t.msg)
+                        mTab1 = HomeFragment()
                     }
                 }
             })

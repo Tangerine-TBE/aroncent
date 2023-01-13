@@ -154,4 +154,9 @@ interface ApiService {
     @FormUrlEncoded
     @POST("addons/litestore/api.Userphrase/lists")
     fun getUserPhraseList(@FieldMap map: HashMap<String, String>) : Observable<UserPhraseListBean>
+
+    /**解绑情侣**/
+    @FormUrlEncoded
+    @POST("addons/litestore/api.partner/deletepanter")
+    fun deletepanter(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
 }
