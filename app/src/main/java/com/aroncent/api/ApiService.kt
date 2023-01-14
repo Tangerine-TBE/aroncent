@@ -155,8 +155,13 @@ interface ApiService {
     @POST("addons/litestore/api.Userphrase/lists")
     fun getUserPhraseList(@FieldMap map: HashMap<String, String>) : Observable<UserPhraseListBean>
 
-    /**解绑情侣**/
+    /**发起解绑情侣帐号请求(对方判断解绑请求状态为partnerstatus=5**/
     @FormUrlEncoded
     @POST("addons/litestore/api.partner/deletepanter")
     fun deletepanter(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
+
+    /**解绑对方发起帐号审核**/
+    @FormUrlEncoded
+    @POST("addons/litestore/api.partner/deleteconfirm")
+    fun deletePartnerConfirm(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
 }

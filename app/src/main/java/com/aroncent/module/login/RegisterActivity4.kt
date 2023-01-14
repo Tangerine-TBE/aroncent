@@ -2,6 +2,7 @@ package com.aroncent.module.login
 
 import android.annotation.SuppressLint
 import android.widget.RadioButton
+import cn.jpush.android.api.JPushInterface
 import com.aroncent.R
 import com.aroncent.base.RxSubscriber
 import com.aroncent.module.main.MainActivity
@@ -59,6 +60,7 @@ class RegisterActivity4 : BaseActivity() {
         map["age"] = et_age.text.toString()
         map["country"] = countryId
         map["password"] = et_password.text.toString()
+        map["pushId"] = JPushInterface.getRegistrationID(this)
         RetrofitManager.service.register(map)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())

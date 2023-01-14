@@ -34,6 +34,10 @@ android {
                 XIAOMI_APPKEY : "MI-小米的APPKEY",
         ]
     }
+    packagingOptions {
+        doNotStrip '*/mips/*.so'
+        doNotStrip '*/mips64/*.so'
+    }
     signingConfigs {
         debug{
             storeFile file("../xlite.jks")

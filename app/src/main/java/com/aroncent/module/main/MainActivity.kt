@@ -11,6 +11,7 @@ import android.view.Gravity
 import android.view.View
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
@@ -133,7 +134,6 @@ class MainActivity : BaseActivity() {
     override fun initData() {
         if (getUserToken()!=""){
             getPartnerRequest()
-            getSettings()
             getUserInfo()
         }
     }
@@ -503,6 +503,33 @@ class MainActivity : BaseActivity() {
                         if (t.code == 200) {
                             if (t.data!=null){
                                setUserInfoToSp(t.data.userInfo)
+                                if (t.data.userInfo.partnerstatus == "5"){
+                                    CustomDialog
+                                        .build()
+                                        .setMaskColor(getColor(R.color.dialogMaskColor))
+                                        .setCustomView(object : OnBindView<CustomDialog>(R.layout.dialog_tips) {
+                                            override fun onBind(dialog: CustomDialog?, v: View?) {
+                                                v!!.let {
+                                                    val tip = v.findViewById<TextView>(R.id.tv_tip)
+                                                    tip.text = "The other party wants to unbind you!"
+                                                    val confirm = v.findViewById<TextView>(R.id.tv_confirm)
+                                                    val cancel = v.findViewById<TextView>(R.id.tv_cancel)
+                                                    cancel.setOnClickListener {
+                                                        dialog!!.dismiss()
+                                                    }
+                                                    confirm.setOnClickListener {
+                                                        dialog!!.dismiss()
+                                                        confirmDelPartner()
+                                                    }
+                                                }
+                                            }
+                                        })
+                                        .setCancelable(false)
+                                        .show()
+                                }else{
+                                    //获取用户设置
+                                    getSettings()
+                                }
                             }
                         }
                     }
@@ -526,6 +553,27 @@ class MainActivity : BaseActivity() {
                     t?.let {
                         showToast(t.msg)
                         mTab1 = HomeFragment()
+                    }
+                }
+            })
+    }
+
+    private fun confirmDelPartner(){
+        RetrofitManager.service.deletePartnerConfirm(hashMapOf())
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : RxSubscriber<BaseBean?>(this, true) {
+                override fun _onError(message: String?) {
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                @SuppressLint("SetTextI18n")
+                override fun _onNext(t: BaseBean?) {
+                    t?.let {
+                        showToast(t.msg)
                     }
                 }
             })
