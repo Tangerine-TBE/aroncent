@@ -12,6 +12,7 @@ import com.aroncent.ble.BleTool
 import com.aroncent.ble.DeviceConfig
 import com.aroncent.event.ReadMsgEvent
 import com.aroncent.utils.*
+import com.blankj.utilcode.util.GsonUtils
 import org.greenrobot.eventbus.EventBus
 
 class PushMessageReceiver : JPushMessageReceiver() {
@@ -22,11 +23,11 @@ class PushMessageReceiver : JPushMessageReceiver() {
         val intent = Intent("com.jiguang.demo.message")
         intent.putExtra("msg", customMessage.message)
         context.sendBroadcast(intent)
+        val msgData = GsonUtils.fromJson(customMessage.extra,PushMsgBean::class.java)
         //这里有两种类型的指令，01和03,03指令的需要转换成01的指令
-        val type = ""
-        when (type){
+        when (msgData.key.infotype){
                PushInfoType.Bracelet->{
-                   val str = customMessage.message
+                   val str = msgData.key.morsecode
                    //示例： A5 AA AC 00 03 04 00 C5 CC CA  收到的03指令需要转01指令
                    val length = addZeroForNum((str.substring(10,12).toInt(16)*3).toString(16).uppercase(),2)
                    val content = str.substring(12,str.length-6)
@@ -59,7 +60,7 @@ class PushMessageReceiver : JPushMessageReceiver() {
                    BleTool.sendInstruct(instruct)
                }
             PushInfoType.App->{
-                val morseData = ""
+                val morseData = msgData.key.morsecode.replace(",","")
                 //这里得到摩斯密码表示的长按和短按 eg: 010100
                 Log.e("morseData",morseData)
 
@@ -83,7 +84,7 @@ class PushMessageReceiver : JPushMessageReceiver() {
             }
         }
         //标记消息已读
-        EventBus.getDefault().post(ReadMsgEvent(0))
+        EventBus.getDefault().post(ReadMsgEvent(msgData.key.infoid))
     }
     override fun onNotifyMessageOpened(context: Context, message: NotificationMessage) {
         Log.e(TAG, "[onNotifyMessageOpened] $message")

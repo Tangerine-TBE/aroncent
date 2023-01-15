@@ -1,9 +1,9 @@
 package com.aroncent.event;
 
 public class ReadMsgEvent {
-    public int msgId;
+    public String msgId;
 
-    public ReadMsgEvent(int msgId) {
+    public ReadMsgEvent(String msgId) {
         this.msgId = msgId;
     }
 }

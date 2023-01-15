@@ -27,6 +27,7 @@ import com.aroncent.event.ConnectStatusEvent
 import com.aroncent.event.GetHistoryEvent
 import com.aroncent.event.ReadMsgEvent
 import com.aroncent.jpush.PushInfoType
+import com.aroncent.jpush.PushMsgBean
 import com.aroncent.module.history.HistoryFragment
 import com.aroncent.module.home.BindPartnerFragment
 import com.aroncent.module.home.HomeFragment
@@ -580,8 +581,8 @@ class MainActivity : BaseActivity() {
     }
 
 
-    private fun readMsg(id:Int){
-        RetrofitManager.service.readMsg(hashMapOf("id" to id.toString()))
+    private fun readMsg(id : String){
+        RetrofitManager.service.readMsg(hashMapOf("id" to id))
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : RxSubscriber<BaseBean?>(this, true) {

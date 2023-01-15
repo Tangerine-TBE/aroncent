@@ -40,17 +40,17 @@ android {
     }
     signingConfigs {
         debug{
-            storeFile file("../xlite.jks")
+            storeFile file("../aroncent.jks")
             storePassword "123456"
-            keyAlias "xlite"
+            keyAlias "key0"
             keyPassword "123456"
             v1SigningEnabled true
             v2SigningEnabled true
         }
         release {
-            storeFile file("../xlite.jks")
+            storeFile file("../aroncent.jks")
             storePassword "123456"
-            keyAlias "xlite"
+            keyAlias "key0"
             keyPassword "123456"
             v1SigningEnabled true
             v2SigningEnabled true
