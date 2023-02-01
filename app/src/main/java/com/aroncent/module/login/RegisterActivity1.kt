@@ -5,15 +5,13 @@ import android.content.Intent
 import com.aroncent.R
 import com.aroncent.base.BaseBean
 import com.aroncent.base.RxSubscriber
-import com.blankj.utilcode.util.RegexUtils
-import com.ltwoo.estep.api.RetrofitManager
+import com.aroncent.api.RetrofitManager
 import com.xlitebt.base.BaseActivity
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.act_register_1.*
 import kotlinx.android.synthetic.main.act_register_1.tv_ok
-import kotlinx.android.synthetic.main.act_register_3.*
 
 class RegisterActivity1 : BaseActivity() {
     override fun layoutId(): Int {

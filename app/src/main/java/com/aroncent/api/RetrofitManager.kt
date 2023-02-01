@@ -1,14 +1,8 @@
-package com.ltwoo.estep.api
+package com.aroncent.api
 
 import com.aroncent.AppConfig
-import com.aroncent.api.ApiService
-import com.aroncent.api.LogInterceptor
-import com.aroncent.app.KVKey
 import com.aroncent.app.MyApplication
-import com.aroncent.app.MyApplication.Companion.context
 import com.blankj.utilcode.util.NetworkUtils
-import com.hjq.language.MultiLanguages
-import com.tencent.mmkv.MMKV
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit

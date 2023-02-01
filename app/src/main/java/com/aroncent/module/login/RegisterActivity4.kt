@@ -11,7 +11,7 @@ import com.aroncent.utils.showToast
 import com.aroncent.utils.startActivity
 import com.blankj.utilcode.util.ActivityUtils
 import com.blankj.utilcode.util.RegexUtils
-import com.ltwoo.estep.api.RetrofitManager
+import com.aroncent.api.RetrofitManager
 import com.xlitebt.base.BaseActivity
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
@@ -60,7 +60,8 @@ class RegisterActivity4 : BaseActivity() {
         map["age"] = et_age.text.toString()
         map["country"] = countryId
         map["password"] = et_password.text.toString()
-        map["pushId"] = JPushInterface.getRegistrationID(this)
+        map["jg_pushid"] = JPushInterface.getRegistrationID(this)
+        map["onesignal_pushid"] = JPushInterface.getRegistrationID(this)
         RetrofitManager.service.register(map)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())

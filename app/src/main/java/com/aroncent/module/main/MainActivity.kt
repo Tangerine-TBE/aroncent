@@ -11,7 +11,6 @@ import android.view.Gravity
 import android.view.View
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
@@ -27,7 +26,6 @@ import com.aroncent.event.ConnectStatusEvent
 import com.aroncent.event.GetHistoryEvent
 import com.aroncent.event.ReadMsgEvent
 import com.aroncent.jpush.PushInfoType
-import com.aroncent.jpush.PushMsgBean
 import com.aroncent.module.history.HistoryFragment
 import com.aroncent.module.home.BindPartnerFragment
 import com.aroncent.module.home.HomeFragment
@@ -45,7 +43,7 @@ import com.clj.fastble.exception.BleException
 import com.clj.fastble.scan.BleScanRuleConfig
 import com.kongzue.dialogx.dialogs.CustomDialog
 import com.kongzue.dialogx.interfaces.OnBindView
-import com.ltwoo.estep.api.RetrofitManager
+import com.aroncent.api.RetrofitManager
 import com.tencent.mmkv.MMKV
 import com.xlitebt.base.BaseActivity
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -582,7 +580,7 @@ class MainActivity : BaseActivity() {
 
 
     private fun readMsg(id : String){
-        RetrofitManager.service.readMsg(hashMapOf("id" to id))
+        RetrofitManager.service.readMsg(hashMapOf("sendno" to id))
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : RxSubscriber<BaseBean?>(this, true) {

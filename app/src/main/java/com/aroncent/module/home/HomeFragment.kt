@@ -5,7 +5,6 @@ import android.content.Intent
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.aroncent.R
-import com.aroncent.base.BaseBean
 import com.aroncent.base.BaseFragment
 import com.aroncent.base.RxSubscriber
 import com.aroncent.event.ConnectStatusEvent
@@ -17,7 +16,7 @@ import com.aroncent.utils.showToast
 import com.blankj.utilcode.util.ClickUtils
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
-import com.ltwoo.estep.api.RetrofitManager
+import com.aroncent.api.RetrofitManager
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers

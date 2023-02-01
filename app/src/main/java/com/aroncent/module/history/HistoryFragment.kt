@@ -12,12 +12,17 @@ import com.aroncent.event.GetHistoryEvent
 import com.chad.library.adapter.base.BaseMultiItemQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.clj.fastble.BleManager
-import com.ltwoo.estep.api.RetrofitManager
+import com.aroncent.api.RetrofitManager
+import com.blankj.utilcode.util.ConvertUtils
+import com.blankj.utilcode.util.TimeUtils
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.frag_history.*
 import kotlinx.android.synthetic.main.item_history_left.view.*
+import kotlinx.android.synthetic.main.item_history_left.view.item_history_content
+import kotlinx.android.synthetic.main.item_history_left.view.item_history_time
+import kotlinx.android.synthetic.main.item_history_right.view.*
 import kotlinx.android.synthetic.main.top_bar.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -63,15 +68,14 @@ class HistoryFragment : BaseFragment() {
         override fun convert(helper: BaseViewHolder, item: HistoryListBean.DataBean.ListBean) {
             val itemView = helper.itemView
             itemView.item_history_content.text = item.content
-
-            when (helper.itemViewType) {
-                0 -> {
-
-                }
-                1 -> {
-
-                }
+            var time = TimeUtils.millis2String(item.createtime.toLong()*1000,"yyyy/MM/dd HH:mm")
+            time = if (item.isread==1){
+                "$time [Read]"
+            }else{
+                "$time [Unread]"
             }
+            itemView.item_history_time.text = time
+
         }
     }
 

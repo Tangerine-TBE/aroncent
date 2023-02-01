@@ -1,25 +1,20 @@
 package com.aroncent.module.phrase
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.view.View
 import android.widget.TextView
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.recyclerview.widget.GridLayoutManager
 import com.aroncent.R
 import com.aroncent.base.BaseBean
 import com.aroncent.base.RxSubscriber
 import com.aroncent.event.GetUserPhraseEvent
 import com.aroncent.module.home.MorseCodeListBean
-import com.aroncent.module.login.LoginActivity
 import com.aroncent.utils.showToast
-import com.blankj.utilcode.util.ActivityUtils
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.kongzue.dialogx.dialogs.CustomDialog
 import com.kongzue.dialogx.interfaces.OnBindView
-import com.ltwoo.estep.api.RetrofitManager
-import com.tencent.mmkv.MMKV
+import com.aroncent.api.RetrofitManager
 import com.xlitebt.base.BaseActivity
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable

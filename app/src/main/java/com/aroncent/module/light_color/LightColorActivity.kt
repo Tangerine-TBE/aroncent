@@ -13,7 +13,7 @@ import com.aroncent.ble.DeviceConfig
 import com.aroncent.utils.addZeroForNum
 import com.aroncent.utils.binaryToHexString
 import com.aroncent.utils.showToast
-import com.ltwoo.estep.api.RetrofitManager
+import com.aroncent.api.RetrofitManager
 import com.tencent.mmkv.MMKV
 import com.xlitebt.base.BaseActivity
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers

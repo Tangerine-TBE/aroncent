@@ -30,7 +30,7 @@ public class HistoryListBean {
 
             @Override
             public int getItemType() {
-                return userid == MMKV.defaultMMKV().decodeInt(KVKey.user_id,0) ? 1 : 0;
+                return userid == MMKV.defaultMMKV().decodeInt(KVKey.user_id,0) ? 0 : 1;
             }
         }
     }

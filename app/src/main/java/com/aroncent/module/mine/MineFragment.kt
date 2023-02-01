@@ -1,8 +1,6 @@
 package com.aroncent.module.mine
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.view.View
 import android.widget.TextView
@@ -13,16 +11,12 @@ import com.aroncent.base.BaseBean
 import com.aroncent.base.BaseFragment
 import com.aroncent.base.RxSubscriber
 import com.aroncent.base.UploadBean
-import com.aroncent.module.history.HistoryFragment
-import com.aroncent.module.history.HistoryListBean
 import com.aroncent.module.light_color.LightColorActivity
 import com.aroncent.module.login.LoginActivity
 import com.aroncent.module.main.MainActivity
 import com.aroncent.module.phrase.AddPhraseActivity
 import com.aroncent.module.shake_flash_settings.ShakeFlashSettingActivity
 import com.aroncent.utils.UploadUtils
-import com.aroncent.utils.hasPermission
-import com.aroncent.utils.isAndroid12
 import com.aroncent.utils.showToast
 import com.blankj.utilcode.util.ActivityUtils
 import com.blankj.utilcode.util.ClickUtils
@@ -31,7 +25,7 @@ import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.kongzue.dialogx.dialogs.CustomDialog
 import com.kongzue.dialogx.interfaces.OnBindView
-import com.ltwoo.estep.api.RetrofitManager
+import com.aroncent.api.RetrofitManager
 import com.luck.picture.lib.basic.PictureSelector
 import com.luck.picture.lib.config.SelectMimeType
 import com.luck.picture.lib.entity.LocalMedia
@@ -41,7 +35,6 @@ import com.tencent.mmkv.MMKV
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
-import kotlinx.android.synthetic.main.frag_history.*
 import kotlinx.android.synthetic.main.frag_mine.*
 import kotlinx.android.synthetic.main.item_menu.view.*
 import java.io.File

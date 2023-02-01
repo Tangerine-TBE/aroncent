@@ -30,6 +30,11 @@ interface ApiService {
     @POST("api/user/login")
     fun login(@FieldMap map: HashMap<String, String>) : Observable<RequestUserInfoBean>
 
+    /**修改极光或onesignal注册ID**/
+    @FormUrlEncoded
+    @POST("api/user/updaterid")
+    fun updaterid(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
+
     /**重置密码**/
     @FormUrlEncoded
     @POST("api/user/resetpwd")

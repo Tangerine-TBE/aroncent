@@ -1,6 +1,7 @@
 package com.aroncent.module.login
 
 import android.annotation.SuppressLint
+import cn.jpush.android.api.JPushInterface
 import com.aroncent.R
 import com.aroncent.base.RxSubscriber
 import com.aroncent.module.main.MainActivity
@@ -8,7 +9,8 @@ import com.aroncent.utils.setUserInfoToSp
 import com.aroncent.utils.showToast
 import com.aroncent.utils.startActivity
 import com.blankj.utilcode.util.ActivityUtils
-import com.ltwoo.estep.api.RetrofitManager
+import com.aroncent.api.RetrofitManager
+import com.aroncent.base.BaseBean
 import com.xlitebt.base.BaseActivity
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
@@ -52,11 +54,36 @@ class LoginActivity : BaseActivity() {
                     t?.let {
                         if (t.code == 1) {
                             setUserInfoToSp(t.data.userInfo)
+                            updateRid()
                             ActivityUtils.finishAllActivities()
                             startActivity(MainActivity::class.java)
                         }else{
                             showToast(t.msg)
                         }
+                    }
+                }
+            })
+    }
+
+    private fun updateRid(){
+        val map = hashMapOf<String,String>()
+        map["jg_pushid"] = JPushInterface.getRegistrationID(this)
+        map["onesignal_pushid"] = JPushInterface.getRegistrationID(this)
+        RetrofitManager.service.updaterid(map)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : RxSubscriber<BaseBean?>(this, false) {
+                override fun _onError(message: String?) {
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                @SuppressLint("SetTextI18n")
+                override fun _onNext(t: BaseBean?) {
+                    t?.let {
+
                     }
                 }
             })

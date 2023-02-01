@@ -1,9 +1,8 @@
 package com.aroncent.utils
 
-import com.aroncent.base.BaseBean
 import com.aroncent.base.RxSubscriber
 import com.aroncent.base.UploadBean
-import com.ltwoo.estep.api.RetrofitManager
+import com.aroncent.api.RetrofitManager
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.schedulers.Schedulers
 import okhttp3.MediaType

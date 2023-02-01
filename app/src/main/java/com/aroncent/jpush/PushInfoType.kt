@@ -4,10 +4,10 @@ object PushInfoType {
     /**
      * App发出指令类型
      * */
-    val App = "0"
+    val App = "01"
 
     /**
      * 手环发出指令类型
      * */
-    val Bracelet = "3"
+    val Bracelet = "03"
 }
