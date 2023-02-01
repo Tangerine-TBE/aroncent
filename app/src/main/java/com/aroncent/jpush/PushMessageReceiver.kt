@@ -29,7 +29,7 @@ class PushMessageReceiver : JPushMessageReceiver() {
                PushInfoType.Bracelet->{
                    val str = msgData.key.morsecode
                    //示例： A5 AA AC 00 03 04 00 C5 CC CA  收到的03指令需要转01指令
-                   val length = addZeroForNum((str.substring(10,12).toInt(16)*3).toString(16).uppercase(),2)
+                   val length = addZeroForNum((str.substring(10,12).toInt(16)).toString().uppercase(),2)
                    val content = str.substring(12,str.length-6)
                    var morseData = ""
                    BleTool.getInstructStringArray(content).forEach {
@@ -37,9 +37,9 @@ class PushMessageReceiver : JPushMessageReceiver() {
                        morseData += char
                    }
 
-                   morseData = morseData.substring(0,length.toInt(16))
+                   morseData = morseData.substring(0,length.toInt())
                    //这里得到摩斯密码表示的长按和短按 eg: 010100
-                   Log.e("morseData",morseData.substring(0,length.toInt(16)))
+                   Log.e("morseData",morseData.substring(0,length.toInt()))
 
                    //组装01指令的数据域
                    var instructData = ""

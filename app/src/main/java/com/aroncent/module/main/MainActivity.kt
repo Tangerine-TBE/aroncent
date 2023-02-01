@@ -330,7 +330,7 @@ class MainActivity : BaseActivity() {
                                 EventBus.getDefault().post(BleAnswerEvent("notify", str))
                             }
                             str.substring(8,10)=="03"->{
-                               //发送通知给对方
+                               //发送通知给对方 eg:A5AAAC00030304C5CCCA
                                 sendMorseCode(str)
                             }
                         }
