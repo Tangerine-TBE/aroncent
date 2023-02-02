@@ -52,11 +52,11 @@
                     app:srcCompat="@drawable/head_default_pic" />
 
                 <TextView
-                    android:id="@+id/tv_female_name"
+                    android:id="@+id/tv_right_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/dp_12"
-                    android:text="Sally"
+                    tools:text="Sally"
                     android:textColor="@color/white"
                     android:textSize="@dimen/sp_16"
                     android:textStyle="bold"
@@ -65,7 +65,7 @@
                     app:layout_constraintTop_toBottomOf="@+id/right_pic" />
 
                 <TextView
-                    android:id="@+id/tv_male_name"
+                    android:id="@+id/tv_left_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/dp_12"

@@ -8,6 +8,7 @@ import com.aroncent.module.home.SendPhraseBean
 import com.aroncent.module.home.UserPhraseListBean
 import com.aroncent.module.login.CountryListBean
 import com.aroncent.module.login.RequestUserInfoBean
+import com.aroncent.module.main.PartnerInfoBean
 import com.aroncent.module.main.SettingBean
 import io.reactivex.rxjava3.core.Observable
 import okhttp3.MultipartBody
@@ -169,4 +170,9 @@ interface ApiService {
     @FormUrlEncoded
     @POST("addons/litestore/api.partner/deleteconfirm")
     fun deletePartnerConfirm(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
+
+    /**获取伙伴昵称和头像**/
+    @FormUrlEncoded
+    @POST("api/user/getpartnerinfo")
+    fun getPartnerInfo(@FieldMap map: HashMap<String, String>) : Observable<PartnerInfoBean>
 }

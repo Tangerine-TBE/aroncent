@@ -23,8 +23,6 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.frag_history.*
 import kotlinx.android.synthetic.main.frag_history.left_pic
-import kotlinx.android.synthetic.main.frag_home.*
-import kotlinx.android.synthetic.main.frag_mine.*
 import kotlinx.android.synthetic.main.item_history_left.view.item_history_content
 import kotlinx.android.synthetic.main.item_history_left.view.item_history_time
 import kotlinx.android.synthetic.main.top_bar.*
@@ -52,6 +50,13 @@ class HistoryFragment : BaseFragment() {
             .circleCrop()
             .error(R.drawable.head_default_pic)
             .into(left_pic)
+
+        Glide.with(this)
+            .load(MMKV.defaultMMKV().decodeString(KVKey.partner_avatar,""))
+            .circleCrop()
+            .error(R.drawable.head_default_pic)
+            .into(right_pic)
+
     }
     override fun initView() {
         Glide.with(this)
@@ -59,6 +64,11 @@ class HistoryFragment : BaseFragment() {
             .circleCrop()
             .error(R.drawable.head_default_pic)
             .into(left_pic)
+        Glide.with(this)
+            .load(MMKV.defaultMMKV().decodeString(KVKey.partner_avatar,""))
+            .circleCrop()
+            .error(R.drawable.head_default_pic)
+            .into(right_pic)
         EventBus.getDefault().register(this)
         rv_history.layoutManager = LinearLayoutManager(requireContext())
     }

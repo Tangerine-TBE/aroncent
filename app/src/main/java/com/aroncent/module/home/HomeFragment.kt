@@ -52,6 +52,15 @@ class HomeFragment : BaseFragment() {
             .circleCrop()
             .error(R.drawable.head_default_pic)
             .into(left_pic)
+        tv_left_name.text = MMKV.defaultMMKV().decodeString(KVKey.nickname,"")
+
+        Glide.with(this)
+            .load(MMKV.defaultMMKV().decodeString(KVKey.partner_avatar,""))
+            .circleCrop()
+            .error(R.drawable.head_default_pic)
+            .into(right_pic)
+        tv_right_name.text = MMKV.defaultMMKV().decodeString(KVKey.partner_nickname,"")
+
     }
     override fun initView() {
         Glide.with(this)

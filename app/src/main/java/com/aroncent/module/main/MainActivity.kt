@@ -381,7 +381,6 @@ class MainActivity : BaseActivity() {
                 @SuppressLint("SetTextI18n")
                 override fun _onNext(t: BaseBean?) {
                     if (t!!.code==200){
-
                     }
                 }
             })
@@ -490,6 +489,30 @@ class MainActivity : BaseActivity() {
                 }
             })
     }
+    private fun getPartnerInfo(){
+        RetrofitManager.service.getPartnerInfo(hashMapOf())
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : RxSubscriber<PartnerInfoBean?>(this, false) {
+                override fun _onError(message: String?) {
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                @SuppressLint("SetTextI18n")
+                override fun _onNext(t: PartnerInfoBean?) {
+                    t?.let {
+                        if (t.code == 200) {
+                            MMKV.defaultMMKV().encode(KVKey.partner_avatar,t.data.avatar)
+                            MMKV.defaultMMKV().encode(KVKey.partner_nickname,t.data.nickname)
+                            EventBus.getDefault().post(UpdateHeadPicEvent())
+                        }
+                    }
+                }
+            })
+    }
     private fun getUserInfo(){
         RetrofitManager.service.getUserInfo(hashMapOf())
             .subscribeOn(Schedulers.io())
@@ -534,6 +557,9 @@ class MainActivity : BaseActivity() {
                                 }else{
                                     //获取用户设置
                                     getSettings()
+                                    if (t.data.userInfo.partnerstatus.toInt()>=3){
+                                        getPartnerInfo()
+                                    }
                                 }
                             }
                         }

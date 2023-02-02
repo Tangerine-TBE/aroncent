@@ -27,6 +27,10 @@ object KVKey {
     const val nickname = "nickname"
     const val user_id = "user_id"
 
+    //用户伴侣信息
+    const val partner_avatar = "partner_avatar"
+    const val partner_nickname = "partner_nickname"
+
     /**
      * 情侣的状态
      *0：默认状态或者为审核不通过
