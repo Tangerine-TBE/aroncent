@@ -29,7 +29,7 @@ class AddPhraseActivity : BaseActivity() {
     }
 
     override fun initData() {
-        rv_morse_code.layoutManager = GridLayoutManager(this, 3)
+        rv_morse_code.layoutManager = GridLayoutManager(this, 2)
         rv_select_code.layoutManager = GridLayoutManager(this, 7)
         for (i in 1..7){
             selectCodeArray.add(MorseCodeListBean.DataBean())
