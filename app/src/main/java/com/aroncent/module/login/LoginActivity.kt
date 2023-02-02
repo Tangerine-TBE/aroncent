@@ -33,6 +33,7 @@ class LoginActivity : BaseActivity() {
             startActivity(RegisterActivity1::class.java)
         }
         tv_login.setOnClickListener { login() }
+        tv_forgot.setOnClickListener { startActivity(ResetPasswordActivity::class.java) }
     }
     private fun login(){
         val map = hashMapOf<String,String>()

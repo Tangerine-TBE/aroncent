@@ -9,11 +9,14 @@ import android.content.Intent
 import android.util.Log
 import android.view.Gravity
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import cn.jzvd.Jzvd
+import cn.jzvd.JzvdStd
 import com.aroncent.R
 import com.aroncent.app.KVKey
 import com.aroncent.base.BaseBean
@@ -399,6 +402,9 @@ class MainActivity : BaseActivity() {
         }
     }
 
+    /**
+     * 检查是否有需要审核好友请求
+     * */
     private fun getPartnerRequest(){
         RetrofitManager.service.getPartnerRequest(hashMapOf())
             .subscribeOn(Schedulers.io())
@@ -552,11 +558,51 @@ class MainActivity : BaseActivity() {
                     t?.let {
                         showToast(t.msg)
                         mTab1 = HomeFragment()
+                        //播放情侣视频
+                        showVideoDialog("http://oss.ltwoo-app.top/explain/1918ab227a4613a1bfd875704b096452.mp4")
                     }
                 }
             })
     }
 
+    private fun showVideoDialog(url:String){
+        CustomDialog
+            .build()
+            .setMaskColor(getColor(R.color.dialogMaskColor))
+            .setCustomView(object : OnBindView<CustomDialog>(R.layout.dialog_play_video) {
+                override fun onBind(dialog: CustomDialog?, v: View?) {
+                    v!!.let {
+                        val jz = v.findViewById<JzvdStd>(R.id.jz_video)
+                        val close = v.findViewById<ImageView>(R.id.iv_close)
+                        jz.fullscreenButton.visibility = View.GONE
+                        jz.replayTextView.text = "To RePlay"
+                        jz.setUp(url,"")
+                        jz.startVideoAfterPreloading()
+
+                        close.setOnClickListener {
+                            dialog!!.dismiss()
+                        }
+                    }
+                }
+            })
+            .show()
+    }
+
+    override fun onBackPressed() {
+        if (Jzvd.backPress()) {
+            return;
+        }
+        super.onBackPressed()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Jzvd.releaseAllVideos()
+    }
+
+    /***
+     * 删除情侣
+     */
     private fun confirmDelPartner(){
         RetrofitManager.service.deletePartnerConfirm(hashMapOf())
             .subscribeOn(Schedulers.io())

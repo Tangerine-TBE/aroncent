@@ -74,6 +74,7 @@
             tools:text="15" />
 
         <TextView
+            android:visibility="gone"
             android:id="@+id/tv_search"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -87,6 +88,7 @@
             app:layout_constraintTop_toTopOf="@+id/textView6" />
 
         <TextView
+            android:visibility="gone"
             android:id="@+id/tv_select_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

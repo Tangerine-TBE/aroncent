@@ -26,6 +26,8 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.kongzue.dialogx.dialogs.CustomDialog
 import com.kongzue.dialogx.interfaces.OnBindView
 import com.aroncent.api.RetrofitManager
+import com.aroncent.app.KVKey.avatar
+import com.aroncent.utils.GlideEngine
 import com.luck.picture.lib.basic.PictureSelector
 import com.luck.picture.lib.config.SelectMimeType
 import com.luck.picture.lib.entity.LocalMedia
@@ -49,6 +51,7 @@ class MineFragment : BaseFragment() {
         tv_name.text = "Hello,"+MMKV.defaultMMKV().decodeString(KVKey.username,"")
         Glide.with(this)
             .load(MMKV.defaultMMKV().decodeString(KVKey.avatar,""))
+            .error(R.drawable.man)
             .into(iv_head)
         rv_mine.layoutManager = LinearLayoutManager(requireContext())
         rv_mine.adapter = ProfileAdapter(
@@ -80,6 +83,8 @@ class MineFragment : BaseFragment() {
                     1 -> startActivity(Intent(requireContext(), ShakeFlashSettingActivity::class.java))
                     2 -> startActivity(Intent(requireContext(), LightColorActivity::class.java))
                     3 -> startActivity(Intent(requireContext(), AddPhraseActivity::class.java))
+                    4->showToast("Coming Soon")
+                    5->showToast("Coming Soon")
                     6->{
                         PictureSelector.create(requireContext())
                             .openCamera(SelectMimeType.ofVideo())
@@ -186,6 +191,35 @@ class MineFragment : BaseFragment() {
             })
     }
 
+    private fun editAvatar(avatar:String){
+        RetrofitManager.service.editavatar(hashMapOf("avatar" to avatar))
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : RxSubscriber<BaseBean?>(requireContext(), true) {
+                override fun _onError(message: String?) {
+
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                @SuppressLint("SetTextI18n")
+                override fun _onNext(t: BaseBean?) {
+                    t?.let {
+                        if (t.code==200){
+                            showToast("Success")
+                            MMKV.defaultMMKV().encode(KVKey.avatar,avatar)
+                            Glide.with(requireContext())
+                                .load(MMKV.defaultMMKV().decodeString(KVKey.avatar,""))
+                                .error(R.drawable.man)
+                                .into(iv_head)
+                        }
+                    }
+                }
+            })
+    }
+
     override fun lazyLoad() {
     }
 
@@ -217,6 +251,37 @@ class MineFragment : BaseFragment() {
                     })
                     .show()
 
+        }
+
+        iv_head.setOnClickListener {
+            PictureSelector.create(requireContext())
+                .openGallery(SelectMimeType.ofImage())
+                .setMaxSelectNum(1)
+                .setImageEngine(GlideEngine.createGlideEngine())
+                .setLanguage(LanguageConfig.ENGLISH)
+                .forResult(object : OnResultCallbackListener<LocalMedia?> {
+                    override fun onResult(result: ArrayList<LocalMedia?>?) {
+                        UploadUtils.uploadFile(File(result!![0]!!.compressPath),object : RxSubscriber<UploadBean>(requireContext(),true){
+                            override fun onSubscribe(d: Disposable) {
+
+                            }
+
+                            override fun _onNext(t: UploadBean?) {
+                                if (t!!.code==1){
+                                    showToast(t.msg)
+                                    editAvatar(t.data.fullurl)
+                                }
+                            }
+
+                            override fun _onError(message: String?) {
+                                showToast(message!!)
+                            }
+                        })
+                    }
+                    override fun onCancel() {
+                        showToast("Cancel")
+                    }
+                })
         }
     }
 }

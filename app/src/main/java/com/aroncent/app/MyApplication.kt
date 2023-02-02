@@ -10,6 +10,7 @@ import com.socks.library.KLog
 import com.tencent.bugly.Bugly
 import com.tencent.mmkv.MMKV
 import pub.devrel.easypermissions.BuildConfig
+import java.util.*
 import kotlin.properties.Delegates
 
 
@@ -43,6 +44,7 @@ class MyApplication : Application(){
         sDefault = this
         context = applicationContext
         MMKV.initialize(this)
+        MultiLanguages.setAppLanguage(this, Locale.ENGLISH)
         Bugly.init(applicationContext, "4657832c07", false)
 
         BleManager.getInstance().init(this)
