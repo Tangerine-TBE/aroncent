@@ -17,10 +17,15 @@ import com.blankj.utilcode.util.ClickUtils
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.aroncent.api.RetrofitManager
+import com.aroncent.app.KVKey
+import com.aroncent.module.main.UpdateHeadPicEvent
+import com.bumptech.glide.Glide
+import com.tencent.mmkv.MMKV
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.frag_home.*
+import kotlinx.android.synthetic.main.frag_mine.*
 import kotlinx.android.synthetic.main.item_phrase_model.view.*
 import kotlinx.android.synthetic.main.top_bar.*
 import org.greenrobot.eventbus.EventBus
@@ -40,7 +45,20 @@ class HomeFragment : BaseFragment() {
     fun onReceiveMsg(msg: GetUserPhraseEvent) {
         getUserPhraseList()
     }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onGetMessage(event: UpdateHeadPicEvent) {
+        Glide.with(this)
+            .load(MMKV.defaultMMKV().decodeString(KVKey.avatar,""))
+            .circleCrop()
+            .error(R.drawable.head_default_pic)
+            .into(left_pic)
+    }
     override fun initView() {
+        Glide.with(this)
+            .load(MMKV.defaultMMKV().decodeString(KVKey.avatar,""))
+            .circleCrop()
+            .error(R.drawable.head_default_pic)
+            .into(left_pic)
         EventBus.getDefault().register(this)
         rv_phrase.layoutManager = LinearLayoutManager(requireContext())
         getUserPhraseList()

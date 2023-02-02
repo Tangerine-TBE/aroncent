@@ -13,16 +13,20 @@ import com.chad.library.adapter.base.BaseMultiItemQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.clj.fastble.BleManager
 import com.aroncent.api.RetrofitManager
-import com.blankj.utilcode.util.ConvertUtils
+import com.aroncent.app.KVKey
+import com.aroncent.module.main.UpdateHeadPicEvent
 import com.blankj.utilcode.util.TimeUtils
+import com.bumptech.glide.Glide
+import com.tencent.mmkv.MMKV
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.frag_history.*
-import kotlinx.android.synthetic.main.item_history_left.view.*
+import kotlinx.android.synthetic.main.frag_history.left_pic
+import kotlinx.android.synthetic.main.frag_home.*
+import kotlinx.android.synthetic.main.frag_mine.*
 import kotlinx.android.synthetic.main.item_history_left.view.item_history_content
 import kotlinx.android.synthetic.main.item_history_left.view.item_history_time
-import kotlinx.android.synthetic.main.item_history_right.view.*
 import kotlinx.android.synthetic.main.top_bar.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -41,7 +45,20 @@ class HistoryFragment : BaseFragment() {
     fun onReceiveMsg(msg: ConnectStatusEvent) {
         tv_connected.visibility = if (msg.type == 1) View.VISIBLE else View.GONE
     }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onGetMessage(event: UpdateHeadPicEvent) {
+        Glide.with(this)
+            .load(MMKV.defaultMMKV().decodeString(KVKey.avatar,""))
+            .circleCrop()
+            .error(R.drawable.head_default_pic)
+            .into(left_pic)
+    }
     override fun initView() {
+        Glide.with(this)
+            .load(MMKV.defaultMMKV().decodeString(KVKey.avatar,""))
+            .circleCrop()
+            .error(R.drawable.head_default_pic)
+            .into(left_pic)
         EventBus.getDefault().register(this)
         rv_history.layoutManager = LinearLayoutManager(requireContext())
     }

@@ -18,8 +18,7 @@
     <ImageView
         android:id="@+id/iv_head"
         android:layout_width="@dimen/dp_120"
-        android:layout_height="wrap_content"
-        android:adjustViewBounds="true"
+        android:layout_height="@dimen/dp_120"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/top_bar"

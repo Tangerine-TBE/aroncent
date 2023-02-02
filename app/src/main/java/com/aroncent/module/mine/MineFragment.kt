@@ -26,10 +26,12 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.kongzue.dialogx.dialogs.CustomDialog
 import com.kongzue.dialogx.interfaces.OnBindView
 import com.aroncent.api.RetrofitManager
-import com.aroncent.app.KVKey.avatar
+import com.aroncent.app.MyApplication
+import com.aroncent.module.main.UpdateHeadPicEvent
 import com.aroncent.utils.GlideEngine
 import com.luck.picture.lib.basic.PictureSelector
 import com.luck.picture.lib.config.SelectMimeType
+import com.luck.picture.lib.engine.CompressFileEngine
 import com.luck.picture.lib.entity.LocalMedia
 import com.luck.picture.lib.interfaces.OnResultCallbackListener
 import com.luck.picture.lib.language.LanguageConfig
@@ -39,6 +41,11 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.frag_mine.*
 import kotlinx.android.synthetic.main.item_menu.view.*
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
+import top.zibin.luban.Luban
+import top.zibin.luban.OnNewCompressListener
 import java.io.File
 
 
@@ -47,11 +54,21 @@ class MineFragment : BaseFragment() {
         return R.layout.frag_mine
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onGetMessage(event: UpdateHeadPicEvent) {
+        Glide.with(this)
+            .load(MMKV.defaultMMKV().decodeString(KVKey.avatar,""))
+            .circleCrop()
+            .error(R.drawable.head_default_pic)
+            .into(iv_head)
+    }
     override fun initView() {
+        EventBus.getDefault().register(this)
         tv_name.text = "Hello,"+MMKV.defaultMMKV().decodeString(KVKey.username,"")
         Glide.with(this)
             .load(MMKV.defaultMMKV().decodeString(KVKey.avatar,""))
-            .error(R.drawable.man)
+            .circleCrop()
+            .error(R.drawable.head_default_pic)
             .into(iv_head)
         rv_mine.layoutManager = LinearLayoutManager(requireContext())
         rv_mine.adapter = ProfileAdapter(
@@ -65,6 +82,11 @@ class MineFragment : BaseFragment() {
                 MenuBean(7, "Unbind your partner"),
             )
         )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        EventBus.getDefault().unregister(this)
     }
 
     inner class ProfileAdapter(layoutResId: Int, data: MutableList<MenuBean>) :
@@ -99,7 +121,7 @@ class MineFragment : BaseFragment() {
                                         }
 
                                         override fun _onNext(t: UploadBean?) {
-                                            if (t!!.code==1){
+                                            if (t!!.code==200){
                                                 showToast(t.msg)
                                                 setMyVideo(t.data.fullurl)
                                             }
@@ -210,10 +232,7 @@ class MineFragment : BaseFragment() {
                         if (t.code==200){
                             showToast("Success")
                             MMKV.defaultMMKV().encode(KVKey.avatar,avatar)
-                            Glide.with(requireContext())
-                                .load(MMKV.defaultMMKV().decodeString(KVKey.avatar,""))
-                                .error(R.drawable.man)
-                                .into(iv_head)
+                            EventBus.getDefault().post(UpdateHeadPicEvent())
                         }
                     }
                 }
@@ -259,6 +278,22 @@ class MineFragment : BaseFragment() {
                 .setMaxSelectNum(1)
                 .setImageEngine(GlideEngine.createGlideEngine())
                 .setLanguage(LanguageConfig.ENGLISH)
+                .setCompressEngine(CompressFileEngine { _, source, call ->
+                    Luban.with(MyApplication.context).load(source)
+                        .ignoreBy(100)//当原始图像文件大小小于一个值时，请勿压缩
+                        .setCompressListener(object : OnNewCompressListener {
+                            override fun onStart() {
+                            }
+
+                            override fun onSuccess(source: String?, compressFile: File?) {
+                                call?.onCallback(source, compressFile!!.absolutePath)
+                            }
+
+                            override fun onError(source: String?, e: Throwable?) {
+                                call?.onCallback(source, "")
+                            }
+                        }).launch()
+                })
                 .forResult(object : OnResultCallbackListener<LocalMedia?> {
                     override fun onResult(result: ArrayList<LocalMedia?>?) {
                         UploadUtils.uploadFile(File(result!![0]!!.compressPath),object : RxSubscriber<UploadBean>(requireContext(),true){
@@ -267,7 +302,7 @@ class MineFragment : BaseFragment() {
                             }
 
                             override fun _onNext(t: UploadBean?) {
-                                if (t!!.code==1){
+                                if (t!!.code==200){
                                     showToast(t.msg)
                                     editAvatar(t.data.fullurl)
                                 }

@@ -107,7 +107,7 @@ interface ApiService {
 
     /**修改个人头像**/
     @FormUrlEncoded
-    @POST("api/User/editavatar")
+    @POST("api/user/editavatar")
     fun editavatar(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
 
     /**获取注册时的国家地区列表**/
