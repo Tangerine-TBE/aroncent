@@ -93,8 +93,6 @@ class PushMessageReceiver : JPushMessageReceiver() {
 
     override fun onNotifyMessageArrived(context: Context?, message: NotificationMessage) {
         Log.e(TAG, "[onNotifyMessageArrived] $message")
-//        示例： A5 AA AC F4 01 01 01 FF FF FF 0A C5 CC CA
-//        BleTool.sendInstruct(message.notificationContent)
     }
 
     override fun onNotifyMessageDismiss(context: Context?, message: NotificationMessage) {

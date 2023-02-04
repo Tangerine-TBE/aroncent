@@ -384,4 +384,17 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/linearLayout2"
         app:layout_constraintStart_toStartOf="@+id/linearLayout2" />
+
+    <ImageView
+        android:id="@+id/iv_reset"
+        android:layout_width="@dimen/dp_26"
+        android:adjustViewBounds="true"
+        android:src="@drawable/ic_reset"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/dp_20"
+        android:textSize="@dimen/sp_14"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/include"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/include" />
 </androidx.constraintlayout.widget.ConstraintLayout>

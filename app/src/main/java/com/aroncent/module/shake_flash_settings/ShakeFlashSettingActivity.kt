@@ -2,6 +2,9 @@ package com.aroncent.module.shake_flash_settings
 
 import android.annotation.SuppressLint
 import android.util.Log
+import android.view.View
+import android.widget.TextView
+import androidx.core.content.ContentProviderCompat.requireContext
 import com.aroncent.R
 import com.aroncent.app.KVKey
 import com.aroncent.base.BaseBean
@@ -13,6 +16,8 @@ import com.aroncent.utils.addZeroForNum
 import com.aroncent.utils.binaryToHexString
 import com.aroncent.utils.showToast
 import com.aroncent.api.RetrofitManager
+import com.kongzue.dialogx.dialogs.CustomDialog
+import com.kongzue.dialogx.interfaces.OnBindView
 import com.tencent.mmkv.MMKV
 import com.warkiz.widget.IndicatorSeekBar
 import com.warkiz.widget.OnSeekChangeListener
@@ -116,37 +121,72 @@ class ShakeFlashSettingActivity : BaseActivity() {
         }
 
         tv_save.setOnClickListener {
-            //给设备设置默认参数，灯光颜色，长短震，长短闪
-            val lightColor = DeviceConfig.lightColor
-            val binary_short_flash = addZeroForNum((short_flash.toFloat()*10).toInt().toString(2),4)
-            val binary_long_flash = addZeroForNum((long_flash.toFloat()*10).toInt().toString(2),4)
-            val binary_short_shake = addZeroForNum((short_shake.toFloat()*10).toInt().toString(2),4)
-            val binary_long_shake = addZeroForNum((long_shake.toFloat()*10).toInt().toString(2),4)
-            val vibration_intensity = addZeroForNum(shaking_levels,2) //震动强度 0-3
-
-            Log.e("short_flash",binary_short_flash)
-            Log.e("long_flash",binary_long_flash)
-            Log.e("short_shake",binary_short_shake)
-            Log.e("long_shake",binary_long_shake)
-            Log.e("vibration_intensity",vibration_intensity)
-
-            Log.e("flash",binaryToHexString(binary_short_flash+binary_long_flash))
-            Log.e("shake",binaryToHexString(binary_short_shake+binary_long_shake))
-
-            val xorStr = BleTool.getXOR("02"
-                    +lightColor
-                    +binaryToHexString(binary_short_flash+binary_long_flash)
-                    +vibration_intensity
-                    +binaryToHexString(binary_short_shake+binary_long_shake)
-            )
-
-            BleTool.sendInstruct("A5AAAC"+xorStr+"02"
-                    +lightColor
-                    +binaryToHexString(binary_short_flash+binary_long_flash)
-                    +vibration_intensity
-                    +binaryToHexString(binary_short_shake+binary_long_shake)
-                    +"C5CCCA")
+            setShakeToDevice()
         }
+
+        iv_reset.setOnClickListener {
+            CustomDialog
+                .build()
+                .setMaskColor(getColor(R.color.dialogMaskColor))
+                .setCustomView(object : OnBindView<CustomDialog>(R.layout.dialog_tips) {
+                    override fun onBind(dialog: CustomDialog?, v: View?) {
+                        v!!.let {
+                            val tip = v.findViewById<TextView>(R.id.tv_tip)
+                            tip.text = "Restore default settings?"
+                            val confirm = v.findViewById<TextView>(R.id.tv_confirm)
+                            val cancel = v.findViewById<TextView>(R.id.tv_cancel)
+                            cancel.setOnClickListener {
+                                dialog!!.dismiss()
+                            }
+                            confirm.setOnClickListener {
+                                dialog!!.dismiss()
+                                short_flash = "0.3"
+                                long_flash = "0.8"
+                                short_shake = "0.3"
+                                long_shake = "0.8"
+                                shaking_levels = "0"
+                                MMKV.defaultMMKV().encode(KVKey.light_color,"FFFFFF")
+                                setShakeToDevice()
+                            }
+                        }
+                    }
+                })
+                .show()
+
+        }
+    }
+
+    private fun setShakeToDevice(){
+        //给设备设置默认参数，灯光颜色，长短震，长短闪
+        val lightColor = DeviceConfig.lightColor
+        val binary_short_flash = addZeroForNum((short_flash.toFloat()*10).toInt().toString(2),4)
+        val binary_long_flash = addZeroForNum((long_flash.toFloat()*10).toInt().toString(2),4)
+        val binary_short_shake = addZeroForNum((short_shake.toFloat()*10).toInt().toString(2),4)
+        val binary_long_shake = addZeroForNum((long_shake.toFloat()*10).toInt().toString(2),4)
+        val vibration_intensity = addZeroForNum(shaking_levels,2) //震动强度 0-3
+
+        Log.e("short_flash",binary_short_flash)
+        Log.e("long_flash",binary_long_flash)
+        Log.e("short_shake",binary_short_shake)
+        Log.e("long_shake",binary_long_shake)
+        Log.e("vibration_intensity",vibration_intensity)
+
+        Log.e("flash",binaryToHexString(binary_short_flash+binary_long_flash))
+        Log.e("shake",binaryToHexString(binary_short_shake+binary_long_shake))
+
+        val xorStr = BleTool.getXOR("02"
+                +lightColor
+                +binaryToHexString(binary_short_flash+binary_long_flash)
+                +vibration_intensity
+                +binaryToHexString(binary_short_shake+binary_long_shake)
+        )
+
+        BleTool.sendInstruct("A5AAAC"+xorStr+"02"
+                +lightColor
+                +binaryToHexString(binary_short_flash+binary_long_flash)
+                +vibration_intensity
+                +binaryToHexString(binary_short_shake+binary_long_shake)
+                +"C5CCCA")
     }
 
     private fun setShake() {

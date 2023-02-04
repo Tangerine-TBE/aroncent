@@ -1,8 +1,10 @@
 package com.aroncent.ble
 
 import android.util.Log
+import com.aroncent.app.MyApplication
 import com.aroncent.utils.addZeroForNum
 import com.aroncent.utils.binaryToHexString
+import com.aroncent.utils.showToast
 import com.aroncent.utils.toBinary
 import com.blankj.utilcode.util.LogUtils
 import com.clj.fastble.BleManager
@@ -37,6 +39,8 @@ object BleTool {
                 BleDefinedUUIDs.SERVICE.toString(),
                 BleDefinedUUIDs.CHARACTERISTIC_WRITE.toString(),
                 HexUtil.hexStringToBytes(instructions), callback)
+        }else{
+            MyApplication.context.showToast("Please connect Bluetooth device")
         }
     }
 
