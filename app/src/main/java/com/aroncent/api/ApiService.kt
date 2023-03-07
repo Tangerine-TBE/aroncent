@@ -2,6 +2,7 @@ package com.aroncent.api
 
 import com.aroncent.base.BaseBean
 import com.aroncent.base.UploadBean
+import com.aroncent.module.add_partner.PartnerAddBean
 import com.aroncent.module.history.HistoryListBean
 import com.aroncent.module.home.MorseCodeListBean
 import com.aroncent.module.home.SendPhraseBean
@@ -119,7 +120,7 @@ interface ApiService {
     /**检查是否有需要审核好友请求**/
     @FormUrlEncoded
     @POST("addons/litestore/api.partner/getrequest")
-    fun getPartnerRequest(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
+    fun getPartnerRequest(@FieldMap map: HashMap<String, String>) : Observable<PartnerAddBean>
 
     /**审核好友请求**/
     @FormUrlEncoded

@@ -50,7 +50,7 @@ class RegisterActivity3 : BaseActivity() {
                 @SuppressLint("SetTextI18n")
                 override fun _onNext(t: CountryListBean?) {
                     t?.let {
-                        if (t.code == 1) {
+                        if (t.code == 200) {
                             if (t.data.isNotEmpty()) {
                                 val adapter = CountryAdapter(t.data)
                                 rv_country.adapter = adapter

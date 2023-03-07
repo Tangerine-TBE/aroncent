@@ -8,16 +8,19 @@ import android.bluetooth.BluetoothGatt
 import android.content.Intent
 import android.util.Log
 import android.view.Gravity
+import android.view.KeyEvent
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import cn.jzvd.Jzvd
 import cn.jzvd.JzvdStd
 import com.aroncent.R
+import com.aroncent.api.RetrofitManager
 import com.aroncent.app.KVKey
 import com.aroncent.base.BaseBean
 import com.aroncent.base.RxSubscriber
@@ -29,6 +32,7 @@ import com.aroncent.event.ConnectStatusEvent
 import com.aroncent.event.GetHistoryEvent
 import com.aroncent.event.ReadMsgEvent
 import com.aroncent.jpush.PushInfoType
+import com.aroncent.module.add_partner.PartnerAddBean
 import com.aroncent.module.history.HistoryFragment
 import com.aroncent.module.home.BindPartnerFragment
 import com.aroncent.module.home.HomeFragment
@@ -45,8 +49,9 @@ import com.clj.fastble.data.BleDevice
 import com.clj.fastble.exception.BleException
 import com.clj.fastble.scan.BleScanRuleConfig
 import com.kongzue.dialogx.dialogs.CustomDialog
+import com.kongzue.dialogx.dialogs.WaitDialog
+import com.kongzue.dialogx.interfaces.DialogLifecycleCallback
 import com.kongzue.dialogx.interfaces.OnBindView
-import com.aroncent.api.RetrofitManager
 import com.tencent.mmkv.MMKV
 import com.xlitebt.base.BaseActivity
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -73,7 +78,7 @@ class MainActivity : BaseActivity() {
                 //打开蓝牙
                 enableBluetooth.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
             } else {
-                showToast(getString(R.string.android_12_ble_permission_hint))
+                showToast(getString(com.aroncent.R.string.android_12_ble_permission_hint))
                 finish()
             }
         }
@@ -89,7 +94,7 @@ class MainActivity : BaseActivity() {
                     connectBle()
                 }
             } else {
-                showToast(getString(R.string.android_12_ble_permission_hint))
+                showToast(getString(com.aroncent.R.string.android_12_ble_permission_hint))
                 finish()
             }
         }
@@ -113,7 +118,7 @@ class MainActivity : BaseActivity() {
                     }
                 }
             } else {
-                showToast(getString(R.string.enable_bluetooth_hint))
+                showToast(getString(com.aroncent.R.string.enable_bluetooth_hint))
                 finish()
             }
         }
@@ -124,12 +129,12 @@ class MainActivity : BaseActivity() {
             //扫描蓝牙
             connectBle()
         } else {
-            showToast(getString(R.string.opening_location_permission))
+            showToast(getString(com.aroncent.R.string.opening_location_permission))
             finish()
         }
     }
     override fun layoutId(): Int {
-        return  R.layout.activity_main
+        return  com.aroncent.R.layout.activity_main
     }
 
 
@@ -141,17 +146,17 @@ class MainActivity : BaseActivity() {
     }
     fun resetBg() {
         Glide.with(this)
-            .load(R.drawable.tab_home)
+            .load(com.aroncent.R.drawable.tab_home)
             .into(iv_main_tab_1)
         Glide.with(this)
-            .load(R.drawable.tab_history)
+            .load(com.aroncent.R.drawable.tab_history)
             .into(iv_main_tab_2)
         Glide.with(this)
-            .load(R.drawable.tab_my)
+            .load(com.aroncent.R.drawable.tab_my)
             .into(iv_main_tab_3)
-        tv_tab_1.setTextColor(ContextCompat.getColor(this, R.color.tabTextNormal))
-        tv_tab_2.setTextColor(ContextCompat.getColor(this, R.color.tabTextNormal))
-        tv_tab_3.setTextColor(ContextCompat.getColor(this, R.color.tabTextNormal))
+        tv_tab_1.setTextColor(ContextCompat.getColor(this, com.aroncent.R.color.tabTextNormal))
+        tv_tab_2.setTextColor(ContextCompat.getColor(this, com.aroncent.R.color.tabTextNormal))
+        tv_tab_3.setTextColor(ContextCompat.getColor(this, com.aroncent.R.color.tabTextNormal))
     }
     private fun setSelect(i: Int) {
         resetBg()
@@ -178,7 +183,6 @@ class MainActivity : BaseActivity() {
                 if (mTab2 == null) {
                     mTab2 = HistoryFragment()
                     transaction.add(R.id.view_stub_main, mTab2!!)
-
                 } else {
                     transaction.show(mTab2!!)
                 }
@@ -408,7 +412,7 @@ class MainActivity : BaseActivity() {
         RetrofitManager.service.getPartnerRequest(hashMapOf())
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : RxSubscriber<BaseBean?>(this, false) {
+            .subscribe(object : RxSubscriber<PartnerAddBean?>(this, false) {
                 override fun _onError(message: String?) {
                 }
 
@@ -417,7 +421,7 @@ class MainActivity : BaseActivity() {
                 }
 
                 @SuppressLint("SetTextI18n")
-                override fun _onNext(t: BaseBean?) {
+                override fun _onNext(t: PartnerAddBean?) {
                     t?.let {
                         if (t.code == 200) {
                             showToast(t.msg)
@@ -429,13 +433,20 @@ class MainActivity : BaseActivity() {
                                         v!!.let {
                                             val refuse = v.findViewById<TextView>(R.id.tv_cancel)
                                             val agree = v.findViewById<TextView>(R.id.tv_confirm)
+                                            val img = v.findViewById<ImageView>(R.id.iv_head)
+                                            val name = v.findViewById<TextView>(R.id.tv_name)
+                                            name.text = t.data.username
+                                            Glide.with(this@MainActivity)
+                                                .load(t.data.avatar)
+                                                .circleCrop()
+                                                .into(img)
                                             refuse.setOnClickListener {
                                                 dialog!!.dismiss()
                                                 confirmEmail("0")
                                             }
                                             agree.setOnClickListener {
                                                 dialog!!.dismiss()
-                                                confirmEmail("3")
+                                                confirmEmail("3","http://oss.ltwoo-app.top/explain/1918ab227a4613a1bfd875704b096452.mp4")
                                             }
                                         }
                                     }
@@ -567,7 +578,7 @@ class MainActivity : BaseActivity() {
                 }
             })
     }
-    private fun confirmEmail(status:String){
+    private fun confirmEmail(status:String,videoUrl :String = ""){
         RetrofitManager.service.confirmEmail(hashMapOf("status" to status))
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -583,9 +594,9 @@ class MainActivity : BaseActivity() {
                 override fun _onNext(t: BaseBean?) {
                     t?.let {
                         showToast(t.msg)
-                        mTab1 = HomeFragment()
+                        getUserInfo()
                         //播放情侣视频
-                        showVideoDialog("http://oss.ltwoo-app.top/explain/1918ab227a4613a1bfd875704b096452.mp4")
+                        showVideoDialog(videoUrl)
                     }
                 }
             })
@@ -600,23 +611,48 @@ class MainActivity : BaseActivity() {
                     v!!.let {
                         val jz = v.findViewById<JzvdStd>(R.id.jz_video)
                         val close = v.findViewById<ImageView>(R.id.iv_close)
-                        jz.fullscreenButton.visibility = View.GONE
-                        jz.replayTextView.text = "To RePlay"
-                        jz.setUp(url,"")
-                        jz.startVideoAfterPreloading()
-
+                        if (url!=""){
+                            jz.fullscreenButton.visibility = View.GONE
+                            jz.replayTextView.text = "To RePlay"
+                            jz.setUp(url,"")
+                            jz.startVideoAfterPreloading()
+                        }
                         close.setOnClickListener {
                             dialog!!.dismiss()
                         }
                     }
                 }
             })
+            .setDialogLifecycleCallback(object :DialogLifecycleCallback<CustomDialog>(){
+                override fun onDismiss(dialog: CustomDialog?) {
+                    super.onDismiss(dialog)
+                    mTab1 = HomeFragment()
+                    replaceFragment(mTab1 as HomeFragment)
+                }
+            })
             .show()
     }
 
+    private var exitTime: Long = 0
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event!!.action == KeyEvent.ACTION_DOWN) {
+            if (System.currentTimeMillis() - exitTime > 2000) {
+                if (WaitDialog.getInstance().isShow) {
+                    WaitDialog.dismiss()
+                } else {
+                    showToast("Press again to exit")
+                    exitTime = System.currentTimeMillis()
+                }
+            } else {
+                AppUtils.exitApp()
+            }
+            return true
+        }
+        return super.onKeyDown(keyCode, event)
+    }
     override fun onBackPressed() {
         if (Jzvd.backPress()) {
-            return;
+            return
         }
         super.onBackPressed()
     }
@@ -673,11 +709,11 @@ class MainActivity : BaseActivity() {
     private fun showDisconnectDialog(){
         CustomDialog
             .build()
-            .setMaskColor(getColor(R.color.dialogMaskColor))
-            .setCustomView(object : OnBindView<CustomDialog>(R.layout.dialog_device_disconnect) {
+            .setMaskColor(getColor(com.aroncent.R.color.dialogMaskColor))
+            .setCustomView(object : OnBindView<CustomDialog>(com.aroncent.R.layout.dialog_device_disconnect) {
                 override fun onBind(dialog: CustomDialog?, v: View?) {
                     v!!.let {
-                        val confirm = v.findViewById<TextView>(R.id.tv_confirm)
+                        val confirm = v.findViewById<TextView>(com.aroncent.R.id.tv_confirm)
                         confirm.setOnClickListener {
                             if (isAndroid12()) {
                                 //检查是否有BLUETOOTH_CONNECT权限
@@ -699,6 +735,14 @@ class MainActivity : BaseActivity() {
             })
             .setCancelable(false)
             .show()
+    }
+
+    //切换不同的fragment
+    private fun replaceFragment(fragment: Fragment) {
+        val manager: FragmentManager = supportFragmentManager
+        val fragmentTransaction: FragmentTransaction = manager.beginTransaction()
+        fragmentTransaction.replace(R.id.view_stub_main, fragment)
+        fragmentTransaction.commit()
     }
     override fun start() {
     }

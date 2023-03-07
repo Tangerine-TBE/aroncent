@@ -53,7 +53,7 @@ class LoginActivity : BaseActivity() {
                 @SuppressLint("SetTextI18n")
                 override fun _onNext(t: RequestUserInfoBean?) {
                     t?.let {
-                        if (t.code == 1) {
+                        if (t.code == 200) {
                             setUserInfoToSp(t.data.userInfo)
                             updateRid()
                             ActivityUtils.finishAllActivities()

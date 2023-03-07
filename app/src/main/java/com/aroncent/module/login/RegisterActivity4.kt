@@ -89,8 +89,8 @@ class RegisterActivity4 : BaseActivity() {
             showToast("Please fill in all information")
             return
         }
-        if (!RegexUtils.isMatch("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}\$", et_password.text.toString())){
-            showToast("The password must contain upper and lower case and numbers, and not less than 8 digits")
+        if (et_password.text.toString().trim().length < 6){
+            showToast("The password shall not be less than 6 digits")
             return
         }
         if (et_password.text.toString() != et_re_pwd.text.toString()){
@@ -121,7 +121,7 @@ class RegisterActivity4 : BaseActivity() {
                 @SuppressLint("SetTextI18n")
                 override fun _onNext(t: RequestUserInfoBean?) {
                     t?.let {
-                        if (t.code == 1) {
+                        if (t.code == 200) {
                             setUserInfoToSp(t.data.userInfo)
                             ActivityUtils.finishAllActivities()
                             startActivity(MainActivity::class.java)

@@ -66,7 +66,7 @@ class ResetPasswordActivity : BaseActivity() {
                 @SuppressLint("SetTextI18n")
                 override fun _onNext(t: BaseBean?) {
                     t?.let {
-                        if (t.code == 1) {
+                        if (t.code == 200) {
                             showToast("Success")
                            finish()
                         }else{
@@ -92,9 +92,10 @@ class ResetPasswordActivity : BaseActivity() {
                 @SuppressLint("SetTextI18n")
                 override fun _onNext(t: BaseBean?) {
                     t?.let {
-                        if (t.code == 1) {
+                        if (t.code == 200) {
                             countTime()
                         }
+                        showToast(t.msg)
                     }
                 }
             })

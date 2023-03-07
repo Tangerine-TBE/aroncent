@@ -24,9 +24,9 @@
         app:layout_constraintTop_toBottomOf="@+id/tv_name" />
 
     <ImageView
-        android:id="@+id/imageView8"
+        android:id="@+id/iv_head"
         android:layout_width="@dimen/dp_64"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/dp_64"
         android:adjustViewBounds="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -44,7 +44,7 @@
         android:textColor="@color/textCountry"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView8" />
+        app:layout_constraintTop_toBottomOf="@+id/iv_head" />
 
     <TextView
         android:id="@+id/tv_cancel"

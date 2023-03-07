@@ -59,7 +59,7 @@ class BindPartnerFragment : BaseFragment() {
                 override fun _onNext(t: BaseBean?) {
                     t?.let {
                         showToast(t.msg)
-                        if (t.code == 1) {
+                        if (t.code == 200) {
                             tv_tip.visibility = View.VISIBLE
                             ll_bind.visibility = View.GONE
                         }

@@ -6,6 +6,7 @@ import com.aroncent.R
 import com.aroncent.base.BaseBean
 import com.aroncent.base.RxSubscriber
 import com.aroncent.api.RetrofitManager
+import com.aroncent.utils.showToast
 import com.xlitebt.base.BaseActivity
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
@@ -46,7 +47,8 @@ class RegisterActivity1 : BaseActivity() {
                 @SuppressLint("SetTextI18n")
                 override fun _onNext(t: BaseBean?) {
                     t?.let {
-                        if (t.code == 1) {
+                        showToast(t.msg)
+                        if (t.code == 200) {
                             startActivity(Intent(this@RegisterActivity1,RegisterActivity2::class.java)
                                 .putExtra("email",et_email.text.toString()))
                         }

@@ -5,7 +5,7 @@ import java.util.List;
 public class CountryListBean {
 
     public int code;
-    public int msg;
+    public String msg;
     public String time;
     public List<DataBean> data;
 
