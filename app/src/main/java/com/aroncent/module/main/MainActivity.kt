@@ -594,9 +594,11 @@ class MainActivity : BaseActivity() {
                 override fun _onNext(t: BaseBean?) {
                     t?.let {
                         showToast(t.msg)
-                        getUserInfo()
-                        //播放情侣视频
-                        showVideoDialog(videoUrl)
+                        if (status=="3"){
+                            getUserInfo()
+                            //播放情侣视频
+                            showVideoDialog(videoUrl)
+                        }
                     }
                 }
             })

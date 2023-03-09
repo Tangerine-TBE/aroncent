@@ -14,6 +14,7 @@ import com.tencent.mmkv.MMKV
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.android.synthetic.main.dialog_tips.*
 import kotlinx.android.synthetic.main.frag_bind_partner.*
 
 class BindPartnerFragment : BaseFragment() {
@@ -22,10 +23,7 @@ class BindPartnerFragment : BaseFragment() {
     }
 
     override fun initView() {
-        if (MMKV.defaultMMKV().getString(KVKey.partnerStatus,"") == "4"){
-            tv_tip.visibility = View.VISIBLE
-            ll_bind.visibility = View.GONE
-        }
+
     }
 
     override fun lazyLoad() {
@@ -59,10 +57,6 @@ class BindPartnerFragment : BaseFragment() {
                 override fun _onNext(t: BaseBean?) {
                     t?.let {
                         showToast(t.msg)
-                        if (t.code == 200) {
-                            tv_tip.visibility = View.VISIBLE
-                            ll_bind.visibility = View.GONE
-                        }
                     }
                 }
             })
