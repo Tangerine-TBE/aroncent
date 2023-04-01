@@ -78,7 +78,7 @@ class MainActivity : BaseActivity() {
                 //打开蓝牙
                 enableBluetooth.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
             } else {
-                showToast(getString(com.aroncent.R.string.android_12_ble_permission_hint))
+                showToast(getString(R.string.android_12_ble_permission_hint))
                 finish()
             }
         }
@@ -94,7 +94,7 @@ class MainActivity : BaseActivity() {
                     connectBle()
                 }
             } else {
-                showToast(getString(com.aroncent.R.string.android_12_ble_permission_hint))
+                showToast(getString(R.string.android_12_ble_permission_hint))
                 finish()
             }
         }
@@ -118,7 +118,7 @@ class MainActivity : BaseActivity() {
                     }
                 }
             } else {
-                showToast(getString(com.aroncent.R.string.enable_bluetooth_hint))
+                showToast(getString(R.string.enable_bluetooth_hint))
                 finish()
             }
         }
@@ -129,12 +129,12 @@ class MainActivity : BaseActivity() {
             //扫描蓝牙
             connectBle()
         } else {
-            showToast(getString(com.aroncent.R.string.opening_location_permission))
+            showToast(getString(R.string.opening_location_permission))
             finish()
         }
     }
     override fun layoutId(): Int {
-        return  com.aroncent.R.layout.activity_main
+        return  R.layout.activity_main
     }
 
 
@@ -146,17 +146,17 @@ class MainActivity : BaseActivity() {
     }
     fun resetBg() {
         Glide.with(this)
-            .load(com.aroncent.R.drawable.tab_home)
+            .load(R.drawable.tab_home)
             .into(iv_main_tab_1)
         Glide.with(this)
-            .load(com.aroncent.R.drawable.tab_history)
+            .load(R.drawable.tab_history)
             .into(iv_main_tab_2)
         Glide.with(this)
-            .load(com.aroncent.R.drawable.tab_my)
+            .load(R.drawable.tab_my)
             .into(iv_main_tab_3)
-        tv_tab_1.setTextColor(ContextCompat.getColor(this, com.aroncent.R.color.tabTextNormal))
-        tv_tab_2.setTextColor(ContextCompat.getColor(this, com.aroncent.R.color.tabTextNormal))
-        tv_tab_3.setTextColor(ContextCompat.getColor(this, com.aroncent.R.color.tabTextNormal))
+        tv_tab_1.setTextColor(ContextCompat.getColor(this, R.color.tabTextNormal))
+        tv_tab_2.setTextColor(ContextCompat.getColor(this, R.color.tabTextNormal))
+        tv_tab_3.setTextColor(ContextCompat.getColor(this, R.color.tabTextNormal))
     }
     private fun setSelect(i: Int) {
         resetBg()
@@ -302,7 +302,7 @@ class MainActivity : BaseActivity() {
             override fun onScanFinished(scanResult: BleDevice?) {
                 if (scanResult==null){
                     connectDeviceDialog!!.dismiss()
-//                    showDisconnectDialog()
+                    showDisconnectDialog()
                 }
             }
         })
@@ -481,18 +481,20 @@ class MainActivity : BaseActivity() {
                                 MMKV.defaultMMKV().encode(KVKey.long_flash,t.data.long_light)
                                 MMKV.defaultMMKV().encode(KVKey.short_flash,t.data.short_light)
                                 MMKV.defaultMMKV().encode(KVKey.equipment,t.data.equipment)
-                                if (isAndroid12()) {
-                                    //检查是否有BLUETOOTH_CONNECT权限
-                                    if (hasPermission(this@MainActivity, Manifest.permission.BLUETOOTH_CONNECT)) {
-                                        //打开蓝牙
-                                        enableBluetooth.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
+                                if (!BleManager.getInstance().isConnected(BleTool.mBleDevice)){
+                                    if (isAndroid12()) {
+                                        //检查是否有BLUETOOTH_CONNECT权限
+                                        if (hasPermission(this@MainActivity, Manifest.permission.BLUETOOTH_CONNECT)) {
+                                            //打开蓝牙
+                                            enableBluetooth.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
+                                        } else {
+                                            //请求权限
+                                            requestBluetoothConnect.launch(Manifest.permission.BLUETOOTH_CONNECT)
+                                        }
                                     } else {
-                                        //请求权限
-                                        requestBluetoothConnect.launch(Manifest.permission.BLUETOOTH_CONNECT)
+                                        //不是Android12 直接打开蓝牙
+                                        enableBluetooth.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
                                     }
-                                } else {
-                                    //不是Android12 直接打开蓝牙
-                                    enableBluetooth.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
                                 }
                             }
                         }
@@ -711,11 +713,11 @@ class MainActivity : BaseActivity() {
     private fun showDisconnectDialog(){
         CustomDialog
             .build()
-            .setMaskColor(getColor(com.aroncent.R.color.dialogMaskColor))
-            .setCustomView(object : OnBindView<CustomDialog>(com.aroncent.R.layout.dialog_device_disconnect) {
+            .setMaskColor(getColor(R.color.dialogMaskColor))
+            .setCustomView(object : OnBindView<CustomDialog>(R.layout.dialog_device_disconnect) {
                 override fun onBind(dialog: CustomDialog?, v: View?) {
                     v!!.let {
-                        val confirm = v.findViewById<TextView>(com.aroncent.R.id.tv_confirm)
+                        val confirm = v.findViewById<TextView>(R.id.tv_confirm)
                         confirm.setOnClickListener {
                             if (isAndroid12()) {
                                 //检查是否有BLUETOOTH_CONNECT权限
