@@ -1,18 +1,13 @@
 package com.aroncent.utils
 
-import android.app.Activity
-import android.app.ActivityManager
 import android.content.Context
-import android.content.Context.ACTIVITY_SERVICE
 import android.content.Intent
-import android.location.LocationManager
 import android.os.Build
 import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import com.aroncent.app.KVKey
 import com.aroncent.ble.DeviceConfig
@@ -20,17 +15,8 @@ import com.aroncent.module.login.UserinfoBean
 import com.blankj.utilcode.util.NumberUtils
 import com.blankj.utilcode.util.ToastUtils
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.load.resource.gif.GifDrawable
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.Target
-import com.tencent.bugly.proguard.t
-import com.tencent.bugly.proguard.x
 import com.tencent.mmkv.MMKV
 import pub.devrel.easypermissions.EasyPermissions
-import java.lang.reflect.Field
-import java.lang.reflect.InvocationTargetException
 
 
 fun Fragment.showToast(content: String) {

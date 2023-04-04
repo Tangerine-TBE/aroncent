@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1068821787897",
+    "project_id": "aroncent-b704e",
+    "storage_bucket": "aroncent-b704e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1068821787897:android:cc9373a1b5915b7f3d5e28",
+        "android_client_info": {
+          "package_name": "com.aroncent"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1068821787897-jj5sveacuf50b9i7i7ia971011gu49j5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQ1KpUyRmk_Iw-oEVFPpZQgXXsuGOTSJ0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1068821787897-jj5sveacuf50b9i7i7ia971011gu49j5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

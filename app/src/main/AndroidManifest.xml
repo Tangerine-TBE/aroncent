@@ -95,6 +95,9 @@
                 <category android:name="com.aroncent" />
             </intent-filter>
         </receiver>
+
+        <meta-data android:name="com.onesignal.NotificationServiceExtension"
+            android:value="com.aroncent.onesignal.MyNotificationHandler" />
     </application>
 
 </manifest>

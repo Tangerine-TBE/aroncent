@@ -13,6 +13,9 @@ import com.aroncent.utils.showToast
 import com.aroncent.utils.startActivity
 import com.blankj.utilcode.util.ActivityUtils
 import com.blankj.utilcode.util.RegexUtils
+import com.onesignal.OneSignal
+import com.onesignal.OneSignalAPIClient
+import com.onesignal.OneSignalNotificationManager
 import com.xlitebt.base.BaseActivity
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
@@ -106,7 +109,7 @@ class RegisterActivity4 : BaseActivity() {
         map["country"] = countryId
         map["password"] = et_password.text.toString()
         map["jg_pushid"] = JPushInterface.getRegistrationID(this)
-        map["onesignal_pushid"] = JPushInterface.getRegistrationID(this)
+        map["onesignal_pushid"] = OneSignal.getDeviceState()?.userId ?: ""
         RetrofitManager.service.register(map)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())

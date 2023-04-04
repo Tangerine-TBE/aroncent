@@ -3,9 +3,11 @@ package com.aroncent.app
 import android.app.Application
 import android.content.Context
 import cn.jpush.android.api.JPushInterface
+import com.aroncent.onesignal.MyNotificationHandler
 import com.clj.fastble.BleManager
 import com.hjq.language.MultiLanguages
 import com.kongzue.dialogx.DialogX
+import com.onesignal.OneSignal
 import com.socks.library.KLog
 import com.tencent.bugly.Bugly
 import com.tencent.mmkv.MMKV
@@ -20,7 +22,7 @@ import kotlin.properties.Delegates
  */
 
 class MyApplication : Application(){
-
+    private val ONESIGNAL_APP_ID = "1831d749-003d-4c23-9adf-6a72322a79db"
     companion object {
         private val TAG = "MyApplication"
         var context: Context by Delegates.notNull()
@@ -36,9 +38,20 @@ class MyApplication : Application(){
 
     override fun onCreate() {
         super.onCreate()
+        // Enable verbose OneSignal logging to debug issues if needed.
+        OneSignal.setLogLevel(OneSignal.LOG_LEVEL.VERBOSE, OneSignal.LOG_LEVEL.NONE)
+
+        // OneSignal Initialization
+        OneSignal.initWithContext(this)
+        OneSignal.setAppId(ONESIGNAL_APP_ID)
+
+        // promptForPushNotifications will show the native Android notification permission prompt.
+        // We recommend removing the following code and instead using an In-App Message to prompt for notification permission (See step 7)
+        OneSignal.promptForPushNotifications()
+
         KLog.init(BuildConfig.DEBUG,"xlite")
-        JPushInterface.setDebugMode(true);
-        JPushInterface.init(this);
+        JPushInterface.setDebugMode(true)
+        JPushInterface.init(this)
         MultiLanguages.init(this)
         DialogX.init(this)
         sDefault = this
