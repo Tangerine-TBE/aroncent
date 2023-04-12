@@ -3,7 +3,6 @@ package com.aroncent.app
 import android.app.Application
 import android.content.Context
 import cn.jpush.android.api.JPushInterface
-import com.aroncent.onesignal.MyNotificationHandler
 import com.clj.fastble.BleManager
 import com.hjq.language.MultiLanguages
 import com.kongzue.dialogx.DialogX

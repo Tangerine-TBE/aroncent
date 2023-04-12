@@ -302,7 +302,7 @@ class MainActivity : BaseActivity() {
             override fun onScanFinished(scanResult: BleDevice?) {
                 if (scanResult==null){
                     connectDeviceDialog!!.dismiss()
-                    showDisconnectDialog()
+//                    showDisconnectDialog()
                 }
             }
         })

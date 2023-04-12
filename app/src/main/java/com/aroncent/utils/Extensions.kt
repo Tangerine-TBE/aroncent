@@ -15,7 +15,9 @@ import com.aroncent.module.login.UserinfoBean
 import com.blankj.utilcode.util.NumberUtils
 import com.blankj.utilcode.util.ToastUtils
 import com.bumptech.glide.Glide
+import com.onesignal.OneSignal
 import com.tencent.mmkv.MMKV
+import org.json.JSONObject
 import pub.devrel.easypermissions.EasyPermissions
 
 
@@ -49,6 +51,15 @@ fun setUserInfoToSp(data : UserinfoBean){
     MMKV.defaultMMKV().encode(KVKey.nickname,data.nickname)
     MMKV.defaultMMKV().encode(KVKey.partnerStatus,data.partnerstatus)
     MMKV.defaultMMKV().encode(KVKey.user_id,data.user_id)
+    OneSignal.setExternalUserId(data.user_id.toString(),object : OneSignal.OSExternalUserIdUpdateCompletionHandler{
+        override fun onSuccess(p0: JSONObject?) {
+            Log.e("OneSignal","setExternalUserId error: ${p0?.toString()}")
+        }
+
+        override fun onFailure(p0: OneSignal.ExternalIdError?) {
+            Log.e("OneSignal","setExternalUserId error: ${p0?.message}")
+        }
+    })
     if (data.partnerstatus == "3"){
         MMKV.defaultMMKV().encode(KVKey.isBind,true)
     }else{
