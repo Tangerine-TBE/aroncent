@@ -16,7 +16,7 @@ import com.blankj.utilcode.util.GsonUtils
 import org.greenrobot.eventbus.EventBus
 
 class PushMessageReceiver : JPushMessageReceiver() {
-    private val TAG = "PushMessageReceiver"
+    private val TAG = "MsgReceivedJPush"
 
     override fun onMessage(context: Context, customMessage: CustomMessage) {
         Log.e(TAG, "[onMessage] $customMessage")
@@ -110,6 +110,7 @@ class PushMessageReceiver : JPushMessageReceiver() {
     }
 
     override fun onCommandResult(context: Context?, cmdMessage: CmdMessage) {
+        //交互事件回调 cmd=0 注册失败
         Log.e(TAG, "[onCommandResult] $cmdMessage")
     }
 

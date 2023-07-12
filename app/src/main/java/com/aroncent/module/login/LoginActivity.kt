@@ -11,6 +11,7 @@ import com.aroncent.utils.startActivity
 import com.blankj.utilcode.util.ActivityUtils
 import com.aroncent.api.RetrofitManager
 import com.aroncent.base.BaseBean
+import com.onesignal.OneSignal
 import com.xlitebt.base.BaseActivity
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
@@ -69,7 +70,7 @@ class LoginActivity : BaseActivity() {
     private fun updateRid(){
         val map = hashMapOf<String,String>()
         map["jg_pushid"] = JPushInterface.getRegistrationID(this)
-        map["onesignal_pushid"] = JPushInterface.getRegistrationID(this)
+        map["onesignal_pushid"] = OneSignal.getDeviceState()?.userId ?: ""
         RetrofitManager.service.updaterid(map)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())

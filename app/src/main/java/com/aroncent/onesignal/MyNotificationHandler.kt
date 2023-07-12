@@ -23,7 +23,7 @@ class MyNotificationHandler :OneSignal.OSRemoteNotificationReceivedHandler {
         // Example of modifying the notification's accent color
 
         val data = notification.additionalData
-        Log.e("OneSignalExample", "Received Notification Data: $data")
+        Log.e("MsgReceivedOnesignal", "Received Notification Data: $data")
 
         val msgData = GsonUtils.fromJson(data.toString(), PushMsgBean::class.java)
         //这里有两种类型的指令，01和03,03指令的需要转换成01的指令

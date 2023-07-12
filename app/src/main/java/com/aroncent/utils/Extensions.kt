@@ -53,7 +53,7 @@ fun setUserInfoToSp(data : UserinfoBean){
     MMKV.defaultMMKV().encode(KVKey.user_id,data.user_id)
     OneSignal.setExternalUserId(data.user_id.toString(),object : OneSignal.OSExternalUserIdUpdateCompletionHandler{
         override fun onSuccess(p0: JSONObject?) {
-            Log.e("OneSignal","setExternalUserId error: ${p0?.toString()}")
+            Log.e("OneSignal","setExternalUserId success: ${p0?.toString()}")
         }
 
         override fun onFailure(p0: OneSignal.ExternalIdError?) {
