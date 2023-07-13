@@ -16,7 +16,7 @@ import com.blankj.utilcode.util.GsonUtils
 import org.greenrobot.eventbus.EventBus
 
 class PushMessageReceiver : JPushMessageReceiver() {
-    private val TAG = "MsgReceivedJPush"
+    private val TAG = "MsgReceiveJPush"
 
     override fun onMessage(context: Context, customMessage: CustomMessage) {
         Log.e(TAG, "[onMessage] $customMessage")
@@ -39,7 +39,7 @@ class PushMessageReceiver : JPushMessageReceiver() {
 
                    morseData = morseData.substring(0,length.toInt())
                    //这里得到摩斯密码表示的长按和短按 eg: 010100
-                   Log.e("morseData",morseData.substring(0,length.toInt()))
+                   Log.e("JPush morseData",morseData.substring(0,length.toInt()))
 
                    //组装01指令的数据域
                    var instructData = ""
@@ -56,13 +56,13 @@ class PushMessageReceiver : JPushMessageReceiver() {
                            BleTool.getXOR("01$frame_length" + DeviceConfig.loop_number + instructData) +
                            "01$frame_length" + DeviceConfig.loop_number + instructData + "C5CCCA"
 
-                   Log.e("03指令转成01指令：",instruct)
+                   Log.e("JPush 03指令转成01指令：",instruct)
                    BleTool.sendInstruct(instruct)
                }
             PushInfoType.App->{
                 val morseData = msgData.key.morsecode.replace(",","")
                 //这里得到摩斯密码表示的长按和短按 eg: 010100
-                Log.e("morseData",morseData)
+                Log.e("JPush morseData",morseData)
 
                 //组装01指令的数据域
                 var instructData = ""
@@ -79,7 +79,7 @@ class PushMessageReceiver : JPushMessageReceiver() {
                         BleTool.getXOR("01$frame_length" + DeviceConfig.loop_number + instructData) +
                         "01$frame_length" + DeviceConfig.loop_number + instructData + "C5CCCA"
 
-                Log.e("摩斯短语转01指令：",instruct)
+                Log.e("JPush 摩斯短语转01指令：",instruct)
                 BleTool.sendInstruct(instruct)
             }
         }

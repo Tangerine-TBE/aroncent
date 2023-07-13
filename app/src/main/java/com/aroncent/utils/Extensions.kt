@@ -159,7 +159,7 @@ fun getShortPressHex():String{
 
             //第三帧，为间隔时间，默认0.3s
             val third_frame = "00000003"
-            Log.e("getShortPressHex",first_frame+second_frame+third_frame)
+            Log.e("ShortPressHex",first_frame+second_frame+third_frame)
             return (first_frame+second_frame+third_frame).uppercase()
         }
 
@@ -176,7 +176,7 @@ fun getShortPressHex():String{
 
             //第三帧，为间隔时间，默认0.3s
             val third_frame = "00000003"
-            Log.e("getShortPressHex",first_frame+second_frame+third_frame)
+            Log.e("ShortPressHex",first_frame+second_frame+third_frame)
             return (first_frame+second_frame+third_frame).uppercase()
         }
 
@@ -188,7 +188,7 @@ fun getShortPressHex():String{
 
             //第二帧，为间隔时间，默认0.3s
             val second_frame = "00000003"
-            Log.e("getShortPressHex",first_frame+second_frame)
+            Log.e("ShortPressHex",first_frame+second_frame)
             return (first_frame+second_frame).uppercase()
         }
     }
@@ -212,7 +212,7 @@ fun getLongPressHex():String{
 
             //第三帧，为间隔时间，默认0.3s
             val third_frame = "00000003"
-            Log.e("getLongPressHex",first_frame+second_frame+third_frame)
+            Log.e("LongPressHex",first_frame+second_frame+third_frame)
             return (first_frame+second_frame+third_frame).uppercase()
         }
 
@@ -229,7 +229,7 @@ fun getLongPressHex():String{
 
             //第三帧，为间隔时间，默认0.3s
             val third_frame = "00000003"
-            Log.e("getLongPressHex",first_frame+second_frame+third_frame)
+            Log.e("LongPressHex",first_frame+second_frame+third_frame)
             return (first_frame+second_frame+third_frame).uppercase()
         }
 
@@ -241,7 +241,7 @@ fun getLongPressHex():String{
 
             //第二帧，为间隔时间，默认0.3s
             val second_frame = "00000003"
-            Log.e("getLongPressHex",first_frame+second_frame)
+            Log.e("LongPressHex",first_frame+second_frame)
             return (first_frame+second_frame).uppercase()
         }
     }

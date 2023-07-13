@@ -119,7 +119,7 @@ class HomeFragment : BaseFragment() {
         RetrofitManager.service.sendPhrase(map)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : RxSubscriber<SendPhraseBean?>(requireContext(), false) {
+            .subscribe(object : RxSubscriber<SendPhraseBean?>(requireContext(), true) {
                 override fun _onError(message: String?) {
                 }
 

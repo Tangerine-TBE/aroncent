@@ -18,12 +18,16 @@ import org.greenrobot.eventbus.EventBus
 
 @SuppressWarnings("unused")
 class MyNotificationHandler :OneSignal.OSRemoteNotificationReceivedHandler {
+    private val TAG = "MsgReceiveOneSignal"
+
     override fun remoteNotificationReceived(context: Context?, notificationReceivedEvent: OSNotificationReceivedEvent?) {
         val notification = notificationReceivedEvent!!.notification
-        // Example of modifying the notification's accent color
 
         val data = notification.additionalData
-        Log.e("MsgReceivedOnesignal", "Received Notification Data: $data")
+
+        Log.e(TAG, "收到来自Onesignal的通知")
+//        Log.e("MsgReceivedOnesignal", "notificationReceivedEvent："+notificationReceivedEvent.notification.toJSONObject().toString())
+        Log.e(TAG, "Received Notification Data: $data")
 
         val msgData = GsonUtils.fromJson(data.toString(), PushMsgBean::class.java)
         //这里有两种类型的指令，01和03,03指令的需要转换成01的指令
@@ -41,7 +45,7 @@ class MyNotificationHandler :OneSignal.OSRemoteNotificationReceivedHandler {
 
                 morseData = morseData.substring(0,length.toInt())
                 //这里得到摩斯密码表示的长按和短按 eg: 010100
-                Log.e("morseData",morseData.substring(0,length.toInt()))
+                Log.e("OPush morseData",morseData.substring(0,length.toInt()))
 
                 //组装01指令的数据域
                 var instructData = ""
@@ -58,13 +62,13 @@ class MyNotificationHandler :OneSignal.OSRemoteNotificationReceivedHandler {
                         BleTool.getXOR("01$frame_length" + DeviceConfig.loop_number + instructData) +
                         "01$frame_length" + DeviceConfig.loop_number + instructData + "C5CCCA"
 
-                Log.e("03指令转成01指令：",instruct)
-//                BleTool.sendInstruct(instruct)
+                Log.e("OPush 03指令转成01指令：",instruct)
+                BleTool.sendInstruct(instruct)
             }
             PushInfoType.App->{
                 val morseData = msgData.key.morsecode.replace(",","")
                 //这里得到摩斯密码表示的长按和短按 eg: 010100
-                Log.e("morseData",morseData)
+                Log.e("OPush morseData",morseData)
 
                 //组装01指令的数据域
                 var instructData = ""
@@ -81,8 +85,8 @@ class MyNotificationHandler :OneSignal.OSRemoteNotificationReceivedHandler {
                         BleTool.getXOR("01$frame_length" + DeviceConfig.loop_number + instructData) +
                         "01$frame_length" + DeviceConfig.loop_number + instructData + "C5CCCA"
 
-                Log.e("摩斯短语转01指令：",instruct)
-//                BleTool.sendInstruct(instruct)
+                Log.e("OPush 摩斯短语转01指令：",instruct)
+                BleTool.sendInstruct(instruct)
             }
         }
         //标记消息已读
