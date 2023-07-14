@@ -6,12 +6,15 @@ import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothGatt
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.util.Base64
 import android.util.Log
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -61,6 +64,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import java.security.MessageDigest
+import java.security.NoSuchAlgorithmException
 
 
 class MainActivity : BaseActivity() {
@@ -137,6 +142,18 @@ class MainActivity : BaseActivity() {
         return  R.layout.activity_main
     }
 
+    fun getkeyhash(){
+        try {
+            val info = packageManager.getPackageInfo("com.aroncent", PackageManager.GET_SIGNATURES)
+            for (signature in info.signatures) {
+                val md: MessageDigest = MessageDigest.getInstance("SHA")
+                md.update(signature.toByteArray())
+                Log.e("KeyHash", "KeyHash:" + Base64.encodeToString(md.digest(), Base64.DEFAULT))
+            }
+        } catch (e: PackageManager.NameNotFoundException) {
+        } catch (e: NoSuchAlgorithmException) {
+        }
+    }
 
     override fun initData() {
         if (getUserToken()!=""){
@@ -220,6 +237,7 @@ class MainActivity : BaseActivity() {
     }
 
     override fun initView() {
+        getkeyhash()
         if (getUserToken()==""){
             finish()
             startActivity(LoginActivity::class.java)
