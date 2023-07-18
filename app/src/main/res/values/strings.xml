@@ -1,4 +1,10 @@
 <resources>
+
+    <string name="facebook_app_id">1270668970214114</string>
+    <string name="fb_login_protocol_scheme">98203081df195a2e20de73a56708659a</string>
+    <string name="facebook_client_token">880a01ce34ec5aa8c9667352e9ea8f50</string>
+
+
     <string name="app_name">aroncent</string>
     <string name="please_wait">Please wait…</string>
     <string name="android_12_ble_permission_hint">Android 12 version must accept the permission to use the bluetooth function</string>

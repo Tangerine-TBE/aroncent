@@ -95,17 +95,16 @@
         app:layout_constraintEnd_toEndOf="@+id/tv_login"
         app:layout_constraintTop_toTopOf="@+id/tv_register" />
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="@dimen/dp_36"
+    <com.facebook.login.widget.LoginButton
+        android:id="@+id/fb_login"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/dp_72"
         android:adjustViewBounds="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/tv_login"
         app:layout_constraintStart_toStartOf="@+id/tv_login"
-        app:layout_constraintTop_toBottomOf="@+id/tv_forgot"
-        app:srcCompat="@drawable/facebook" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_forgot"/>
 
     <TextView
         android:layout_marginTop="@dimen/dp_12"
@@ -115,9 +114,9 @@
         android:text="facebook login"
         android:textColor="#9B9B9F"
         android:textSize="@dimen/sp_12"
-        app:layout_constraintEnd_toEndOf="@+id/imageView"
-        app:layout_constraintStart_toStartOf="@+id/imageView"
-        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+        app:layout_constraintEnd_toEndOf="@+id/fb_login"
+        app:layout_constraintStart_toStartOf="@+id/fb_login"
+        app:layout_constraintTop_toBottomOf="@+id/fb_login" />
 
     <ImageView
         android:id="@+id/imageView6"

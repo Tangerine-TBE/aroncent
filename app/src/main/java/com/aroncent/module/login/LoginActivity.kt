@@ -11,19 +11,46 @@ import com.aroncent.utils.startActivity
 import com.blankj.utilcode.util.ActivityUtils
 import com.aroncent.api.RetrofitManager
 import com.aroncent.base.BaseBean
+import com.facebook.CallbackManager
+import com.facebook.FacebookCallback
+import com.facebook.FacebookException
+import com.facebook.FacebookSdk
+import com.facebook.login.LoginResult
 import com.onesignal.OneSignal
 import com.xlitebt.base.BaseActivity
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.act_login.*
+import java.util.*
 
 class LoginActivity : BaseActivity() {
+
+
+    private val EMAIL = "email"
+
+
     override fun layoutId(): Int {
         return R.layout.act_login
     }
 
     override fun initData() {
+        val callbackManager = CallbackManager.Factory.create()
+        fb_login.setPermissions(EMAIL)
+        // If you are using in a fragment, call loginButton.setFragment(this);
+        // Callback registration
+        fb_login.registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
+            override fun onSuccess(result: LoginResult) {
+
+            }
+            override fun onCancel() {
+            }
+
+            override fun onError(error: FacebookException) {
+            }
+
+
+        })
     }
 
     override fun initView() {

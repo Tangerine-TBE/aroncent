@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import cn.jpush.android.api.JPushInterface
 import com.clj.fastble.BleManager
+import com.facebook.FacebookSdk
 import com.hjq.language.MultiLanguages
 import com.kongzue.dialogx.DialogX
 import com.onesignal.OneSignal
@@ -37,6 +38,8 @@ class MyApplication : Application(){
 
     override fun onCreate() {
         super.onCreate()
+        FacebookSdk.sdkInitialize(this)
+
         // Enable verbose OneSignal logging to debug issues if needed.
         OneSignal.setLogLevel(OneSignal.LOG_LEVEL.VERBOSE, OneSignal.LOG_LEVEL.NONE)
 
