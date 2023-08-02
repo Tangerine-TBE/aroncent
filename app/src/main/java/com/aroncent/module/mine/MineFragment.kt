@@ -29,6 +29,7 @@ import com.aroncent.api.RetrofitManager
 import com.aroncent.app.MyApplication
 import com.aroncent.module.main.UpdateHeadPicEvent
 import com.aroncent.utils.GlideEngine
+import com.blankj.utilcode.util.FileUtils
 import com.luck.picture.lib.basic.PictureSelector
 import com.luck.picture.lib.config.SelectMimeType
 import com.luck.picture.lib.engine.CompressFileEngine
@@ -115,7 +116,7 @@ class MineFragment : BaseFragment() {
                             .setRecordVideoMinSecond(5)
                             .forResult(object : OnResultCallbackListener<LocalMedia?> {
                                 override fun onResult(result: ArrayList<LocalMedia?>?) {
-                                    UploadUtils.uploadFile(File(result!![0]!!.realPath),object : RxSubscriber<UploadBean>(requireContext(),true){
+                                    UploadUtils.uploadFile(FileUtils.getFileByPath(result!![0]!!.realPath),object : RxSubscriber<UploadBean>(requireContext(),true){
                                         override fun onSubscribe(d: Disposable) {
 
                                         }

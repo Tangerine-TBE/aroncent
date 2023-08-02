@@ -31,6 +31,7 @@ import com.aroncent.ble.BleAnswerEvent
 import com.aroncent.ble.BleDefinedUUIDs
 import com.aroncent.ble.BleTool
 import com.aroncent.ble.ByteTransformUtil
+import com.aroncent.ble.DeviceConfig
 import com.aroncent.event.ConnectStatusEvent
 import com.aroncent.event.GetHistoryEvent
 import com.aroncent.event.ReadMsgEvent
@@ -320,7 +321,7 @@ class MainActivity : BaseActivity() {
             override fun onScanFinished(scanResult: BleDevice?) {
                 if (scanResult==null){
                     connectDeviceDialog!!.dismiss()
-//                    showDisconnectDialog()
+                    showDisconnectDialog()
                 }
             }
         })
@@ -351,7 +352,7 @@ class MainActivity : BaseActivity() {
                         //03指令示例： A5AAAC00030400C5CCCA
                         val str = ByteTransformUtil.bytesToHex(data).uppercase()
                         when{
-                            str.contains("0241434B")->{
+                            str.contains("0241434B")||str.contains("024E41434B")->{
                                 EventBus.getDefault().post(BleAnswerEvent("notify", str))
                             }
                             str.substring(8,10)=="03"->{
@@ -767,6 +768,27 @@ class MainActivity : BaseActivity() {
         fragmentTransaction.commit()
     }
     override fun start() {
+        test()
+    }
+
+    fun test(){
+        val morseData = "010100"
+        //组装01指令的数据域
+        var instructData = ""
+        morseData.forEach {
+            instructData += if (it.toString()=="0"){
+                getShortPressHex()
+            }else{
+                getLongPressHex()
+            }
+        }
+        //帧数长度
+        val frame_length = addZeroForNum((instructData.length/8).toString(16),2).uppercase()
+        val instruct = "A5AAAC" +
+                BleTool.getXOR("01$frame_length" + DeviceConfig.loop_number + instructData) +
+                "01$frame_length" + DeviceConfig.loop_number + instructData + "C5CCCA"
+
+        Log.e("OPush 03指令转成01指令：",instruct)
     }
 
 }

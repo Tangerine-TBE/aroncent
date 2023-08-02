@@ -54,6 +54,9 @@ class ShakeFlashSettingActivity : BaseActivity() {
                 str.contains("0241434B")->{
                     setShake()
                 }
+                str.contains("024E41434B")->{
+                   showToast(getString(R.string.save_fail))
+                }
             }
         }
     }
@@ -158,7 +161,7 @@ class ShakeFlashSettingActivity : BaseActivity() {
 
     private fun setShakeToDevice(){
         //给设备设置默认参数，灯光颜色，长短震，长短闪
-        val lightColor = DeviceConfig.lightColor
+        val lightColor = if (DeviceConfig.lightColor =="") "FFFFFF" else DeviceConfig.lightColor
         val binary_short_flash = addZeroForNum((short_flash.toFloat()*10).toInt().toString(2),4)
         val binary_long_flash = addZeroForNum((long_flash.toFloat()*10).toInt().toString(2),4)
         val binary_short_shake = addZeroForNum((short_shake.toFloat()*10).toInt().toString(2),4)

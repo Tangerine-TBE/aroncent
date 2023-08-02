@@ -1,6 +1,7 @@
 package com.aroncent.module.login
 
 import android.annotation.SuppressLint
+import android.util.Log
 import cn.jpush.android.api.JPushInterface
 import com.aroncent.R
 import com.aroncent.base.RxSubscriber
@@ -41,12 +42,14 @@ class LoginActivity : BaseActivity() {
         // Callback registration
         fb_login.registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
             override fun onSuccess(result: LoginResult) {
-
+                Log.e("facebook",result.toString())
             }
             override fun onCancel() {
+                Log.e("facebook","cancel")
             }
 
             override fun onError(error: FacebookException) {
+                Log.e("facebook",error.message!!)
             }
 
 
