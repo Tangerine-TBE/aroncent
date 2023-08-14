@@ -60,7 +60,7 @@ fun setUserInfoToSp(data : UserinfoBean){
             Log.e("OneSignal","setExternalUserId error: ${p0?.message}")
         }
     })
-    if (data.partnerstatus == "3"){
+    if (data.partnerstatus.toInt() >= 3){
         MMKV.defaultMMKV().encode(KVKey.isBind,true)
     }else{
         MMKV.defaultMMKV().encode(KVKey.isBind,false)

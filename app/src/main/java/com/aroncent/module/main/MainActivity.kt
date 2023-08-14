@@ -465,7 +465,7 @@ class MainActivity : BaseActivity() {
                                             }
                                             agree.setOnClickListener {
                                                 dialog!!.dismiss()
-                                                confirmEmail("3","http://oss.ltwoo-app.top/explain/1918ab227a4613a1bfd875704b096452.mp4")
+                                                confirmEmail("3",t.data.videopath)
                                             }
                                         }
                                     }

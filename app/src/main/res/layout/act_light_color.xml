@@ -37,7 +37,7 @@
         app:alphaSlider="false"
         app:density="10"
         app:lightnessSlider="false"
-        app:wheelType="FLOWER" />
+        app:wheelType="CIRCLE" />
 
     <TextView
         android:id="@+id/tv_save"
