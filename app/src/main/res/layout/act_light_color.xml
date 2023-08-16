@@ -27,17 +27,16 @@
         android:textColor="@color/white"
         android:textSize="@dimen/sp_12" />
 
-    <com.flask.colorpicker.ColorPickerView
+    <top.defaults.colorpicker.ColorPickerView
         android:id="@+id/color_picker_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dp_42"
         android:layout_marginTop="@dimen/sp_20"
         android:layout_marginEnd="@dimen/dp_42"
-        app:alphaSlider="false"
-        app:density="10"
-        app:lightnessSlider="false"
-        app:wheelType="CIRCLE" />
+        android:rotation="240"
+        app:enableAlpha="false"
+        app:enableBrightness="false" />
 
     <TextView
         android:id="@+id/tv_save"

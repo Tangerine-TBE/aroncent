@@ -153,7 +153,7 @@ dependencies {
 
     implementation "com.github.kongzue.DialogX:DialogX:0.0.46"
 
-    implementation 'com.github.QuadFlask:colorpicker:0.0.15'
+//    implementation 'com.github.QuadFlask:colorpicker:0.0.15'
 
     // PictureSelector 基础 (必须)
     implementation 'io.github.lucksiege:pictureselector:v3.10.7'
@@ -179,5 +179,7 @@ dependencies {
     implementation 'com.huawei.hms:push:6.3.0.304'
 
     implementation 'com.facebook.android:facebook-login:latest.release'
+
+    implementation 'com.github.duanhong169:colorpicker:1.1.6'
 
 }

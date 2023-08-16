@@ -53,8 +53,9 @@ class LightColorActivity : BaseActivity() {
 
     override fun initView() {
         EventBus.getDefault().register(this)
-        lightColor = DeviceConfig.lightColor
-        color_picker_view.setInitialColor(Color.parseColor("#FF$lightColor"),true)
+        lightColor = if (DeviceConfig.lightColor =="") "FFFFFF" else DeviceConfig.lightColor
+//        color_picker_view.setInitialColor(Color.parseColor("#FF$lightColor"),true)
+        color_picker_view.setInitialColor(Color.parseColor("#FF$lightColor"))
         long_shake = DeviceConfig.long_shake
         short_shake = DeviceConfig.short_shake
         long_flash = DeviceConfig.long_flash
@@ -68,11 +69,14 @@ class LightColorActivity : BaseActivity() {
     }
 
     override fun initListener() {
-        color_picker_view.addOnColorChangedListener {
-            Log.e("onColorChanged: ","0x" + Integer.toHexString(it))
+        color_picker_view.subscribe { color, fromUser, shouldPropagate ->
+            if (fromUser){
+                Log.e("subscribe: ",Integer.toHexString(color).uppercase())
+            }
             //只需要保存后面6位颜色，透明度不需要保存
-            lightColor = Integer.toHexString(it).uppercase().substring(2)
+            lightColor = Integer.toHexString(color).uppercase().substring(2)
         }
+
         tv_save.setOnClickListener {
 
             //给设备设置默认参数，灯光颜色，长短震，长短闪
