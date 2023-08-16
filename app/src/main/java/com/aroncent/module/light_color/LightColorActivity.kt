@@ -20,6 +20,7 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.act_light_color.*
+import kotlinx.android.synthetic.main.top_bar.iv_back
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -69,6 +70,7 @@ class LightColorActivity : BaseActivity() {
     }
 
     override fun initListener() {
+        iv_back.setOnClickListener { finish() }
         color_picker_view.subscribe { color, fromUser, shouldPropagate ->
             if (fromUser){
                 Log.e("subscribe: ",Integer.toHexString(color).uppercase())

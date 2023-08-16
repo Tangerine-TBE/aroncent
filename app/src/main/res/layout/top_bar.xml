@@ -5,7 +5,7 @@
     android:layout_height="wrap_content">
 
     <ImageView
-        android:id="@+id/imageView10"
+        android:id="@+id/iv_back"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/dp_24"
@@ -24,6 +24,6 @@
         android:textColor="@color/white"
         android:textSize="@dimen/sp_13"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/imageView10" />
+        app:layout_constraintTop_toTopOf="@+id/iv_back" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

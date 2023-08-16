@@ -22,6 +22,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.act_edit_phrase.*
 import kotlinx.android.synthetic.main.item_morse_code.view.*
 import kotlinx.android.synthetic.main.item_select_morse_code.view.*
+import kotlinx.android.synthetic.main.top_bar.iv_back
 import org.greenrobot.eventbus.EventBus
 
 class EditPhraseActivity : BaseActivity() {
@@ -47,6 +48,7 @@ class EditPhraseActivity : BaseActivity() {
     }
 
     override fun initListener() {
+        iv_back.setOnClickListener { finish() }
         tv_save.setOnClickListener {
             editPhrase()
         }

@@ -27,6 +27,7 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.act_shake_setting.*
+import kotlinx.android.synthetic.main.top_bar.iv_back
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -81,6 +82,7 @@ class ShakeFlashSettingActivity : BaseActivity() {
     }
 
     override fun initListener() {
+        iv_back.setOnClickListener { finish() }
         seekBar_long.onSeekChangeListener = object : OnSeekChangeListener {
             override fun onSeeking(p: SeekParams) {}
             override fun onStartTrackingTouch(seekBar: IndicatorSeekBar) {}
