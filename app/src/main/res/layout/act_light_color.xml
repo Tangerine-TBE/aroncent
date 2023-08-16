@@ -34,7 +34,8 @@
         android:layout_marginStart="@dimen/dp_42"
         android:layout_marginTop="@dimen/sp_20"
         android:layout_marginEnd="@dimen/dp_42"
-        android:rotation="240"
+        android:rotation="180"
+        android:rotationY="-180"
         app:enableAlpha="false"
         app:enableBrightness="false" />
 
