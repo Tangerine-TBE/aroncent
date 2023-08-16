@@ -55,7 +55,6 @@ class LightColorActivity : BaseActivity() {
     override fun initView() {
         EventBus.getDefault().register(this)
         lightColor = if (DeviceConfig.lightColor =="") "FFFFFF" else DeviceConfig.lightColor
-//        color_picker_view.setInitialColor(Color.parseColor("#FF$lightColor"),true)
         color_picker_view.setInitialColor(Color.parseColor("#FF$lightColor"))
         long_shake = DeviceConfig.long_shake
         short_shake = DeviceConfig.short_shake
