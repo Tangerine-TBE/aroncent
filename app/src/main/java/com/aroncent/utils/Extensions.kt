@@ -2,6 +2,7 @@ package com.aroncent.utils
 
 import android.content.Context
 import android.content.Intent
+import android.location.LocationManager
 import android.os.Build
 import android.util.Log
 import android.view.Gravity
@@ -245,6 +246,16 @@ fun getLongPressHex():String{
             return (first_frame+second_frame).uppercase()
         }
     }
+}
+
+/**
+ * 手机是否开启位置服务，如果没有开启那么所有app将不能使用定位功能
+ */
+fun isLocServiceEnable(context: Context): Boolean {
+    val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    val gps = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+    val network = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+    return gps || network
 }
 
 

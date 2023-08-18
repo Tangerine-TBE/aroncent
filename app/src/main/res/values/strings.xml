@@ -14,6 +14,7 @@
     <string name="device_disconnected">Device disconnected</string>
     <string name="connect_fail">Connection failed</string>
     <string name="save_fail">Save Fail</string>
+    <string name="open_the_location_service">Please turn on the location service</string>
 
     <array name="setting_long_time">
         <item>0.8</item>

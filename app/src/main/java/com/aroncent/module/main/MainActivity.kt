@@ -257,6 +257,16 @@ class MainActivity : BaseActivity() {
     }
 
     private fun connectBle(){
+        if (!isLocServiceEnable(this)) {
+            showToast(getString(R.string.open_the_location_service))
+            showDisconnectDialog()
+            return
+        }
+        if (!BleManager.getInstance().isBlueEnable) {
+            showDisconnectDialog()
+            showToast(getString(R.string.enable_bluetooth_hint))
+            return
+        }
         val scanRuleConfig = BleScanRuleConfig.Builder()
             .setDeviceName(true, "RY_BLE") // 只扫描指定广播名的设备，可选,true:模糊查询
             .setScanTimeOut(8000) // 扫描超时时间，可选，默认10秒；小于等于0表示不限制扫描时间
