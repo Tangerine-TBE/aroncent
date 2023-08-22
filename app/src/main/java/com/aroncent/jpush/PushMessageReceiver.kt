@@ -84,7 +84,7 @@ class PushMessageReceiver : JPushMessageReceiver() {
             }
         }
         //标记消息已读
-        EventBus.getDefault().post(ReadMsgEvent(msgData.key.infoid))
+        EventBus.getDefault().post(ReadMsgEvent(msgData.key.infoid,msgData.key.morsecode))
     }
     override fun onNotifyMessageOpened(context: Context, message: NotificationMessage) {
         Log.e(TAG, "[onNotifyMessageOpened] $message")

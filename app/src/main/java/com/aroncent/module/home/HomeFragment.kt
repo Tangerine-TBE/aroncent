@@ -18,6 +18,7 @@ import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.aroncent.api.RetrofitManager
 import com.aroncent.app.KVKey
+import com.aroncent.event.ReadMsgEvent
 import com.aroncent.module.main.UpdateHeadPicEvent
 import com.bumptech.glide.Glide
 import com.tencent.mmkv.MMKV
@@ -61,6 +62,13 @@ class HomeFragment : BaseFragment() {
             .into(right_pic)
         tv_right_name.text = MMKV.defaultMMKV().decodeString(KVKey.partner_nickname,"")
 
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onReceiveMsg(msg: ReadMsgEvent) {
+        tv_new_msg.text = "Receive the new massage from "+tv_right_name.text
+        tv_new_msg2.visibility = View.VISIBLE
+        tv_new_msg2.text = msg.content
     }
     override fun initView() {
         Glide.with(this)

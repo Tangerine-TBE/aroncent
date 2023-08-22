@@ -81,10 +81,22 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <TextView
+                android:id="@+id/tv_new_msg"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Receive the new massage from Sally:"
+                tools:text="Receive the new massage from Sally:"
+                android:textColor="@color/white"
+                android:textSize="@dimen/sp_16"
+                android:textStyle="bold" />
+            <TextView
+                android:visibility="gone"
+                android:layout_marginTop="@dimen/dp_20"
+                android:id="@+id/tv_new_msg2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                tools:text="Hello"
                 android:textColor="@color/white"
                 android:textSize="@dimen/sp_16"
                 android:textStyle="bold" />

@@ -36,6 +36,7 @@
     </LinearLayout>
 
     <TextView
+        android:id="@+id/item_history_code"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dp_100"

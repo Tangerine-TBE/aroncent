@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_height="wrap_content">
     <LinearLayout
@@ -32,11 +33,12 @@
             android:layout_height="wrap_content"/>
     </LinearLayout>
     <TextView
+        android:id="@+id/item_history_code"
         android:layout_marginStart="@dimen/dp_24"
         android:layout_width="match_parent"
         android:layout_marginEnd="@dimen/dp_100"
         android:textSize="@dimen/sp_14"
-        android:text=".-.-.-"
+        tools:text=".-.-.-"
         android:textColor="#C3A9EA"
         android:layout_height="wrap_content"/>
 </LinearLayout>

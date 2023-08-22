@@ -90,7 +90,7 @@ class MyNotificationHandler :OneSignal.OSRemoteNotificationReceivedHandler {
             }
         }
         //标记消息已读
-        EventBus.getDefault().post(ReadMsgEvent(msgData.key.infoid))
+        EventBus.getDefault().post(ReadMsgEvent(msgData.key.infoid,msgData.key.morsecode))
 
         notificationReceivedEvent.complete(null)
     }

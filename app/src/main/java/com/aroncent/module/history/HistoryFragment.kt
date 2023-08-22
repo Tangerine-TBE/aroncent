@@ -23,6 +23,7 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.frag_history.*
 import kotlinx.android.synthetic.main.frag_history.left_pic
+import kotlinx.android.synthetic.main.item_history_left.view.item_history_code
 import kotlinx.android.synthetic.main.item_history_left.view.item_history_content
 import kotlinx.android.synthetic.main.item_history_left.view.item_history_time
 import kotlinx.android.synthetic.main.top_bar.*
@@ -101,7 +102,19 @@ class HistoryFragment : BaseFragment() {
             }else{
                 "$time [Unread]"
             }
+            var code = ""
+            if (item.morsecode != null) {
+                item.morsecode.forEach {
+                    if (it.toString() == "0") {
+                        code = "$code•"
+                    }
+                    if (it.toString() == "1") {
+                        code += "一"
+                    }
+                }
+            }
             itemView.item_history_time.text = time
+            itemView.item_history_code.text = code
 
         }
     }
