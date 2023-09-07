@@ -10,6 +10,7 @@ import com.aroncent.module.home.UserPhraseListBean
 import com.aroncent.module.login.CountryListBean
 import com.aroncent.module.login.RequestUserInfoBean
 import com.aroncent.module.main.PartnerInfoBean
+import com.aroncent.module.main.SendMorseCodeBean
 import com.aroncent.module.main.SettingBean
 import io.reactivex.rxjava3.core.Observable
 import okhttp3.MultipartBody
@@ -95,7 +96,7 @@ interface ApiService {
     /**使用手环按键摩斯方式发送**/
     @FormUrlEncoded
     @POST("addons/litestore/api.Sendphrase/codesend")
-    fun sendMorseCode(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
+    fun sendMorseCode(@FieldMap map: HashMap<String, String>) : Observable<SendMorseCodeBean>
 
     /**修改发送记录标题**/
     @FormUrlEncoded

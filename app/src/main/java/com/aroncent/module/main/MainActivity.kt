@@ -379,7 +379,7 @@ class MainActivity : BaseActivity() {
         RetrofitManager.service.sendMorseCode(hashMapOf("morsecode" to instructions,"infotype" to PushInfoType.Bracelet))
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : RxSubscriber<BaseBean?>(this, false) {
+            .subscribe(object : RxSubscriber<SendMorseCodeBean?>(this, false) {
                 override fun _onError(message: String?) {
                 }
 
@@ -388,12 +388,12 @@ class MainActivity : BaseActivity() {
                 }
 
                 @SuppressLint("SetTextI18n")
-                override fun _onNext(t: BaseBean?) {
-                    if (t!!.code==200){
+                override fun _onNext(t: SendMorseCodeBean?) {
+                    if (t!!.code == 200){
+                        EventBus.getDefault().post(GetHistoryEvent()) //刷新历史记录
                         //告知硬件对方开始显示
                         val xorStr = BleTool.getXOR("0401")
                         BleTool.sendInstruct("A5AAAC"+xorStr+"0401C5CCCA")
-                        EventBus.getDefault().post(GetHistoryEvent()) //刷新历史记录
                     }
                 }
             })
