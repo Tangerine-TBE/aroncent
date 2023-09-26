@@ -504,11 +504,11 @@ class MainActivity : BaseActivity() {
                     t?.let {
                         if (t.code == 200) {
                             if (t.data!=null){
-                                MMKV.defaultMMKV().encode(KVKey.long_shake,t.data.long_shake)
-                                MMKV.defaultMMKV().encode(KVKey.short_shake,t.data.short_shake)
+                                MMKV.defaultMMKV().encode(KVKey.long_shake,if(t.data.long_shake == "0")"0.8" else t.data.long_shake)
+                                MMKV.defaultMMKV().encode(KVKey.short_shake,if (t.data.short_shake == "0")"0.3" else t.data.short_shake)
                                 MMKV.defaultMMKV().encode(KVKey.light_color,t.data.lightcolor)
-                                MMKV.defaultMMKV().encode(KVKey.long_flash,t.data.long_light)
-                                MMKV.defaultMMKV().encode(KVKey.short_flash,t.data.short_light)
+                                MMKV.defaultMMKV().encode(KVKey.long_flash,if (t.data.long_light=="0")"0.8" else t.data.long_light)
+                                MMKV.defaultMMKV().encode(KVKey.short_flash,if (t.data.short_light=="0")"0.3" else t.data.short_light)
                                 MMKV.defaultMMKV().encode(KVKey.equipment,t.data.equipment)
                                 if (!BleManager.getInstance().isConnected(BleTool.mBleDevice)){
                                     if (isAndroid12()) {

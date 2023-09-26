@@ -13,25 +13,25 @@ object DeviceConfig {
     @JvmStatic
     val long_shake : String
         get() {
-            return MMKV.defaultMMKV().decodeString(KVKey.long_shake,"0.0")
+            return MMKV.defaultMMKV().decodeString(KVKey.long_shake,"0.8")
         }
 
     @JvmStatic
     val short_shake : String
         get() {
-            return MMKV.defaultMMKV().decodeString(KVKey.short_shake,"0.0")
+            return MMKV.defaultMMKV().decodeString(KVKey.short_shake,"0.3")
         }
 
     @JvmStatic
     val long_flash : String
         get() {
-            return MMKV.defaultMMKV().decodeString(KVKey.long_flash,"0.0")
+            return MMKV.defaultMMKV().decodeString(KVKey.long_flash,"0.8")
         }
 
     @JvmStatic
     val short_flash : String
         get() {
-            return MMKV.defaultMMKV().decodeString(KVKey.short_flash,"0.0")
+            return MMKV.defaultMMKV().decodeString(KVKey.short_flash,"0.3")
         }
 
     @JvmStatic

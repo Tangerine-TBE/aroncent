@@ -34,10 +34,10 @@ import org.greenrobot.eventbus.ThreadMode
 
 
 class ShakeFlashSettingActivity : BaseActivity() {
-    var long_shake = "0.0"
-    var short_shake = "0.0"
-    var long_flash = "0.0"
-    var short_flash = "0.0"
+    var long_shake = "0.8"
+    var short_shake = "0.3"
+    var long_flash = "0.8"
+    var short_flash = "0.3"
     var shaking_levels = "0"
     override fun layoutId(): Int {
         return R.layout.act_shake_setting
