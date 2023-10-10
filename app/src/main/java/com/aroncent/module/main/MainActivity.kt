@@ -346,9 +346,10 @@ class MainActivity : BaseActivity() {
             object : BleNotifyCallback() {
                 override fun onNotifySuccess() {
                     LogUtils.eTag(TAG, "notify success")
-//                    //测试指令
-//                    val xorStr = BleTool.getXOR("01"+"0101FFFFFF0A")
-//                    BleTool.sendInstruct("A5AAAC"+xorStr+"01"+"0101FFFFFF0A"+"C5CCCA")
+                    //测试指令
+                    ThreadUtils.runOnUiThreadDelayed({
+                        BleTool.sendInstruct("A5AAACFA05FFC5CCCA")
+                    },100)
                 }
 
                 override fun onNotifyFailure(exception: BleException?) {
@@ -368,6 +369,9 @@ class MainActivity : BaseActivity() {
                             str.substring(8,10)=="03"->{
                                //发送通知给对方 eg:A5AAAC00030304C5CCCA
                                 sendMorseCode(str)
+                            }
+                            str.substring(8,10)=="05"->{
+                                EventBus.getDefault().post(BatteryBean(str.substring(10,12).toInt(16).toString()))
                             }
                         }
                     }

@@ -27,6 +27,7 @@ import com.kongzue.dialogx.dialogs.CustomDialog
 import com.kongzue.dialogx.interfaces.OnBindView
 import com.aroncent.api.RetrofitManager
 import com.aroncent.app.MyApplication
+import com.aroncent.module.main.BatteryBean
 import com.aroncent.module.main.UpdateHeadPicEvent
 import com.aroncent.utils.GlideEngine
 import com.blankj.utilcode.util.FileUtils
@@ -42,6 +43,8 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.frag_mine.*
 import kotlinx.android.synthetic.main.item_menu.view.*
+import kotlinx.android.synthetic.main.top_bar.iv_battery
+import kotlinx.android.synthetic.main.top_bar.tv_battery
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode

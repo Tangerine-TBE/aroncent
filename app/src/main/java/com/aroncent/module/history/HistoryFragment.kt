@@ -14,6 +14,7 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.clj.fastble.BleManager
 import com.aroncent.api.RetrofitManager
 import com.aroncent.app.KVKey
+import com.aroncent.module.main.BatteryBean
 import com.aroncent.module.main.UpdateHeadPicEvent
 import com.blankj.utilcode.util.TimeUtils
 import com.bumptech.glide.Glide
@@ -39,6 +40,32 @@ class HistoryFragment : BaseFragment() {
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onReceiveMsg(msg: GetHistoryEvent) {
         getHistory()
+    }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onReceiveMsg(msg: BatteryBean) {
+        tv_battery.visibility = View.VISIBLE
+        iv_battery.visibility = View.VISIBLE
+        when(msg.value.toInt()){
+            in 0..20->{
+                iv_battery.setImageResource(R.drawable.b_20)
+            }
+            in 21..50->{
+                iv_battery.setImageResource(R.drawable.b_50)
+            }
+            in 51..70->{
+                iv_battery.setImageResource(R.drawable.b_70)
+            }
+            in 71..90->{
+                iv_battery.setImageResource(R.drawable.b_90)
+            }
+            in 91..100->{
+                iv_battery.setImageResource(R.drawable.b_100)
+            }
+            else->{
+                iv_battery.setImageResource(R.drawable.b_100)
+            }
+        }
+        tv_battery.text = msg.value+"%"
     }
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onReceiveMsg(msg: ConnectStatusEvent) {
@@ -77,6 +104,7 @@ class HistoryFragment : BaseFragment() {
     override fun lazyLoad() {
        getHistory()
         if (BleManager.getInstance().isConnected(BleTool.mBleDevice)){
+            BleTool.sendInstruct("A5AAACFA05FFC5CCCA")
             tv_connected.visibility = View.VISIBLE
         }
     }
