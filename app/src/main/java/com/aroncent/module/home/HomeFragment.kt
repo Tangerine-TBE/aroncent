@@ -49,6 +49,7 @@ class HomeFragment : BaseFragment() {
     }
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onReceiveMsg(msg: BatteryBean) {
+        tv_connected.visibility = View.VISIBLE
         tv_battery.visibility = View.VISIBLE
         iv_battery.visibility = View.VISIBLE
         when(msg.value.toInt()){
