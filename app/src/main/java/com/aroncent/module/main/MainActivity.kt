@@ -247,6 +247,38 @@ class MainActivity : BaseActivity() {
             setSelect(0)
         }
     }
+
+    private fun test1(){
+        val str = "A5AAAC130312AAAA02C5CCCA"
+        val length = addZeroForNum((str.substring(10,12).toInt(16)).toString().uppercase(),2)
+        val content = str.substring(12,str.length-6)
+        var morseData = ""
+        BleTool.getInstructStringArray(content).forEach {
+            val char = toBinary(it!!,8).reversed()
+            morseData += char
+        }
+
+        morseData = morseData.substring(0,length.toInt())
+        //这里得到摩斯密码表示的长按和短按 eg: 010100
+        Log.e("JPush morseData",morseData.substring(0,length.toInt()))
+
+        //组装01指令的数据域
+        var instructData = ""
+        morseData.forEach {
+            instructData += if (it.toString()=="0"){
+                getShortPressHex()
+            }else{
+                getLongPressHex()
+            }
+        }
+        //帧数长度
+        val frame_length = addZeroForNum((instructData.length/8).toString(16),2).uppercase()
+        val instruct = "A5AAAC" +
+                BleTool.getXOR("01$frame_length" + DeviceConfig.loop_number + instructData) +
+                "01$frame_length" + DeviceConfig.loop_number + instructData + "C5CCCA"
+
+        Log.e("JPush 03指令转成01指令：",instruct)
+    }
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onReceiveMsg(msg: ReadMsgEvent) {
         readMsg(msg.msgId)
@@ -782,27 +814,7 @@ class MainActivity : BaseActivity() {
         fragmentTransaction.commit()
     }
     override fun start() {
-        test()
     }
 
-    fun test(){
-        val morseData = "010100"
-        //组装01指令的数据域
-        var instructData = ""
-        morseData.forEach {
-            instructData += if (it.toString()=="0"){
-                getShortPressHex()
-            }else{
-                getLongPressHex()
-            }
-        }
-        //帧数长度
-        val frame_length = addZeroForNum((instructData.length/8).toString(16),2).uppercase()
-        val instruct = "A5AAAC" +
-                BleTool.getXOR("01$frame_length" + DeviceConfig.loop_number + instructData) +
-                "01$frame_length" + DeviceConfig.loop_number + instructData + "C5CCCA"
-
-        Log.e("OPush 03指令转成01指令：",instruct)
-    }
 
 }
