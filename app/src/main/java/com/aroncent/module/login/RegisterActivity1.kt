@@ -2,7 +2,6 @@ package com.aroncent.module.login
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import com.aroncent.BuildConfig
 import com.aroncent.R
 import com.aroncent.base.BaseBean
 import com.aroncent.base.RxSubscriber
@@ -34,34 +33,28 @@ class RegisterActivity1 : BaseActivity() {
     }
 
     private fun sendCode(){
-        if (!BuildConfig.DEBUG){
-            RetrofitManager.service.sendEms(hashMapOf("email" to et_email.text.toString()))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object : RxSubscriber<BaseBean?>(this, true) {
-                    override fun _onError(message: String?) {
-                    }
+        RetrofitManager.service.sendEms(hashMapOf("email" to et_email.text.toString()))
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : RxSubscriber<BaseBean?>(this, true) {
+                override fun _onError(message: String?) {
+                }
 
-                    override fun onSubscribe(d: Disposable) {
+                override fun onSubscribe(d: Disposable) {
 
-                    }
+                }
 
-                    @SuppressLint("SetTextI18n")
-                    override fun _onNext(t: BaseBean?) {
-                        t?.let {
-                            showToast(t.msg)
-                            if (t.code == 200) {
-                                startActivity(Intent(this@RegisterActivity1,RegisterActivity2::class.java)
-                                    .putExtra("email",et_email.text.toString()))
-                            }
+                @SuppressLint("SetTextI18n")
+                override fun _onNext(t: BaseBean?) {
+                    t?.let {
+                        showToast(t.msg)
+                        if (t.code == 200) {
+                            startActivity(Intent(this@RegisterActivity1,RegisterActivity2::class.java)
+                                .putExtra("email",et_email.text.toString()))
                         }
                     }
-                })
-        }else{
-            startActivity(Intent(this@RegisterActivity1,RegisterActivity2::class.java)
-                .putExtra("email",et_email.text.toString()))
-        }
-
+                }
+            })
     }
 
     override fun start() {

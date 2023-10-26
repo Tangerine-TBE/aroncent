@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.widget.RadioButton
 import cn.jpush.android.api.JPushInterface
-import com.aroncent.BuildConfig
 import com.aroncent.R
 import com.aroncent.api.RetrofitManager
 import com.aroncent.base.RxSubscriber
@@ -26,9 +25,9 @@ import java.util.*
 
 
 class RegisterActivity4 : BaseActivity() {
-    private var countryId = ""
-    private var smsCode = ""
-    private var email = ""
+    private var countryId =""
+    private var smsCode =""
+    private var email =""
 
     override fun layoutId(): Int {
         return R.layout.act_register_4
@@ -77,35 +76,31 @@ class RegisterActivity4 : BaseActivity() {
             val mMonth: Int = ca.get(Calendar.MONTH)
             val mDay: Int = ca.get(Calendar.DAY_OF_MONTH)
 
-            val datePickerDialog = DatePickerDialog(
-                this, { _, year, month, dayOfMonth ->
-                    val txtMon = if (month + 1 < 10) "0" + (month + 1) else (month + 1).toString()
-                    val txtDay = if (dayOfMonth < 10) "0$dayOfMonth" else dayOfMonth.toString()
+            val datePickerDialog = DatePickerDialog(this, { _, year, month, dayOfMonth ->
+                    val txtMon = if(month + 1<10) "0"+(month + 1) else (month + 1).toString()
+                    val txtDay = if(dayOfMonth <10) "0$dayOfMonth" else dayOfMonth.toString()
                     tv_age.text = "$year-$txtMon-$txtDay"
                 },
                 mYear, mMonth, mDay
             )
             datePickerDialog.show()
         }
-        layout_previous.setOnClickListener {
-            onBackPressed()
-        }
     }
 
-    private fun register() {
-        if (et_name.text.toString() == "" || tv_age.text.toString() == "" || et_password.text.toString() == "") {
+    private fun register(){
+        if (et_name.text.toString() == "" || tv_age.text.toString()=="" ||et_password.text.toString()==""){
             showToast("Please fill in all information")
             return
         }
-        if (et_password.text.toString().trim().length < 6) {
+        if (et_password.text.toString().trim().length < 6){
             showToast("The password shall not be less than 6 digits")
             return
         }
-        if (et_password.text.toString() != et_re_pwd.text.toString()) {
+        if (et_password.text.toString() != et_re_pwd.text.toString()){
             showToast("Inconsistent passwords entered")
             return
         }
-        val map = hashMapOf<String, String>()
+        val map = hashMapOf<String,String>()
         map["email"] = email
         map["code"] = smsCode
         map["sex"] = findViewById<RadioButton>(rg_sex.checkedRadioButtonId).text.toString()
@@ -115,38 +110,30 @@ class RegisterActivity4 : BaseActivity() {
         map["password"] = et_password.text.toString()
         map["jg_pushid"] = JPushInterface.getRegistrationID(this)
         map["onesignal_pushid"] = OneSignal.getDeviceState()?.userId ?: ""
-        if (!BuildConfig.DEBUG) {
+        RetrofitManager.service.register(map)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : RxSubscriber<RequestUserInfoBean?>(this, true) {
+                override fun _onError(message: String?) {
+                }
 
-            RetrofitManager.service.register(map)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object : RxSubscriber<RequestUserInfoBean?>(this, true) {
-                    override fun _onError(message: String?) {
-                    }
+                override fun onSubscribe(d: Disposable) {
 
-                    override fun onSubscribe(d: Disposable) {
+                }
 
-                    }
-
-                    @SuppressLint("SetTextI18n")
-                    override fun _onNext(t: RequestUserInfoBean?) {
-                        t?.let {
-                            if (t.code == 200) {
-                                setUserInfoToSp(t.data.userInfo)
-                                ActivityUtils.finishAllActivities()
-                                startActivity(MainActivity::class.java)
-                            } else {
-                                showToast(t.msg)
-                            }
+                @SuppressLint("SetTextI18n")
+                override fun _onNext(t: RequestUserInfoBean?) {
+                    t?.let {
+                        if (t.code == 200) {
+                            setUserInfoToSp(t.data.userInfo)
+                            ActivityUtils.finishAllActivities()
+                            startActivity(MainActivity::class.java)
+                        }else{
+                            showToast(t.msg)
                         }
                     }
-                })
-        } else {
-            ActivityUtils.finishAllActivities()
-            startActivity(MainActivity::class.java)
-        }
-
-
+                }
+            })
     }
 
     override fun start() {

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
-import com.aroncent.BuildConfig
 import com.aroncent.R
 import com.aroncent.base.RxSubscriber
 import com.aroncent.utils.showToast
@@ -15,14 +14,13 @@ import com.xlitebt.base.BaseActivity
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
-import kotlinx.android.synthetic.main.act_register_2.layout_previous
 import kotlinx.android.synthetic.main.act_register_3.*
 import kotlinx.android.synthetic.main.item_country.view.*
 
 class RegisterActivity3 : BaseActivity() {
-    private var countryId = ""
-    private var smsCode = ""
-    private var email = ""
+    private var countryId =""
+    private var smsCode =""
+    private var email =""
     override fun layoutId(): Int {
         return R.layout.act_register_3
     }
@@ -33,11 +31,11 @@ class RegisterActivity3 : BaseActivity() {
     override fun initView() {
         email = intent.getStringExtra("email")!!
         smsCode = intent.getStringExtra("smsCode")!!
-        rv_country.layoutManager = GridLayoutManager(this, 3)
+        rv_country.layoutManager = GridLayoutManager(this,3)
         getCountryList()
     }
 
-    fun getCountryList() {
+    fun getCountryList(){
         RetrofitManager.service.getCountryList(hashMapOf())
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -68,26 +66,11 @@ class RegisterActivity3 : BaseActivity() {
         override fun convert(helper: BaseViewHolder, item: CountryListBean.DataBean) {
             val itemView = helper.itemView
             itemView.tv_country.text = item.country
-            if (item.isCheck) {
-                itemView.tv_country.setTextColor(
-                    ContextCompat.getColor(
-                        this@RegisterActivity3,
-                        R.color.textCountry
-                    )
-                )
-                itemView.tv_country.setBackgroundColor(
-                    ContextCompat.getColor(
-                        this@RegisterActivity3,
-                        R.color.white
-                    )
-                )
-            } else {
-                itemView.tv_country.setTextColor(
-                    ContextCompat.getColor(
-                        this@RegisterActivity3,
-                        R.color.white
-                    )
-                )
+            if (item.isCheck){
+                itemView.tv_country.setTextColor(ContextCompat.getColor(this@RegisterActivity3,R.color.textCountry))
+                itemView.tv_country.setBackgroundColor(ContextCompat.getColor(this@RegisterActivity3,R.color.white))
+            }else{
+                itemView.tv_country.setTextColor(ContextCompat.getColor(this@RegisterActivity3,R.color.white))
                 itemView.tv_country.setBackgroundResource(R.drawable.country_shape)
             }
             itemView.tv_country.setOnClickListener {
@@ -100,22 +83,17 @@ class RegisterActivity3 : BaseActivity() {
             }
         }
     }
-
     override fun initListener() {
         tv_ok.setOnClickListener {
-            if (countryId == "" && !BuildConfig.DEBUG) {
+            if (countryId == ""){
                 showToast("Please select a country")
                 return@setOnClickListener
             }
-            startActivity(
-                Intent(this, RegisterActivity4::class.java)
-                    .putExtra("countryId", countryId)
-                    .putExtra("smsCode", smsCode)
-                    .putExtra("email", email)
+            startActivity(Intent(this,RegisterActivity4::class.java)
+                .putExtra("countryId",countryId)
+                .putExtra("smsCode",smsCode)
+                .putExtra("email",email)
             )
-        }
-        layout_previous.setOnClickListener {
-            onBackPressed()
         }
     }
 
