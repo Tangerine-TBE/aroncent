@@ -30,6 +30,33 @@
         android:src="@drawable/register_3"
         android:layout_marginTop="@dimen/dp_12"
         android:layout_height="wrap_content"/>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:id="@+id/layout_previous"
+        android:layout_width="match_parent"
+        android:gravity="center"
+        android:layout_marginStart="@dimen/dp_120"
+        android:layout_marginEnd="@dimen/dp_120"
+        android:paddingBottom="@dimen/dp_8"
+        android:paddingTop="@dimen/dp_8"
+        android:layout_height="wrap_content"
+
+        android:layout_marginTop="@dimen/dp_24"
+        android:background="@drawable/btn_shape_transparent"
+        app:layout_constraintEnd_toEndOf="@+id/rv_country"
+        app:layout_constraintStart_toStartOf="@+id/rv_country"
+        app:layout_constraintTop_toBottomOf="@+id/rv_country" >
+        <TextView
+            android:textSize="@dimen/sp_10"
+            android:text="PREVIOUS STEP"
+            android:textColor="@color/white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+
+    </LinearLayout>
+
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
