@@ -7,19 +7,25 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothGatt
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.text.TextUtils
 import android.util.Base64
 import android.util.Log
 import android.view.Gravity
 import android.view.KeyEvent
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import cn.jzvd.Jzvd
 import cn.jzvd.JzvdStd
 import com.aroncent.R
@@ -43,12 +49,15 @@ import com.aroncent.module.home.HomeFragment
 import com.aroncent.module.login.LoginActivity
 import com.aroncent.module.login.RequestUserInfoBean
 import com.aroncent.module.mine.MineFragment
+import com.aroncent.observe.MainViewModel
 import com.aroncent.utils.*
 import com.blankj.utilcode.util.*
 import com.bumptech.glide.Glide
 import com.clj.fastble.BleManager
+import com.clj.fastble.callback.BleGattCallback
 import com.clj.fastble.callback.BleNotifyCallback
 import com.clj.fastble.callback.BleScanAndConnectCallback
+import com.clj.fastble.callback.BleScanCallback
 import com.clj.fastble.data.BleDevice
 import com.clj.fastble.exception.BleException
 import com.clj.fastble.scan.BleScanRuleConfig
@@ -76,6 +85,7 @@ class MainActivity : BaseActivity() {
     private var mTab2: Fragment? = null
     private var mTab3: Fragment? = null
     private var connectDeviceDialog: CustomDialog? = null
+    private lateinit var mainViewModel: MainViewModel
 
     //请求BLUETOOTH_CONNECT权限意图
     private val requestBluetoothConnect =
@@ -130,20 +140,22 @@ class MainActivity : BaseActivity() {
         }
 
     //请求定位权限意图
-    private val requestLocation = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-        if (it) {
-            //扫描蓝牙
-            connectBle()
-        } else {
-            showToast(getString(R.string.opening_location_permission))
-            finish()
+    private val requestLocation =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+            if (it) {
+                //扫描蓝牙
+                connectBle()
+            } else {
+                showToast(getString(R.string.opening_location_permission))
+                finish()
+            }
         }
-    }
+
     override fun layoutId(): Int {
-        return  R.layout.activity_main
+        return R.layout.activity_main
     }
 
-    fun getkeyhash(){
+    fun getkeyhash() {
         try {
             val info = packageManager.getPackageInfo("com.aroncent", PackageManager.GET_SIGNATURES)
             for (signature in info.signatures) {
@@ -157,25 +169,21 @@ class MainActivity : BaseActivity() {
     }
 
     override fun initData() {
-        if (getUserToken()!=""){
+        if (getUserToken() != "") {
             getPartnerRequest()
             getUserInfo()
         }
     }
+
     fun resetBg() {
-        Glide.with(this)
-            .load(R.drawable.tab_home)
-            .into(iv_main_tab_1)
-        Glide.with(this)
-            .load(R.drawable.tab_history)
-            .into(iv_main_tab_2)
-        Glide.with(this)
-            .load(R.drawable.tab_my)
-            .into(iv_main_tab_3)
+        Glide.with(this).load(R.drawable.tab_home).into(iv_main_tab_1)
+        Glide.with(this).load(R.drawable.tab_history).into(iv_main_tab_2)
+        Glide.with(this).load(R.drawable.tab_my).into(iv_main_tab_3)
         tv_tab_1.setTextColor(ContextCompat.getColor(this, R.color.tabTextNormal))
         tv_tab_2.setTextColor(ContextCompat.getColor(this, R.color.tabTextNormal))
         tv_tab_3.setTextColor(ContextCompat.getColor(this, R.color.tabTextNormal))
     }
+
     private fun setSelect(i: Int) {
         resetBg()
         val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
@@ -183,20 +191,19 @@ class MainActivity : BaseActivity() {
         when (i) {
             0 -> {
                 if (mTab1 == null) {
-                    mTab1 = if (MMKV.defaultMMKV().getBoolean(KVKey.isBind,false)){
+                    mTab1 = if (MMKV.defaultMMKV().getBoolean(KVKey.isBind, false)) {
                         HomeFragment()
-                    }else{
+                    } else {
                         BindPartnerFragment()
                     }
                     transaction.add(R.id.view_stub_main, mTab1!!)
                 } else {
                     transaction.show(mTab1!!)
                 }
-                Glide.with(this)
-                    .load(R.drawable.tab_home_h)
-                    .into(iv_main_tab_1)
-                tv_tab_1.setTextColor(ContextCompat.getColor(this,R.color.white))
+                Glide.with(this).load(R.drawable.tab_home_h).into(iv_main_tab_1)
+                tv_tab_1.setTextColor(ContextCompat.getColor(this, R.color.white))
             }
+
             1 -> {
                 if (mTab2 == null) {
                     mTab2 = HistoryFragment()
@@ -204,11 +211,10 @@ class MainActivity : BaseActivity() {
                 } else {
                     transaction.show(mTab2!!)
                 }
-                Glide.with(this)
-                    .load(R.drawable.tab_history_h)
-                    .into(iv_main_tab_2)
-                tv_tab_2.setTextColor(ContextCompat.getColor(this,R.color.white))
+                Glide.with(this).load(R.drawable.tab_history_h).into(iv_main_tab_2)
+                tv_tab_2.setTextColor(ContextCompat.getColor(this, R.color.white))
             }
+
             2 -> {
                 if (mTab3 == null) {
                     mTab3 = MineFragment()
@@ -216,10 +222,8 @@ class MainActivity : BaseActivity() {
                 } else {
                     transaction.show(mTab3!!)
                 }
-                Glide.with(this)
-                    .load(R.drawable.tab_my_h)
-                    .into(iv_main_tab_3)
-                tv_tab_3.setTextColor(ContextCompat.getColor(this,R.color.white))
+                Glide.with(this).load(R.drawable.tab_my_h).into(iv_main_tab_3)
+                tv_tab_3.setTextColor(ContextCompat.getColor(this, R.color.white))
             }
         }
         transaction.commitAllowingStateLoss()
@@ -239,7 +243,7 @@ class MainActivity : BaseActivity() {
 
     override fun initView() {
         getkeyhash()
-        if (getUserToken()==""){
+        if (getUserToken() == "") {
             finish()
             startActivity(LoginActivity::class.java)
         } else {
@@ -248,47 +252,49 @@ class MainActivity : BaseActivity() {
         }
     }
 
-    private fun test1(){
+    private fun test1() {
         val str = "A5AAAC130312AAAA02C5CCCA"
-        val length = addZeroForNum((str.substring(10,12).toInt(16)).toString().uppercase(),2)
-        val content = str.substring(12,str.length-6)
+        val length = addZeroForNum((str.substring(10, 12).toInt(16)).toString().uppercase(), 2)
+        val content = str.substring(12, str.length - 6)
         var morseData = ""
         BleTool.getInstructStringArray(content).forEach {
-            val char = toBinary(it!!,8).reversed()
+            val char = toBinary(it!!, 8).reversed()
             morseData += char
         }
 
-        morseData = morseData.substring(0,length.toInt())
+        morseData = morseData.substring(0, length.toInt())
         //这里得到摩斯密码表示的长按和短按 eg: 010100
-        Log.e("JPush morseData",morseData.substring(0,length.toInt()))
+        Log.e("JPush morseData", morseData.substring(0, length.toInt()))
 
         //组装01指令的数据域
         var instructData = ""
         morseData.forEach {
-            instructData += if (it.toString()=="0"){
+            instructData += if (it.toString() == "0") {
                 getShortPressHex()
-            }else{
+            } else {
                 getLongPressHex()
             }
         }
         //帧数长度
-        val frame_length = addZeroForNum((instructData.length/8).toString(16),2).uppercase()
-        val instruct = "A5AAAC" +
-                BleTool.getXOR("01$frame_length" + DeviceConfig.loop_number + instructData) +
-                "01$frame_length" + DeviceConfig.loop_number + instructData + "C5CCCA"
+        val frame_length = addZeroForNum((instructData.length / 8).toString(16), 2).uppercase()
+        val instruct =
+            "A5AAAC" + BleTool.getXOR("01$frame_length" + DeviceConfig.loop_number + instructData) + "01$frame_length" + DeviceConfig.loop_number + instructData + "C5CCCA"
 
-        Log.e("JPush 03指令转成01指令：",instruct)
+        Log.e("JPush 03指令转成01指令：", instruct)
     }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onReceiveMsg(msg: ReadMsgEvent) {
         readMsg(msg.msgId)
     }
+
     override fun onDestroy() {
         super.onDestroy()
         EventBus.getDefault().unregister(this)
     }
 
-    private fun connectBle(){
+    /** getUserInfo when the data response then would go inside  the connectBle */
+    private fun connectBle() {
         if (!isLocServiceEnable(this)) {
             showToast(getString(R.string.open_the_location_service))
             showDisconnectDialog()
@@ -299,80 +305,109 @@ class MainActivity : BaseActivity() {
             showToast(getString(R.string.enable_bluetooth_hint))
             return
         }
-        val scanRuleConfig = BleScanRuleConfig.Builder()
-            .setDeviceName(true, "RY_BLE") // 只扫描指定广播名的设备，可选,true:模糊查询
-            .setScanTimeOut(8000) // 扫描超时时间，可选，默认10秒；小于等于0表示不限制扫描时间
-            .build()
+        val scanRuleConfig =
+            BleScanRuleConfig.Builder().setDeviceName(true, "RY_BLE") // 只扫描指定广播名的设备，可选,true:模糊查询
+                .setScanTimeOut(8000) // 扫描超时时间，可选，默认10秒；小于等于0表示不限制扫描时间
+                .build()
 
         BleManager.getInstance().initScanRule(scanRuleConfig)
-        BleManager.getInstance().scanAndConnect(object : BleScanAndConnectCallback() {
-            override fun onStartConnect() {
-
-            }
-
-            override fun onConnectFail(bleDevice: BleDevice?, exception: BleException?) {
-                Log.e(TAG, "onConnectFail"+exception.toString())
-                connectDeviceDialog!!.dismiss()
-                showToast(getString(R.string.connect_fail))
-                BleTool.mBleDevice = null
-            }
-
-            override fun onConnectSuccess(bleDevice: BleDevice, gatt: BluetoothGatt?, status: Int) {
-                Log.e(TAG, "onConnectSuccess")
-                setEquipment(bleDevice.name)
-                connectDeviceDialog!!.dismiss()
-                showToast("Connection succeeded")
-                BleTool.setBleDevice(bleDevice)
-                EventBus.getDefault().post(ConnectStatusEvent(1))
-                ThreadUtils.runOnUiThreadDelayed({
-                    openBleNotify(bleDevice)
-                },100)
-            }
-
-            override fun onDisConnected(
-                isActiveDisConnected: Boolean, device: BleDevice?,
-                gatt: BluetoothGatt?, status: Int
-            ) {
-                Log.e(TAG, "onDisConnected")
-                EventBus.getDefault().post(ConnectStatusEvent(0))
-                showToast(getString(R.string.device_disconnected))
-                showDisconnectDialog()
-            }
-
+        BleManager.getInstance().scan(object : BleScanCallback() {
             override fun onScanStarted(success: Boolean) {
-                connectDeviceDialog =  CustomDialog
-                    .build()
-                    .setMaskColor(getColor(R.color.dialogMaskColor))
-                    .setCustomView(object : OnBindView<CustomDialog>(R.layout.pop_connect_device) {
-                        override fun onBind(dialog: CustomDialog?, v: View?) {
+                connectDeviceDialog =
+                    CustomDialog.build().setMaskColor(getColor(R.color.dialogMaskColor))
+                        .setCustomView(object :
+                            OnBindView<CustomDialog>(R.layout.pop_connect_device) {
+                            override fun onBind(dialog: CustomDialog?, v: View?) {
+                                if (v != null) {
+                                    val adapter = DeviceItemAdapter(object : OnDeviceItemClicked {
+                                        override fun onItemClicked(bleDevice: BleDevice) {
+                                            BleManager.getInstance()
+                                                .connect(bleDevice, object : BleGattCallback() {
+                                                    override fun onStartConnect() {
 
-                        }
-                    })
-                    .setFullScreen(true)
-                    .setEnterAnimResId(R.anim.anim_custom_pop_enter)
-                    .setExitAnimResId(R.anim.anim_custom_pop_exit)
-                    .setAlignBaseViewGravity(Gravity.BOTTOM)
-                    .setCancelable(false)
-                    .show()
+                                                    }
 
+                                                    override fun onConnectFail(
+                                                        bleDevice: BleDevice?,
+                                                        exception: BleException?
+                                                    ) {
+                                                        Log.e(
+                                                            TAG,
+                                                            "onConnectFail" + exception.toString()
+                                                        )
+                                                        connectDeviceDialog!!.dismiss()
+                                                        showToast(getString(R.string.connect_fail))
+                                                        BleTool.mBleDevice = null
+                                                    }
+
+                                                    override fun onConnectSuccess(
+                                                        bleDevice: BleDevice,
+                                                        gatt: BluetoothGatt?,
+                                                        status: Int
+                                                    ) {
+                                                        Log.e(TAG, "onConnectSuccess")
+                                                        setEquipment(bleDevice.name)
+                                                        connectDeviceDialog!!.dismiss()
+                                                        showToast("Connection succeeded")
+                                                        BleTool.setBleDevice(bleDevice)
+                                                        EventBus.getDefault()
+                                                            .post(ConnectStatusEvent(1))
+                                                        ThreadUtils.runOnUiThreadDelayed({
+                                                            openBleNotify(bleDevice)
+                                                        }, 100)
+                                                    }
+
+                                                    override fun onDisConnected(
+                                                        isActiveDisConnected: Boolean,
+                                                        device: BleDevice?,
+                                                        gatt: BluetoothGatt?,
+                                                        status: Int
+                                                    ) {
+                                                        Log.e(TAG, "onDisConnected")
+                                                        EventBus.getDefault()
+                                                            .post(ConnectStatusEvent(0))
+                                                        showToast(getString(R.string.device_disconnected))
+                                                        showDisconnectDialog()
+                                                    }
+                                                })
+                                        }
+                                    })
+                                    val recyclerView = v.findViewById<RecyclerView>(R.id.rv_device)
+                                    recyclerView.adapter = adapter
+                                    recyclerView.layoutManager =
+                                        LinearLayoutManager(this@MainActivity)
+                                    //通知这里根据Scanning进行改变 /*观察者策略*/
+                                    mainViewModel.device.observe(this@MainActivity) {
+                                        if (it != null) {
+                                            adapter.addDevice(it)
+                                        }
+                                    }
+                                }
+                            }
+                        }).setFullScreen(true).setEnterAnimResId(R.anim.anim_custom_pop_enter)
+                        .setExitAnimResId(R.anim.anim_custom_pop_exit)
+                        .setAlignBaseViewGravity(Gravity.BOTTOM).setCancelable(false).show()
             }
 
             override fun onScanning(bleDevice: BleDevice?) {
+                mainViewModel.device.postValue(bleDevice)
             }
 
-            override fun onScanFinished(scanResult: BleDevice?) {
-                if (scanResult==null){
+            override fun onScanFinished(scanResultList: MutableList<BleDevice>?) {
+                if (scanResultList == null) {
                     connectDeviceDialog!!.dismiss()
                     showDisconnectDialog()
                 }
             }
+
+
         })
     }
+
     //打开蓝牙通知
     private fun openBleNotify(mBleDevice: BleDevice) {
         //操作通知
-        BleManager.getInstance().notify(
-            mBleDevice,
+        BleManager.getInstance().notify(mBleDevice,
             BleDefinedUUIDs.SERVICE.toString(),
             BleDefinedUUIDs.CHARACTERISTIC_NOTIFY.toString(),
             object : BleNotifyCallback() {
@@ -381,7 +416,7 @@ class MainActivity : BaseActivity() {
                     //测试指令
                     ThreadUtils.runOnUiThreadDelayed({
                         BleTool.sendInstruct("A5AAACFA05FFC5CCCA")
-                    },100)
+                    }, 100)
                 }
 
                 override fun onNotifyFailure(exception: BleException?) {
@@ -394,16 +429,19 @@ class MainActivity : BaseActivity() {
                         LogUtils.eTag("$TAG Answer", ByteTransformUtil.bytesToHex(data).uppercase())
                         //03指令示例： A5AAAC00030400C5CCCA
                         val str = ByteTransformUtil.bytesToHex(data).uppercase()
-                        when{
-                            str.contains("0241434B")||str.contains("024E41434B")->{
+                        when {
+                            str.contains("0241434B") || str.contains("024E41434B") -> {
                                 EventBus.getDefault().post(BleAnswerEvent("notify", str))
                             }
-                            str.substring(8,10)=="03"->{
-                               //发送通知给对方 eg:A5AAAC00030304C5CCCA
+
+                            str.substring(8, 10) == "03" -> {
+                                //发送通知给对方 eg:A5AAAC00030304C5CCCA
                                 sendMorseCode(str)
                             }
-                            str.substring(8,10)=="05"->{
-                                EventBus.getDefault().post(BatteryBean(str.substring(10,12).toInt(16).toString()))
+
+                            str.substring(8, 10) == "05" -> {
+                                EventBus.getDefault()
+                                    .post(BatteryBean(str.substring(10, 12).toInt(16).toString()))
                             }
                         }
                     }
@@ -411,10 +449,12 @@ class MainActivity : BaseActivity() {
             })
     }
 
-    private fun sendMorseCode(instructions:String){
-        RetrofitManager.service.sendMorseCode(hashMapOf("morsecode" to instructions,"infotype" to PushInfoType.Bracelet))
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
+    private fun sendMorseCode(instructions: String) {
+        RetrofitManager.service.sendMorseCode(
+            hashMapOf(
+                "morsecode" to instructions, "infotype" to PushInfoType.Bracelet
+            )
+        ).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : RxSubscriber<SendMorseCodeBean?>(this, false) {
                 override fun _onError(message: String?) {
                 }
@@ -425,20 +465,19 @@ class MainActivity : BaseActivity() {
 
                 @SuppressLint("SetTextI18n")
                 override fun _onNext(t: SendMorseCodeBean?) {
-                    if (t!!.code == 200){
+                    if (t!!.code == 200) {
                         EventBus.getDefault().post(GetHistoryEvent()) //刷新历史记录
                         //告知硬件对方开始显示
                         val xorStr = BleTool.getXOR("0401")
-                        BleTool.sendInstruct("A5AAAC"+xorStr+"0401C5CCCA")
+                        BleTool.sendInstruct("A5AAAC" + xorStr + "0401C5CCCA")
                     }
                 }
             })
     }
 
-    private fun setEquipment(name:String){
+    private fun setEquipment(name: String) {
         RetrofitManager.service.setEquipment(hashMapOf("equipment" to name))
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : RxSubscriber<BaseBean?>(this, false) {
                 override fun _onError(message: String?) {
                 }
@@ -449,15 +488,17 @@ class MainActivity : BaseActivity() {
 
                 @SuppressLint("SetTextI18n")
                 override fun _onNext(t: BaseBean?) {
-                    if (t!!.code==200){
+                    if (t!!.code == 200) {
                     }
                 }
             })
     }
+
     override fun initListener() {
         //设置图标点击缩放
-        ClickUtils.applyPressedViewScale(arrayOf(LL_tab_1,LL_tab_2,LL_tab_3),
-            floatArrayOf(-0.2f,-0.2f,-0.2f))
+        ClickUtils.applyPressedViewScale(
+            arrayOf(LL_tab_1, LL_tab_2, LL_tab_3), floatArrayOf(-0.2f, -0.2f, -0.2f)
+        )
 
         ClickUtils.applySingleDebouncing(LL_tab_1, 300) {
             setSelect(0)
@@ -473,9 +514,8 @@ class MainActivity : BaseActivity() {
     /**
      * 检查是否有需要审核好友请求
      * */
-    private fun getPartnerRequest(){
-        RetrofitManager.service.getPartnerRequest(hashMapOf())
-            .subscribeOn(Schedulers.io())
+    private fun getPartnerRequest() {
+        RetrofitManager.service.getPartnerRequest(hashMapOf()).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : RxSubscriber<PartnerAddBean?>(this, false) {
                 override fun _onError(message: String?) {
@@ -490,10 +530,9 @@ class MainActivity : BaseActivity() {
                     t?.let {
                         if (t.code == 200) {
                             showToast(t.msg)
-                            CustomDialog
-                                .build()
-                                .setMaskColor(getColor(R.color.dialogMaskColor))
-                                .setCustomView(object : OnBindView<CustomDialog>(R.layout.dialog_partner_add) {
+                            CustomDialog.build().setMaskColor(getColor(R.color.dialogMaskColor))
+                                .setCustomView(object :
+                                    OnBindView<CustomDialog>(R.layout.dialog_partner_add) {
                                     override fun onBind(dialog: CustomDialog?, v: View?) {
                                         v!!.let {
                                             val refuse = v.findViewById<TextView>(R.id.tv_cancel)
@@ -501,31 +540,27 @@ class MainActivity : BaseActivity() {
                                             val img = v.findViewById<ImageView>(R.id.iv_head)
                                             val name = v.findViewById<TextView>(R.id.tv_name)
                                             name.text = t.data.username
-                                            Glide.with(this@MainActivity)
-                                                .load(t.data.avatar)
-                                                .circleCrop()
-                                                .into(img)
+                                            Glide.with(this@MainActivity).load(t.data.avatar)
+                                                .circleCrop().into(img)
                                             refuse.setOnClickListener {
                                                 dialog!!.dismiss()
                                                 confirmEmail("0")
                                             }
                                             agree.setOnClickListener {
                                                 dialog!!.dismiss()
-                                                confirmEmail("3",t.data.videopath)
+                                                confirmEmail("3", t.data.videopath)
                                             }
                                         }
                                     }
-                                })
-                                .setCancelable(false)
-                                .show()
+                                }).setCancelable(false).show()
                         }
                     }
                 }
             })
     }
-    private fun getSettings(){
-        RetrofitManager.service.getsettings(hashMapOf())
-            .subscribeOn(Schedulers.io())
+
+    private fun getSettings() {
+        RetrofitManager.service.getsettings(hashMapOf()).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : RxSubscriber<SettingBean?>(this, false) {
                 override fun _onError(message: String?) {
@@ -539,17 +574,33 @@ class MainActivity : BaseActivity() {
                 override fun _onNext(t: SettingBean?) {
                     t?.let {
                         if (t.code == 200) {
-                            if (t.data!=null){
-                                MMKV.defaultMMKV().encode(KVKey.long_shake,if(t.data.long_shake == "0")"0.8" else t.data.long_shake)
-                                MMKV.defaultMMKV().encode(KVKey.short_shake,if (t.data.short_shake == "0")"0.3" else t.data.short_shake)
-                                MMKV.defaultMMKV().encode(KVKey.light_color,t.data.lightcolor)
-                                MMKV.defaultMMKV().encode(KVKey.long_flash,if (t.data.long_light=="0")"0.8" else t.data.long_light)
-                                MMKV.defaultMMKV().encode(KVKey.short_flash,if (t.data.short_light=="0")"0.3" else t.data.short_light)
-                                MMKV.defaultMMKV().encode(KVKey.equipment,t.data.equipment)
-                                if (!BleManager.getInstance().isConnected(BleTool.mBleDevice)){
+                            if (t.data != null) {
+                                MMKV.defaultMMKV().encode(
+                                    KVKey.long_shake,
+                                    if (t.data.long_shake == "0") "0.8" else t.data.long_shake
+                                )
+                                MMKV.defaultMMKV().encode(
+                                    KVKey.short_shake,
+                                    if (t.data.short_shake == "0") "0.3" else t.data.short_shake
+                                )
+                                MMKV.defaultMMKV().encode(KVKey.light_color, t.data.lightcolor)
+                                MMKV.defaultMMKV().encode(
+                                    KVKey.long_flash,
+                                    if (t.data.long_light == "0") "0.8" else t.data.long_light
+                                )
+                                MMKV.defaultMMKV().encode(
+                                    KVKey.short_flash,
+                                    if (t.data.short_light == "0") "0.3" else t.data.short_light
+                                )
+                                MMKV.defaultMMKV().encode(KVKey.equipment, t.data.equipment)
+                                if (!BleManager.getInstance().isConnected(BleTool.mBleDevice)) {
                                     if (isAndroid12()) {
                                         //检查是否有BLUETOOTH_CONNECT权限
-                                        if (hasPermission(this@MainActivity, Manifest.permission.BLUETOOTH_CONNECT)) {
+                                        if (hasPermission(
+                                                this@MainActivity,
+                                                Manifest.permission.BLUETOOTH_CONNECT
+                                            )
+                                        ) {
                                             //打开蓝牙
                                             enableBluetooth.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
                                         } else {
@@ -567,9 +618,9 @@ class MainActivity : BaseActivity() {
                 }
             })
     }
-    private fun getPartnerInfo(){
-        RetrofitManager.service.getPartnerInfo(hashMapOf())
-            .subscribeOn(Schedulers.io())
+
+    private fun getPartnerInfo() {
+        RetrofitManager.service.getPartnerInfo(hashMapOf()).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : RxSubscriber<PartnerInfoBean?>(this, false) {
                 override fun _onError(message: String?) {
@@ -583,17 +634,17 @@ class MainActivity : BaseActivity() {
                 override fun _onNext(t: PartnerInfoBean?) {
                     t?.let {
                         if (t.code == 200) {
-                            MMKV.defaultMMKV().encode(KVKey.partner_avatar,t.data.avatar)
-                            MMKV.defaultMMKV().encode(KVKey.partner_nickname,t.data.nickname)
+                            MMKV.defaultMMKV().encode(KVKey.partner_avatar, t.data.avatar)
+                            MMKV.defaultMMKV().encode(KVKey.partner_nickname, t.data.nickname)
                             EventBus.getDefault().post(UpdateHeadPicEvent())
                         }
                     }
                 }
             })
     }
-    private fun getUserInfo(){
-        RetrofitManager.service.getUserInfo(hashMapOf())
-            .subscribeOn(Schedulers.io())
+
+    private fun getUserInfo() {
+        RetrofitManager.service.getUserInfo(hashMapOf()).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : RxSubscriber<RequestUserInfoBean?>(this, true) {
                 override fun _onError(message: String?) {
@@ -607,19 +658,22 @@ class MainActivity : BaseActivity() {
                 override fun _onNext(t: RequestUserInfoBean?) {
                     t?.let {
                         if (t.code == 200) {
-                            if (t.data!=null){
-                               setUserInfoToSp(t.data.userInfo)
-                                if (t.data.userInfo.partnerstatus == "5"){
-                                    CustomDialog
-                                        .build()
+                            if (t.data != null) {
+                                setUserInfoToSp(t.data.userInfo)
+                                if (t.data.userInfo.partnerstatus == "5") {
+                                    CustomDialog.build()
                                         .setMaskColor(getColor(R.color.dialogMaskColor))
-                                        .setCustomView(object : OnBindView<CustomDialog>(R.layout.dialog_tips) {
+                                        .setCustomView(object :
+                                            OnBindView<CustomDialog>(R.layout.dialog_tips) {
                                             override fun onBind(dialog: CustomDialog?, v: View?) {
                                                 v!!.let {
                                                     val tip = v.findViewById<TextView>(R.id.tv_tip)
-                                                    tip.text = "The other party wants to unbind you!"
-                                                    val confirm = v.findViewById<TextView>(R.id.tv_confirm)
-                                                    val cancel = v.findViewById<TextView>(R.id.tv_cancel)
+                                                    tip.text =
+                                                        "The other party wants to unbind you!"
+                                                    val confirm =
+                                                        v.findViewById<TextView>(R.id.tv_confirm)
+                                                    val cancel =
+                                                        v.findViewById<TextView>(R.id.tv_cancel)
                                                     cancel.setOnClickListener {
                                                         dialog!!.dismiss()
                                                     }
@@ -629,13 +683,11 @@ class MainActivity : BaseActivity() {
                                                     }
                                                 }
                                             }
-                                        })
-                                        .setCancelable(false)
-                                        .show()
-                                }else{
+                                        }).setCancelable(false).show()
+                                } else {
                                     //获取用户设置
                                     getSettings()
-                                    if (t.data.userInfo.partnerstatus.toInt()>=3){
+                                    if (t.data.userInfo.partnerstatus.toInt() >= 3) {
                                         getPartnerInfo()
                                     }
                                 }
@@ -645,10 +697,10 @@ class MainActivity : BaseActivity() {
                 }
             })
     }
-    private fun confirmEmail(status:String,videoUrl :String = ""){
+
+    private fun confirmEmail(status: String, videoUrl: String = "") {
         RetrofitManager.service.confirmEmail(hashMapOf("status" to status))
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : RxSubscriber<BaseBean?>(this, true) {
                 override fun _onError(message: String?) {
                 }
@@ -661,7 +713,7 @@ class MainActivity : BaseActivity() {
                 override fun _onNext(t: BaseBean?) {
                     t?.let {
                         showToast(t.msg)
-                        if (status=="3"){
+                        if (status == "3") {
                             getUserInfo()
                             //播放情侣视频
                             showVideoDialog(videoUrl)
@@ -671,19 +723,17 @@ class MainActivity : BaseActivity() {
             })
     }
 
-    private fun showVideoDialog(url:String){
-        CustomDialog
-            .build()
-            .setMaskColor(getColor(R.color.dialogMaskColor))
+    private fun showVideoDialog(url: String) {
+        CustomDialog.build().setMaskColor(getColor(R.color.dialogMaskColor))
             .setCustomView(object : OnBindView<CustomDialog>(R.layout.dialog_play_video) {
                 override fun onBind(dialog: CustomDialog?, v: View?) {
                     v!!.let {
                         val jz = v.findViewById<JzvdStd>(R.id.jz_video)
                         val close = v.findViewById<ImageView>(R.id.iv_close)
-                        if (url!=""){
+                        if (url != "") {
                             jz.fullscreenButton.visibility = View.GONE
                             jz.replayTextView.text = "To RePlay"
-                            jz.setUp(url,"")
+                            jz.setUp(url, "")
                             jz.startVideoAfterPreloading()
                         }
                         close.setOnClickListener {
@@ -691,15 +741,13 @@ class MainActivity : BaseActivity() {
                         }
                     }
                 }
-            })
-            .setDialogLifecycleCallback(object :DialogLifecycleCallback<CustomDialog>(){
+            }).setDialogLifecycleCallback(object : DialogLifecycleCallback<CustomDialog>() {
                 override fun onDismiss(dialog: CustomDialog?) {
                     super.onDismiss(dialog)
                     mTab1 = HomeFragment()
                     replaceFragment(mTab1 as HomeFragment)
                 }
-            })
-            .show()
+            }).show()
     }
 
     private var exitTime: Long = 0
@@ -719,6 +767,7 @@ class MainActivity : BaseActivity() {
         }
         return super.onKeyDown(keyCode, event)
     }
+
     override fun onBackPressed() {
         if (Jzvd.backPress()) {
             return
@@ -734,9 +783,8 @@ class MainActivity : BaseActivity() {
     /***
      * 删除情侣
      */
-    private fun confirmDelPartner(){
-        RetrofitManager.service.deletePartnerConfirm(hashMapOf())
-            .subscribeOn(Schedulers.io())
+    private fun confirmDelPartner() {
+        RetrofitManager.service.deletePartnerConfirm(hashMapOf()).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : RxSubscriber<BaseBean?>(this, true) {
                 override fun _onError(message: String?) {
@@ -756,9 +804,8 @@ class MainActivity : BaseActivity() {
     }
 
 
-    private fun readMsg(id : String){
-        RetrofitManager.service.readMsg(hashMapOf("sendno" to id))
-            .subscribeOn(Schedulers.io())
+    private fun readMsg(id: String) {
+        RetrofitManager.service.readMsg(hashMapOf("sendno" to id)).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : RxSubscriber<BaseBean?>(this, true) {
                 override fun _onError(message: String?) {
@@ -775,10 +822,8 @@ class MainActivity : BaseActivity() {
             })
     }
 
-    private fun showDisconnectDialog(){
-        CustomDialog
-            .build()
-            .setMaskColor(getColor(R.color.dialogMaskColor))
+    private fun showDisconnectDialog() {
+        CustomDialog.build().setMaskColor(getColor(R.color.dialogMaskColor))
             .setCustomView(object : OnBindView<CustomDialog>(R.layout.dialog_device_disconnect) {
                 override fun onBind(dialog: CustomDialog?, v: View?) {
                     v!!.let {
@@ -786,7 +831,10 @@ class MainActivity : BaseActivity() {
                         confirm.setOnClickListener {
                             if (isAndroid12()) {
                                 //检查是否有BLUETOOTH_CONNECT权限
-                                if (hasPermission(this@MainActivity, Manifest.permission.BLUETOOTH_CONNECT)) {
+                                if (hasPermission(
+                                        this@MainActivity, Manifest.permission.BLUETOOTH_CONNECT
+                                    )
+                                ) {
                                     //打开蓝牙
                                     enableBluetooth.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
                                 } else {
@@ -801,9 +849,7 @@ class MainActivity : BaseActivity() {
                         }
                     }
                 }
-            })
-            .setCancelable(false)
-            .show()
+            }).setCancelable(false).show()
     }
 
     //切换不同的fragment
@@ -813,7 +859,58 @@ class MainActivity : BaseActivity() {
         fragmentTransaction.replace(R.id.view_stub_main, fragment)
         fragmentTransaction.commit()
     }
+
+    /**初始化viewModel 做为 观察者*/
     override fun start() {
+        mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+
+
+    }
+
+    interface OnDeviceItemClicked {
+        fun onItemClicked(bleDevice: BleDevice)
+    }
+
+
+    inner class DeviceItemAdapter(private val clickListener: OnDeviceItemClicked) :
+        RecyclerView.Adapter<DeviceItemAdapter.ViewHolder>() {
+        private val deviceList = ArrayList<BleDevice>()
+
+        public fun addDevice(device: BleDevice) {
+            deviceList.add(device)
+            notifyItemInserted(deviceList.size - 1)
+        }
+
+        inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
+            val deviceName: TextView = itemView.findViewById<TextView>(R.id.tv_name)
+            val deviceMac: TextView = itemView.findViewById<TextView>(R.id.tv_mac)
+            val deviceConnect: Button = itemView.findViewById<Button>(R.id.tv_connect)
+
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+            val view =
+                LayoutInflater.from(parent.context).inflate(R.layout.item_device, parent, false)
+            return ViewHolder(view)
+        }
+
+        override fun getItemCount(): Int {
+            return deviceList.size
+        }
+
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            val bleDevice = deviceList[position]
+            holder.deviceMac.text =
+                if (!TextUtils.isEmpty(bleDevice.mac)) bleDevice.mac else "unKnow mac"
+            holder.deviceName.text =
+                if (!TextUtils.isEmpty(bleDevice.name)) bleDevice.name else "unKnow name"
+            holder.deviceConnect.setOnClickListener {
+                clickListener.onItemClicked(bleDevice)
+            }
+
+        }
+
     }
 
 
