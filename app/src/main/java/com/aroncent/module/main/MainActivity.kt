@@ -24,8 +24,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ItemDecoration
+import androidx.recyclerview.widget.RecyclerView.Orientation
+import androidx.recyclerview.widget.RecyclerView.VERTICAL
 import cn.jzvd.Jzvd
 import cn.jzvd.JzvdStd
 import com.aroncent.R
@@ -306,7 +310,7 @@ class MainActivity : BaseActivity() {
             return
         }
         val scanRuleConfig =
-            BleScanRuleConfig.Builder().setDeviceName(true, "RY_BLE") // 只扫描指定广播名的设备，可选,true:模糊查询
+            BleScanRuleConfig.Builder() // 只扫描指定广播名的设备，可选,true:模糊查询
                 .setScanTimeOut(8000) // 扫描超时时间，可选，默认10秒；小于等于0表示不限制扫描时间
                 .build()
 
@@ -376,6 +380,8 @@ class MainActivity : BaseActivity() {
                                     recyclerView.adapter = adapter
                                     recyclerView.layoutManager =
                                         LinearLayoutManager(this@MainActivity)
+                                    recyclerView.addItemDecoration(DividerItemDecoration(this@MainActivity,
+                                        VERTICAL))
                                     //通知这里根据Scanning进行改变 /*观察者策略*/
                                     mainViewModel.device.observe(this@MainActivity) {
                                         if (it != null) {
@@ -390,7 +396,9 @@ class MainActivity : BaseActivity() {
             }
 
             override fun onScanning(bleDevice: BleDevice?) {
-                mainViewModel.device.postValue(bleDevice)
+                if (!TextUtils.isEmpty(bleDevice?.name) ){
+                    mainViewModel.device.postValue(bleDevice)
+                }
             }
 
             override fun onScanFinished(scanResultList: MutableList<BleDevice>?) {
@@ -885,7 +893,7 @@ class MainActivity : BaseActivity() {
 
             val deviceName: TextView = itemView.findViewById<TextView>(R.id.tv_name)
             val deviceMac: TextView = itemView.findViewById<TextView>(R.id.tv_mac)
-            val deviceConnect: Button = itemView.findViewById<Button>(R.id.tv_connect)
+            val deviceConnect: TextView = itemView.findViewById<TextView>(R.id.tv_connect)
 
         }
 

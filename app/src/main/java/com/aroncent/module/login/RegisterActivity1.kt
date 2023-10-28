@@ -34,7 +34,6 @@ class RegisterActivity1 : BaseActivity() {
     }
 
     private fun sendCode(){
-        if (!BuildConfig.DEBUG){
             RetrofitManager.service.sendEms(hashMapOf("email" to et_email.text.toString()))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -57,10 +56,6 @@ class RegisterActivity1 : BaseActivity() {
                         }
                     }
                 })
-        }else{
-            startActivity(Intent(this@RegisterActivity1,RegisterActivity2::class.java)
-                .putExtra("email",et_email.text.toString()))
-        }
 
     }
 

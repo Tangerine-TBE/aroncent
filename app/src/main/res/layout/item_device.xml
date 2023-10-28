@@ -23,7 +23,7 @@
     <TextView
         android:gravity="center"
         android:layout_weight="0.3"
-        tools:text="connect"
+        android:text="connect"
         android:id="@+id/tv_connect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>

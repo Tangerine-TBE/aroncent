@@ -82,8 +82,7 @@ class RegisterActivity4 : BaseActivity() {
                     val txtMon = if (month + 1 < 10) "0" + (month + 1) else (month + 1).toString()
                     val txtDay = if (dayOfMonth < 10) "0$dayOfMonth" else dayOfMonth.toString()
                     tv_age.text = "$year-$txtMon-$txtDay"
-                },
-                mYear, mMonth, mDay
+                }, mYear, mMonth, mDay
             )
             datePickerDialog.show()
         }
@@ -115,37 +114,30 @@ class RegisterActivity4 : BaseActivity() {
         map["password"] = et_password.text.toString()
         map["jg_pushid"] = JPushInterface.getRegistrationID(this)
         map["onesignal_pushid"] = OneSignal.getDeviceState()?.userId ?: ""
-        if (!BuildConfig.DEBUG) {
 
-            RetrofitManager.service.register(map)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object : RxSubscriber<RequestUserInfoBean?>(this, true) {
-                    override fun _onError(message: String?) {
-                    }
+        RetrofitManager.service.register(map).subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : RxSubscriber<RequestUserInfoBean?>(this, true) {
+                override fun _onError(message: String?) {
+                }
 
-                    override fun onSubscribe(d: Disposable) {
+                override fun onSubscribe(d: Disposable) {
 
-                    }
+                }
 
-                    @SuppressLint("SetTextI18n")
-                    override fun _onNext(t: RequestUserInfoBean?) {
-                        t?.let {
-                            if (t.code == 200) {
-                                setUserInfoToSp(t.data.userInfo)
-                                ActivityUtils.finishAllActivities()
-                                startActivity(MainActivity::class.java)
-                            } else {
-                                showToast(t.msg)
-                            }
+                @SuppressLint("SetTextI18n")
+                override fun _onNext(t: RequestUserInfoBean?) {
+                    t?.let {
+                        if (t.code == 200) {
+                            setUserInfoToSp(t.data.userInfo)
+                            ActivityUtils.finishAllActivities()
+                            startActivity(MainActivity::class.java)
+                        } else {
+                            showToast(t.msg)
                         }
                     }
-                })
-        } else {
-            ActivityUtils.finishAllActivities()
-            startActivity(MainActivity::class.java)
-        }
-
+                }
+            })
 
     }
 
