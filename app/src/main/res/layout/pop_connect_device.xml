@@ -21,13 +21,14 @@
         android:layout_height="wrap_content"/>
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_device"
+        android:overScrollMode="never"
         android:layout_marginTop="@dimen/dp_12"
         android:layout_width="match_parent"
         android:textColor="@color/white"
         android:gravity="center"
         android:textSize="@dimen/sp_16"
         android:layout_gravity="center"
-        android:layout_height="wrap_content"/>
+        android:layout_height="@dimen/dp_300"/>
     <ImageView
         android:layout_marginTop="@dimen/dp_48"
         android:layout_width="match_parent"
