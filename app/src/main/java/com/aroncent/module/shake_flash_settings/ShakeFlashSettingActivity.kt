@@ -34,11 +34,11 @@ import org.greenrobot.eventbus.ThreadMode
 
 
 class ShakeFlashSettingActivity : BaseActivity() {
-    var long_shake = "0.8"
-    var short_shake = "0.3"
-    var long_flash = "0.8"
-    var short_flash = "0.3"
-    var shaking_levels = "0"
+    var long_shake = "0.3"
+    var short_shake = "0.1"
+    var long_flash = "0.3"
+    var short_flash = "0.1"
+    var shaking_levels = "1"
     override fun layoutId(): Int {
         return R.layout.act_shake_setting
     }
@@ -145,11 +145,11 @@ class ShakeFlashSettingActivity : BaseActivity() {
                             }
                             confirm.setOnClickListener {
                                 dialog!!.dismiss()
-                                short_flash = "0.3"
-                                long_flash = "0.8"
-                                short_shake = "0.3"
-                                long_shake = "0.8"
-                                shaking_levels = "0"
+                                short_flash = "0.1"
+                                long_flash = "0.3"
+                                short_shake = "0.1"
+                                long_shake = "0.3"
+                                shaking_levels = "1"
                                 MMKV.defaultMMKV().encode(KVKey.light_color,"FFFFFF")
                                 setShakeToDevice()
                             }
