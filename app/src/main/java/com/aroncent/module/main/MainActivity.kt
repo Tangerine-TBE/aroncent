@@ -7,7 +7,11 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothGatt
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.text.Spannable
+import android.text.SpannableStringBuilder
 import android.text.TextUtils
+import android.text.style.ForegroundColorSpan
 import android.util.Base64
 import android.util.Log
 import android.view.Gravity
@@ -65,6 +69,8 @@ import com.clj.fastble.callback.BleScanCallback
 import com.clj.fastble.data.BleDevice
 import com.clj.fastble.exception.BleException
 import com.clj.fastble.scan.BleScanRuleConfig
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.dialog.MaterialDialogs
 import com.kongzue.dialogx.dialogs.CustomDialog
 import com.kongzue.dialogx.dialogs.WaitDialog
 import com.kongzue.dialogx.interfaces.DialogLifecycleCallback
@@ -89,6 +95,7 @@ class MainActivity : BaseActivity() {
     private var mTab2: Fragment? = null
     private var mTab3: Fragment? = null
     private var connectDeviceDialog: CustomDialog? = null
+    private lateinit var deviceConfirmDialog:CustomDialog;
     private lateinit var mainViewModel: MainViewModel
 
     //请求BLUETOOTH_CONNECT权限意图
@@ -310,7 +317,8 @@ class MainActivity : BaseActivity() {
             return
         }
         val scanRuleConfig =
-            BleScanRuleConfig.Builder() // 只扫描指定广播名的设备，可选,true:模糊查询
+            BleScanRuleConfig.Builder()
+                .setDeviceName(true, "aroncent-")// 只扫描指定广播名的设备，可选,true:模糊查询
                 .setScanTimeOut(8000) // 扫描超时时间，可选，默认10秒；小于等于0表示不限制扫描时间
                 .build()
 
@@ -325,63 +333,168 @@ class MainActivity : BaseActivity() {
                                 if (v != null) {
                                     val adapter = DeviceItemAdapter(object : OnDeviceItemClicked {
                                         override fun onItemClicked(bleDevice: BleDevice) {
-                                            BleManager.getInstance()
-                                                .connect(bleDevice, object : BleGattCallback() {
-                                                    override fun onStartConnect() {
-
-                                                    }
-
-                                                    override fun onConnectFail(
-                                                        bleDevice: BleDevice?,
-                                                        exception: BleException?
+                                            /**弹出确认连接提示*/
+                                            deviceConfirmDialog =   CustomDialog.build()
+                                                .setMaskColor(getColor(R.color.dialogMaskColor))
+                                                .setCustomView(object :
+                                                    OnBindView<CustomDialog>(R.layout.dialog_confirm_connect) {
+                                                    override fun onBind(
+                                                        dialog: CustomDialog?,
+                                                        v: View
                                                     ) {
-                                                        Log.e(
-                                                            TAG,
-                                                            "onConnectFail" + exception.toString()
+                                                        val changeTextLength = bleDevice.name.length
+                                                        val deviceTitleString =
+                                                            "Arrow ${bleDevice.name} to Receive Your telphone Notifications?"
+                                                        val deviceContentString =
+                                                            "when connected,all notifications you receive on you telphne will alsobe sent to ${bleDevice.name} and may be shown n its display"
+                                                        val titleSpanString = SpannableStringBuilder(deviceTitleString)
+                                                        val contentSpanString = SpannableStringBuilder(deviceContentString)
+                                                        val titleSpanForeground = ForegroundColorSpan(
+                                                            Color.YELLOW
                                                         )
-                                                        connectDeviceDialog!!.dismiss()
-                                                        showToast(getString(R.string.connect_fail))
-                                                        BleTool.mBleDevice = null
-                                                    }
+                                                        titleSpanString.setSpan(
+                                                            titleSpanForeground,
+                                                            6,
+                                                            (6 + changeTextLength),
+                                                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                                                        )
+                                                        contentSpanString.setSpan(
+                                                            titleSpanForeground,
+                                                            80,
+                                                            (80 + changeTextLength),
+                                                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                                                        )
+                                                        val tvDeviceTitle =
+                                                            v.findViewById<TextView>(R.id.tv_device_title)
+                                                        val tvDeviceContent =
+                                                            v.findViewById<TextView>(R.id.tv_device_content)
+                                                        val btn_cancel = v.findViewById<Button>(R.id.btn_cancel)
+                                                        val btn_confirm = v.findViewById<Button>(R.id.btn_confirm)
+                                                        btn_cancel.setOnClickListener {
+                                                            dialog?.dismiss()
+                                                        }
+                                                        btn_confirm.setOnClickListener {
+                                                            BleManager.getInstance()
+                                                                .connect(bleDevice, object : BleGattCallback() {
+                                                                    override fun onStartConnect() {
+                                                                        Log.e(TAG,"onStartConnect")
+                                                                    }
 
-                                                    override fun onConnectSuccess(
-                                                        bleDevice: BleDevice,
-                                                        gatt: BluetoothGatt?,
-                                                        status: Int
-                                                    ) {
-                                                        Log.e(TAG, "onConnectSuccess")
-                                                        setEquipment(bleDevice.name)
-                                                        connectDeviceDialog!!.dismiss()
-                                                        showToast("Connection succeeded")
-                                                        BleTool.setBleDevice(bleDevice)
-                                                        EventBus.getDefault()
-                                                            .post(ConnectStatusEvent(1))
-                                                        ThreadUtils.runOnUiThreadDelayed({
-                                                            openBleNotify(bleDevice)
-                                                        }, 100)
-                                                    }
+                                                                    override fun onConnectFail(
+                                                                        bleDevice: BleDevice?,
+                                                                        exception: BleException?
+                                                                    ) {
+                                                                        Log.e(
+                                                                            TAG,
+                                                                            "onConnectFail" + exception.toString()
+                                                                        )
+                                                                        connectDeviceDialog!!.dismiss()
+                                                                        deviceConfirmDialog.dismiss()
+                                                                        showToast(getString(R.string.connect_fail))
+                                                                        BleTool.mBleDevice = null
+                                                                    }
 
-                                                    override fun onDisConnected(
-                                                        isActiveDisConnected: Boolean,
-                                                        device: BleDevice?,
-                                                        gatt: BluetoothGatt?,
-                                                        status: Int
-                                                    ) {
-                                                        Log.e(TAG, "onDisConnected")
-                                                        EventBus.getDefault()
-                                                            .post(ConnectStatusEvent(0))
-                                                        showToast(getString(R.string.device_disconnected))
-                                                        showDisconnectDialog()
+                                                                    override fun onConnectSuccess(
+                                                                        bleDevice: BleDevice,
+                                                                        gatt: BluetoothGatt?,
+                                                                        status: Int
+                                                                    ) {
+                                                                        Log.e(TAG, "onConnectSuccess")
+                                                                        setEquipment(bleDevice.mac)
+                                                                        connectDeviceDialog!!.dismiss()
+                                                                        deviceConfirmDialog.dismiss()
+                                                                        showToast("Connection succeeded")
+                                                                        BleTool.setBleDevice(bleDevice)
+                                                                        EventBus.getDefault()
+                                                                            .post(ConnectStatusEvent(1))
+                                                                        ThreadUtils.runOnUiThreadDelayed({
+                                                                            openBleNotify(bleDevice)
+                                                                        }, 100)
+                                                                    }
+
+                                                                    override fun onDisConnected(
+                                                                        isActiveDisConnected: Boolean,
+                                                                        device: BleDevice?,
+                                                                        gatt: BluetoothGatt?,
+                                                                        status: Int
+                                                                    ) {
+                                                                        Log.e(TAG, "onDisConnected")
+                                                                        EventBus.getDefault()
+                                                                            .post(ConnectStatusEvent(0))
+                                                                        showToast(getString(R.string.device_disconnected))
+                                                                        showDisconnectDialog()
+                                                                    }
+                                                                })
+                                                        }
+
+                                                        tvDeviceTitle.text = titleSpanString
+                                                        tvDeviceContent.text = contentSpanString
                                                     }
                                                 })
+                                                .setFullScreen(true).setEnterAnimResId(R.anim.anim_custom_pop_enter)
+                                                .setExitAnimResId(R.anim.anim_custom_pop_exit)
+                                                .setAlignBaseViewGravity(Gravity.BOTTOM).setCancelable(false).show()
+//                                            BleManager.getInstance()
+//                                                .connect(bleDevice, object : BleGattCallback() {
+//                                                    override fun onStartConnect() {
+//
+//                                                    }
+//
+//                                                    override fun onConnectFail(
+//                                                        bleDevice: BleDevice?,
+//                                                        exception: BleException?
+//                                                    ) {
+//                                                        Log.e(
+//                                                            TAG,
+//                                                            "onConnectFail" + exception.toString()
+//                                                        )
+//                                                        connectDeviceDialog!!.dismiss()
+//                                                        showToast(getString(R.string.connect_fail))
+//                                                        BleTool.mBleDevice = null
+//                                                    }
+//
+//                                                    override fun onConnectSuccess(
+//                                                        bleDevice: BleDevice,
+//                                                        gatt: BluetoothGatt?,
+//                                                        status: Int
+//                                                    ) {
+//                                                        Log.e(TAG, "onConnectSuccess")
+//                                                        setEquipment(bleDevice.name)
+//                                                        connectDeviceDialog!!.dismiss()
+//                                                        showToast("Connection succeeded")
+//                                                        BleTool.setBleDevice(bleDevice)
+//                                                        EventBus.getDefault()
+//                                                            .post(ConnectStatusEvent(1))
+//                                                        ThreadUtils.runOnUiThreadDelayed({
+//                                                            openBleNotify(bleDevice)
+//                                                        }, 100)
+//                                                    }
+//
+//                                                    override fun onDisConnected(
+//                                                        isActiveDisConnected: Boolean,
+//                                                        device: BleDevice?,
+//                                                        gatt: BluetoothGatt?,
+//                                                        status: Int
+//                                                    ) {
+//                                                        Log.e(TAG, "onDisConnected")
+//                                                        EventBus.getDefault()
+//                                                            .post(ConnectStatusEvent(0))
+//                                                        showToast(getString(R.string.device_disconnected))
+//                                                        showDisconnectDialog()
+//                                                    }
+//                                                })
                                         }
                                     })
                                     val recyclerView = v.findViewById<RecyclerView>(R.id.rv_device)
                                     recyclerView.adapter = adapter
                                     recyclerView.layoutManager =
                                         LinearLayoutManager(this@MainActivity)
-                                    recyclerView.addItemDecoration(DividerItemDecoration(this@MainActivity,
-                                        VERTICAL))
+                                    recyclerView.addItemDecoration(
+                                        DividerItemDecoration(
+                                            this@MainActivity,
+                                            VERTICAL
+                                        )
+                                    )
                                     //通知这里根据Scanning进行改变 /*观察者策略*/
                                     mainViewModel.device.observe(this@MainActivity) {
                                         if (it != null) {
@@ -395,9 +508,165 @@ class MainActivity : BaseActivity() {
                         .setAlignBaseViewGravity(Gravity.BOTTOM).setCancelable(false).show()
             }
 
-            override fun onScanning(bleDevice: BleDevice?) {
-                if (!TextUtils.isEmpty(bleDevice?.name) ){
-                    mainViewModel.device.postValue(bleDevice)
+            override fun onScanning(bleDevice: BleDevice) {
+               val bondedDevice =  MMKV.defaultMMKV().decodeString(KVKey.equipment,"")
+                mainViewModel.device.postValue(bleDevice)
+                if ("" == bondedDevice){
+                    if (!TextUtils.isEmpty(bleDevice.mac) ) {
+                        deviceConfirmDialog = CustomDialog.build()
+                            .setMaskColor(getColor(R.color.dialogMaskColor))
+                            .setCustomView(object :
+                                OnBindView<CustomDialog>(R.layout.dialog_confirm_connect) {
+                                override fun onBind(
+                                    dialog: CustomDialog?,
+                                    v: View
+                                ) {
+                                    val changeTextLength = bleDevice.name.length
+                                    val deviceTitleString =
+                                        "Arrow ${bleDevice.name} to Receive Your telphone Notifications?"
+                                    val deviceContentString =
+                                        "when connected,all notifications you receive on you telphne will alsobe sent to ${bleDevice.name} and may be shown n its display"
+                                    val titleSpanString = SpannableStringBuilder(deviceTitleString)
+                                    val contentSpanString = SpannableStringBuilder(deviceContentString)
+                                    val titleSpanForeground = ForegroundColorSpan(
+                                        Color.YELLOW
+                                    )
+                                    titleSpanString.setSpan(
+                                        titleSpanForeground,
+                                        6,
+                                        (6 + changeTextLength),
+                                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                                    )
+                                    contentSpanString.setSpan(
+                                        titleSpanForeground,
+                                        80,
+                                        (80 + changeTextLength),
+                                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                                    )
+                                    val tvDeviceTitle =
+                                        v.findViewById<TextView>(R.id.tv_device_title)
+                                    val tvDeviceContent =
+                                        v.findViewById<TextView>(R.id.tv_device_content)
+                                    val btn_cancel = v.findViewById<Button>(R.id.btn_cancel)
+                                    val btn_confirm = v.findViewById<Button>(R.id.btn_confirm)
+                                    btn_cancel.setOnClickListener {
+                                        dialog?.dismiss()
+                                    }
+                                    btn_confirm.setOnClickListener {
+                                        BleManager.getInstance()
+                                            .connect(bleDevice, object : BleGattCallback() {
+                                                override fun onStartConnect() {
+                                                    Log.e(TAG,"onStartConnect")
+                                                }
+
+                                                override fun onConnectFail(
+                                                    bleDevice: BleDevice?,
+                                                    exception: BleException?
+                                                ) {
+                                                    Log.e(
+                                                        TAG,
+                                                        "onConnectFail" + exception.toString()
+                                                    )
+                                                    connectDeviceDialog!!.dismiss()
+                                                    deviceConfirmDialog.dismiss()
+                                                    showToast(getString(R.string.connect_fail))
+                                                    BleTool.mBleDevice = null
+                                                }
+
+                                                override fun onConnectSuccess(
+                                                    bleDevice: BleDevice,
+                                                    gatt: BluetoothGatt?,
+                                                    status: Int
+                                                ) {
+                                                    Log.e(TAG, "onConnectSuccess")
+                                                    setEquipment(bleDevice.mac)
+                                                    connectDeviceDialog!!.dismiss()
+                                                    deviceConfirmDialog.dismiss()
+                                                    showToast("Connection succeeded")
+                                                    BleTool.setBleDevice(bleDevice)
+                                                    EventBus.getDefault()
+                                                        .post(ConnectStatusEvent(1))
+                                                    ThreadUtils.runOnUiThreadDelayed({
+                                                        openBleNotify(bleDevice)
+                                                    }, 100)
+                                                }
+
+                                                override fun onDisConnected(
+                                                    isActiveDisConnected: Boolean,
+                                                    device: BleDevice?,
+                                                    gatt: BluetoothGatt?,
+                                                    status: Int
+                                                ) {
+                                                    Log.e(TAG, "onDisConnected")
+                                                    EventBus.getDefault()
+                                                        .post(ConnectStatusEvent(0))
+                                                    showToast(getString(R.string.device_disconnected))
+                                                    showDisconnectDialog()
+                                                }
+                                            })
+                                    }
+
+                                    tvDeviceTitle.text = titleSpanString
+                                    tvDeviceContent.text = contentSpanString
+                                }
+                            })
+                            .setFullScreen(true).setEnterAnimResId(R.anim.anim_custom_pop_enter)
+                            .setExitAnimResId(R.anim.anim_custom_pop_exit)
+                            .setAlignBaseViewGravity(Gravity.BOTTOM).setCancelable(false).show()
+                    }
+
+                }else{
+                    if (!TextUtils.isEmpty(bleDevice.mac) && bondedDevice == bleDevice.mac){
+                        BleManager.getInstance()
+                            .connect(bleDevice, object : BleGattCallback() {
+                                override fun onStartConnect() {
+                                    Log.e(TAG,"onStartConnect")
+                                }
+
+                                override fun onConnectFail(
+                                    bleDevice: BleDevice?,
+                                    exception: BleException?
+                                ) {
+                                    Log.e(
+                                        TAG,
+                                        "onConnectFail" + exception.toString()
+                                    )
+                                    connectDeviceDialog!!.dismiss()
+                                    showToast(getString(R.string.connect_fail))
+                                    BleTool.mBleDevice = null
+                                }
+
+                                override fun onConnectSuccess(
+                                    bleDevice: BleDevice,
+                                    gatt: BluetoothGatt?,
+                                    status: Int
+                                ) {
+                                    Log.e(TAG, "onConnectSuccess")
+                                    setEquipment(bleDevice.mac)
+                                    connectDeviceDialog!!.dismiss()
+                                    showToast("Connection succeeded")
+                                    BleTool.setBleDevice(bleDevice)
+                                    EventBus.getDefault()
+                                        .post(ConnectStatusEvent(1))
+                                    ThreadUtils.runOnUiThreadDelayed({
+                                        openBleNotify(bleDevice)
+                                    }, 100)
+                                }
+
+                                override fun onDisConnected(
+                                    isActiveDisConnected: Boolean,
+                                    device: BleDevice?,
+                                    gatt: BluetoothGatt?,
+                                    status: Int
+                                ) {
+                                    Log.e(TAG, "onDisConnected")
+                                    EventBus.getDefault()
+                                        .post(ConnectStatusEvent(0))
+                                    showToast(getString(R.string.device_disconnected))
+                                    showDisconnectDialog()
+                                }
+                            })
+                    }
                 }
             }
 

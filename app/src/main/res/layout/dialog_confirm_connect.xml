@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:background="@drawable/app_bg"
+    android:orientation="vertical"
+    android:layout_height="match_parent">
+    <include layout="@layout/top_bar" />
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/wavy_line"
+        android:adjustViewBounds="true"/>
+    <TextView
+        android:layout_marginTop="@dimen/dp_48"
+        android:layout_width="wrap_content"
+        android:textColor="@color/white"
+        android:gravity="center"
+        android:textSize="@dimen/sp_16"
+        android:layout_gravity="center"
+        android:text="Connect Bluetooth"
+        android:layout_height="wrap_content"/>
+    <TextView
+        android:layout_marginTop="@dimen/dp_12"
+        android:layout_width="wrap_content"
+        android:textColor="@color/white"
+        android:gravity="center"
+        android:textSize="@dimen/sp_16"
+        android:layout_gravity="center"
+        android:text="Search......."
+        android:layout_height="wrap_content"/>
+    <LinearLayout
+        android:background="@drawable/linear_shape"
+        android:layout_marginTop="@dimen/dp_30"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <TextView
+            android:textColor="@color/white"
+            android:layout_marginTop="@dimen/dp_12"
+            android:id="@+id/tv_device_title"
+            android:layout_marginStart="@dimen/dp_12"
+            android:layout_marginEnd="@dimen/dp_12"
+            android:textStyle="bold"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:maxEms="13"
+            android:textSize="@dimen/sp_16"
+            android:text="Arrow aroncent-3ECE to Receive Your telphone Notifications?"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@+id/tv_device_content"
+            android:layout_marginStart="@dimen/dp_12"
+            android:layout_marginEnd="@dimen/dp_12"
+            android:layout_marginTop="@dimen/dp_16"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:maxEms="20"
+            android:textSize="@dimen/sp_12"
+            android:textColor="@color/white"
+            android:text="when connected,all notifications you receive on you telphne will alsobe sent to aroncent-3ECE and may be shown n its display"
+            android:layout_height="wrap_content"/>
+        <Button
+            android:layout_marginTop="@dimen/dp_30"
+            android:text="Arrow"
+            android:id="@+id/btn_confirm"
+
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/purple_200"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <Button
+            android:text="Cancel"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:id="@+id/btn_cancel"
+            android:backgroundTint="@color/purple_200"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+    <ImageView
+        android:layout_marginTop="@dimen/dp_48"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/wavy_line"
+        android:adjustViewBounds="true"/>
+</LinearLayout>
