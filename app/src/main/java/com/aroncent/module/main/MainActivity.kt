@@ -329,6 +329,7 @@ class MainActivity : BaseActivity() {
                val bondedDevice =  MMKV.defaultMMKV().decodeString(KVKey.equipment,"")
                 if ("" == bondedDevice){
                     if (!TextUtils.isEmpty(bleDevice.mac) ) {
+                        BleManager.getInstance().cancelScan()
                         deviceConfirmDialog = CustomDialog.build()
                             .setMaskColor(getColor(R.color.dialogMaskColor))
                             .setCustomView(object :
@@ -400,6 +401,7 @@ class MainActivity : BaseActivity() {
                                                     BleTool.setBleDevice(bleDevice)
                                                     EventBus.getDefault()
                                                         .post(ConnectStatusEvent(1))
+
                                                     ThreadUtils.runOnUiThreadDelayed({
                                                         openBleNotify(bleDevice)
                                                     }, 100)
@@ -431,6 +433,7 @@ class MainActivity : BaseActivity() {
 
                 }else{
                     if (!TextUtils.isEmpty(bleDevice.mac) && bondedDevice == bleDevice.mac){
+                        BleManager.getInstance().cancelScan()
                         BleManager.getInstance()
                             .connect(bleDevice, object : BleGattCallback() {
                                 override fun onStartConnect() {
@@ -458,6 +461,7 @@ class MainActivity : BaseActivity() {
                                     setEquipment(bleDevice.mac)
                                     showToast("Connection succeeded")
                                     BleTool.setBleDevice(bleDevice)
+
                                     EventBus.getDefault()
                                         .post(ConnectStatusEvent(1))
                                     ThreadUtils.runOnUiThreadDelayed({
@@ -505,6 +509,11 @@ class MainActivity : BaseActivity() {
                     ThreadUtils.runOnUiThreadDelayed({
                         BleTool.sendInstruct("A5AAACFA05FFC5CCCA")
                     }, 100)
+                    ThreadUtils.runOnUiThreadDelayed({
+                        BleTool.sendInstruct("A5AAAC1706AABBCCDDEEFFC5CCCA")
+                    },1000)
+
+
                 }
 
                 override fun onNotifyFailure(exception: BleException?) {
