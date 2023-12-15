@@ -64,7 +64,7 @@
             android:layout_height="wrap_content"/>
         <Button
             android:layout_marginTop="@dimen/dp_30"
-            android:text="Arrow"
+            android:text="Allow"
             android:id="@+id/btn_confirm"
 
             android:textAllCaps="false"

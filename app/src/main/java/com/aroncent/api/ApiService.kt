@@ -177,4 +177,10 @@ interface ApiService {
     @FormUrlEncoded
     @POST("api/user/getpartnerinfo")
     fun getPartnerInfo(@FieldMap map: HashMap<String, String>) : Observable<PartnerInfoBean>
+
+    /**解绑蓝牙**/
+    @FormUrlEncoded
+    @POST("addons/litestore/api.usersettings/unsetequipment")
+    fun unSetEquipment(@FieldMap map:HashMap<String,String>):Observable<BaseBean>
+
 }
