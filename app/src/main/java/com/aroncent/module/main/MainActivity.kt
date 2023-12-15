@@ -48,6 +48,7 @@ import com.aroncent.ble.ByteTransformUtil
 import com.aroncent.ble.DeviceConfig
 import com.aroncent.event.ConnectStatusEvent
 import com.aroncent.event.GetHistoryEvent
+import com.aroncent.event.ReConnectEvent
 import com.aroncent.event.ReadMsgEvent
 import com.aroncent.jpush.PushInfoType
 import com.aroncent.module.add_partner.PartnerAddBean
@@ -297,6 +298,10 @@ class MainActivity : BaseActivity() {
     fun onReceiveMsg(msg: ReadMsgEvent) {
         readMsg(msg.msgId)
     }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onReconnect(msg: ReConnectEvent){
+        connectBle()
+    }
 
     override fun onDestroy() {
         super.onDestroy()
@@ -417,7 +422,9 @@ class MainActivity : BaseActivity() {
                                                     EventBus.getDefault()
                                                         .post(ConnectStatusEvent(0))
                                                     showToast(getString(R.string.device_disconnected))
-                                                    showDisconnectDialog()
+                                                    if (!isActiveDisConnected){
+                                                        showDisconnectDialog()
+                                                    }
                                                 }
                                             })
                                     }
@@ -433,6 +440,7 @@ class MainActivity : BaseActivity() {
 
                 }else{
                     if (!TextUtils.isEmpty(bleDevice.mac) && bondedDevice == bleDevice.mac){
+                        BleTool.setBleDevice(bleDevice)
                         BleManager.getInstance().cancelScan()
                         BleManager.getInstance()
                             .connect(bleDevice, object : BleGattCallback() {
@@ -460,8 +468,6 @@ class MainActivity : BaseActivity() {
                                     Log.e(TAG, "onConnectSuccess")
                                     setEquipment(bleDevice.mac)
                                     showToast("Connection succeeded")
-                                    BleTool.setBleDevice(bleDevice)
-
                                     EventBus.getDefault()
                                         .post(ConnectStatusEvent(1))
                                     ThreadUtils.runOnUiThreadDelayed({
@@ -488,7 +494,23 @@ class MainActivity : BaseActivity() {
 
             override fun onScanFinished(scanResultList: MutableList<BleDevice>?) {
                 if (scanResultList == null) {
+                    /**附近没有匹配的蓝牙*/
                     showDisconnectDialog()
+                }else {
+                    if (scanResultList.size == 0){
+                        /**附近没有匹配的蓝牙*/
+                        showDisconnectDialog()
+                        return
+                    }
+                    /**附近有匹配的蓝牙*/
+                    val bondedDevice =  MMKV.defaultMMKV().decodeString(KVKey.equipment,"")
+                    if (!TextUtils.isEmpty(bondedDevice) ){
+                        /**在有绑定的情况下,绑定的蓝牙与附近蓝牙不匹配*/
+                        if (BleTool.mBleDevice == null){
+                            showDisconnectDialog()
+                        }
+                    }
+
                 }
             }
 

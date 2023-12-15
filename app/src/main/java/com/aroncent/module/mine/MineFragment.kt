@@ -27,10 +27,13 @@ import com.kongzue.dialogx.dialogs.CustomDialog
 import com.kongzue.dialogx.interfaces.OnBindView
 import com.aroncent.api.RetrofitManager
 import com.aroncent.app.MyApplication
+import com.aroncent.ble.BleTool
+import com.aroncent.event.ReConnectEvent
 import com.aroncent.module.main.BatteryBean
 import com.aroncent.module.main.UpdateHeadPicEvent
 import com.aroncent.utils.GlideEngine
 import com.blankj.utilcode.util.FileUtils
+import com.clj.fastble.BleManager
 import com.luck.picture.lib.basic.PictureSelector
 import com.luck.picture.lib.config.SelectMimeType
 import com.luck.picture.lib.engine.CompressFileEngine
@@ -211,6 +214,8 @@ class MineFragment : BaseFragment() {
                             showToast("Success")
                             /**解绑设备的同时需要清除本地缓存*/
                             MMKV.defaultMMKV().putString(KVKey.equipment, "")
+                            BleManager.getInstance().disconnectAllDevice()
+                            EventBus.getDefault().post(ReConnectEvent())
                         }
                     }
                 }
