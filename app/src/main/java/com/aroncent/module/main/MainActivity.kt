@@ -281,9 +281,9 @@ class MainActivity : BaseActivity() {
         var instructData = ""
         morseData.forEach {
             instructData += if (it.toString() == "0") {
-                getShortPressHex()
+                getShortPressHex(null)
             } else {
-                getLongPressHex()
+                getLongPressHex(null)
             }
         }
         //帧数长度
@@ -554,6 +554,13 @@ class MainActivity : BaseActivity() {
 
                             str.substring(8, 10) == "03" -> {
                                 //发送通知给对方 eg:A5AAAC00030304C5CCCA
+                                //比如摩斯密码 （  –  –   – – – ）
+                                //A5 AA AC 88 03 09 05 84 04 84 07 05 82 83 80 C5 CC CA
+                                //其中：下划线部分代表摩斯密码与间隔时间。
+                                //05   表示””，且与下一个摩斯密码间隔0.5s（计算方式为05h<128,所以短按）
+                                //84   表示”–”，且与下一个摩斯密码间隔0.4s（84h>128,所以长按，时间为（84h-128）*0.1=0.4s）
+                                //A5AAAC8003 08010B018203010000C5CCCA
+                                LogUtils.e("接收到的信息为:$str")
                                 sendMorseCode(str)
                             }
 
