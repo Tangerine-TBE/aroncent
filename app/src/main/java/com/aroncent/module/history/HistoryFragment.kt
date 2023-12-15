@@ -1,7 +1,9 @@
 package com.aroncent.module.history
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.view.View
+import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.aroncent.R
 import com.aroncent.base.BaseFragment
@@ -14,10 +16,18 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.clj.fastble.BleManager
 import com.aroncent.api.RetrofitManager
 import com.aroncent.app.KVKey
+import com.aroncent.base.BaseBean
+import com.aroncent.jpush.PushInfoType
+import com.aroncent.module.home.SendPhraseBean
+import com.aroncent.module.login.LoginActivity
 import com.aroncent.module.main.BatteryBean
 import com.aroncent.module.main.UpdateHeadPicEvent
+import com.aroncent.utils.showToast
+import com.blankj.utilcode.util.ActivityUtils
 import com.blankj.utilcode.util.TimeUtils
 import com.bumptech.glide.Glide
+import com.kongzue.dialogx.dialogs.CustomDialog
+import com.kongzue.dialogx.interfaces.OnBindView
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.scwang.smart.refresh.layout.api.RefreshLayout
 import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener
@@ -131,6 +141,7 @@ class HistoryFragment : BaseFragment(), OnRefreshListener, OnLoadMoreListener {
 
     inner class HistoryAdapter(data: MutableList<HistoryListBean.DataBean.ListBean>) :
         BaseMultiItemQuickAdapter<HistoryListBean.DataBean.ListBean, BaseViewHolder>(data) {
+
         init {
             addItemType(1, R.layout.item_history_left) //对方消息
             addItemType(0, R.layout.item_history_right) //自己消息
@@ -171,8 +182,50 @@ class HistoryFragment : BaseFragment(), OnRefreshListener, OnLoadMoreListener {
             }
             itemView.item_history_time.text = time
             itemView.item_history_code.text = code
-
+            itemView.setOnClickListener{
+                CustomDialog.build().setMaskColor(requireContext().getColor(R.color.dialogMaskColor))
+                    .setCustomView(object : OnBindView<CustomDialog>(R.layout.dialog_tips) {
+                        override fun onBind(dialog: CustomDialog, v: View) {
+                            v.let {
+                                val tip = v.findViewById<TextView>(R.id.tv_tip)
+                                tip.text = "Resend the msg ?"
+                                val confirm = v.findViewById<TextView>(R.id.tv_confirm)
+                                val cancel = v.findViewById<TextView>(R.id.tv_cancel)
+                                cancel.setOnClickListener {
+                                    dialog.dismiss()
+                                }
+                                confirm.setOnClickListener {
+                                    dialog.dismiss()
+                                    sendPhrase(item.id)
+                                }
+                            }
+                        }
+                    }).show()
+            }
         }
+        private fun sendPhrase(id:Int){
+            val map = hashMapOf<String,String>()
+            map["id"] = id.toString()
+            RetrofitManager.service.historySend(map)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : RxSubscriber<BaseBean?>(requireContext(), true) {
+                    override fun _onError(message: String?) {
+                    }
+
+                    override fun onSubscribe(d: Disposable) {
+
+                    }
+
+                    @SuppressLint("SetTextI18n")
+                    override fun _onNext(t: BaseBean?) {
+                        if (t!!.code == 200) {
+                            showToast("Success")
+                        }
+                    }
+                })
+        }
+
     }
 
     private fun getHistory(isRefresh: Boolean) {

@@ -183,4 +183,9 @@ interface ApiService {
     @POST("addons/litestore/api.usersettings/unsetequipment")
     fun unSetEquipment(@FieldMap map:HashMap<String,String>):Observable<BaseBean>
 
+    /**重新发送历史记录**/
+    @FormUrlEncoded
+    @POST("addons/litestore/api.Sendphrase/historysend")
+    fun historySend(@FieldMap map:HashMap<String,String>):Observable<BaseBean>
+
 }
