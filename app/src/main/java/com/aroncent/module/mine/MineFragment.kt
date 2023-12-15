@@ -60,20 +60,15 @@ class MineFragment : BaseFragment() {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onGetMessage(event: UpdateHeadPicEvent) {
-        Glide.with(this)
-            .load(MMKV.defaultMMKV().decodeString(KVKey.avatar,""))
-            .circleCrop()
-            .error(R.drawable.head_default_pic)
-            .into(iv_head)
+        Glide.with(this).load(MMKV.defaultMMKV().decodeString(KVKey.avatar, "")).circleCrop()
+            .error(R.drawable.head_default_pic).into(iv_head)
     }
+
     override fun initView() {
         EventBus.getDefault().register(this)
-        tv_name.text = "Hello,"+MMKV.defaultMMKV().decodeString(KVKey.username,"")
-        Glide.with(this)
-            .load(MMKV.defaultMMKV().decodeString(KVKey.avatar,""))
-            .circleCrop()
-            .error(R.drawable.head_default_pic)
-            .into(iv_head)
+        tv_name.text = "Hello," + MMKV.defaultMMKV().decodeString(KVKey.username, "")
+        Glide.with(this).load(MMKV.defaultMMKV().decodeString(KVKey.avatar, "")).circleCrop()
+            .error(R.drawable.head_default_pic).into(iv_head)
         rv_mine.layoutManager = LinearLayoutManager(requireContext())
         rv_mine.adapter = ProfileAdapter(
             R.layout.item_menu, arrayListOf(
@@ -84,6 +79,7 @@ class MineFragment : BaseFragment() {
                 MenuBean(5, "Do not disturb"),
                 MenuBean(6, "Upload My Video"),
                 MenuBean(7, "Unbind your partner"),
+                MenuBean(8, "UnSet your equipment")
             )
         )
     }
@@ -106,44 +102,50 @@ class MineFragment : BaseFragment() {
             }
             ClickUtils.applySingleDebouncing(itemView, 500) {
                 when (item.type) {
-                    1 -> startActivity(Intent(requireContext(), ShakeFlashSettingActivity::class.java))
+                    1 -> startActivity(
+                        Intent(
+                            requireContext(), ShakeFlashSettingActivity::class.java
+                        )
+                    )
+
                     2 -> startActivity(Intent(requireContext(), LightColorActivity::class.java))
                     3 -> startActivity(Intent(requireContext(), AddPhraseActivity::class.java))
-                    4->showToast("Coming Soon")
-                    5->showToast("Coming Soon")
-                    6->{
+                    4 -> showToast("Coming Soon")
+                    5 -> showToast("Coming Soon")
+                    6 -> {
                         PictureSelector.create(requireContext())
                             .openCamera(SelectMimeType.ofVideo())
-                            .setLanguage(LanguageConfig.ENGLISH)
-                            .setRecordVideoMaxSecond(15)
+                            .setLanguage(LanguageConfig.ENGLISH).setRecordVideoMaxSecond(15)
                             .setRecordVideoMinSecond(5)
                             .forResult(object : OnResultCallbackListener<LocalMedia?> {
                                 override fun onResult(result: ArrayList<LocalMedia?>?) {
-                                    UploadUtils.uploadFile(FileUtils.getFileByPath(result!![0]!!.realPath),object : RxSubscriber<UploadBean>(requireContext(),true){
-                                        override fun onSubscribe(d: Disposable) {
+                                    UploadUtils.uploadFile(FileUtils.getFileByPath(result!![0]!!.realPath),
+                                        object : RxSubscriber<UploadBean>(requireContext(), true) {
+                                            override fun onSubscribe(d: Disposable) {
 
-                                        }
-
-                                        override fun _onNext(t: UploadBean?) {
-                                            if (t!!.code==200){
-                                                showToast(t.msg)
-                                                setMyVideo(t.data.fullurl)
                                             }
-                                        }
 
-                                        override fun _onError(message: String?) {
-                                            showToast(message!!)
-                                        }
-                                    })
+                                            override fun _onNext(t: UploadBean?) {
+                                                if (t!!.code == 200) {
+                                                    showToast(t.msg)
+                                                    setMyVideo(t.data.fullurl)
+                                                }
+                                            }
+
+                                            override fun _onError(message: String?) {
+                                                showToast(message!!)
+                                            }
+                                        })
                                 }
+
                                 override fun onCancel() {
                                     showToast("Cancel")
                                 }
                             })
                     }
-                    7->{
-                        CustomDialog
-                            .build()
+
+                    7 -> {
+                        CustomDialog.build()
                             .setMaskColor(requireContext().getColor(R.color.dialogMaskColor))
                             .setCustomView(object : OnBindView<CustomDialog>(R.layout.dialog_tips) {
                                 override fun onBind(dialog: CustomDialog?, v: View?) {
@@ -161,19 +163,65 @@ class MineFragment : BaseFragment() {
                                         }
                                     }
                                 }
-                            })
-                            .show()
+                            }).show()
+                    }
+
+                    8 -> {
+                        CustomDialog.build()
+                            .setMaskColor(requireContext().getColor(R.color.dialogMaskColor))
+                            .setCustomView(object : OnBindView<CustomDialog>(R.layout.dialog_tips) {
+                                override fun onBind(dialog: CustomDialog?, v: View?) {
+                                    v!!.let {
+                                        val tip = v.findViewById<TextView>(R.id.tv_tip)
+                                        tip.text = "UnSet your equipment?"
+                                        val confirm = v.findViewById<TextView>(R.id.tv_confirm)
+                                        val cancel = v.findViewById<TextView>(R.id.tv_cancel)
+                                        cancel.setOnClickListener {
+                                            dialog!!.dismiss()
+                                        }
+                                        confirm.setOnClickListener {
+                                            dialog!!.dismiss()
+                                            unSetEquipment()
+                                        }
+                                    }
+                                }
+                            }).show()
                     }
                 }
             }
         }
     }
 
-
-    private fun setMyVideo(url:String){
-        RetrofitManager.service.setMyVideo(hashMapOf("videopath" to url))
-            .subscribeOn(Schedulers.io())
+    private fun unSetEquipment() {
+        RetrofitManager.service.unSetEquipment(hashMapOf()).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : RxSubscriber<BaseBean?>(requireContext(), true) {
+                override fun _onError(message: String?) {
+
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                @SuppressLint("SetTextI18n")
+                override fun _onNext(t: BaseBean?) {
+                    t?.let {
+                        if (t.code == 200) {
+                            showToast("Success")
+                            /**解绑设备的同时需要清除本地缓存*/
+                            MMKV.defaultMMKV().putString(KVKey.equipment, "")
+                        }
+                    }
+                }
+            })
+
+
+    }
+
+    private fun setMyVideo(url: String) {
+        RetrofitManager.service.setMyVideo(hashMapOf("videopath" to url))
+            .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : RxSubscriber<BaseBean?>(requireContext(), true) {
                 override fun _onError(message: String?) {
 
@@ -191,9 +239,9 @@ class MineFragment : BaseFragment() {
                 }
             })
     }
-    private fun unbind(){
-        RetrofitManager.service.deletepanter(hashMapOf())
-            .subscribeOn(Schedulers.io())
+
+    private fun unbind() {
+        RetrofitManager.service.deletepanter(hashMapOf()).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : RxSubscriber<BaseBean?>(requireContext(), true) {
                 override fun _onError(message: String?) {
@@ -207,7 +255,7 @@ class MineFragment : BaseFragment() {
                 @SuppressLint("SetTextI18n")
                 override fun _onNext(t: BaseBean?) {
                     t?.let {
-                        if (t.code==200){
+                        if (t.code == 200) {
                             showToast("Success")
                             ActivityUtils.finishAllActivities()
                             startActivity(Intent(requireContext(), MainActivity::class.java))
@@ -217,10 +265,9 @@ class MineFragment : BaseFragment() {
             })
     }
 
-    private fun editAvatar(avatar:String){
+    private fun editAvatar(avatar: String) {
         RetrofitManager.service.editavatar(hashMapOf("avatar" to avatar))
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : RxSubscriber<BaseBean?>(requireContext(), true) {
                 override fun _onError(message: String?) {
 
@@ -233,9 +280,9 @@ class MineFragment : BaseFragment() {
                 @SuppressLint("SetTextI18n")
                 override fun _onNext(t: BaseBean?) {
                     t?.let {
-                        if (t.code==200){
+                        if (t.code == 200) {
                             showToast("Success")
-                            MMKV.defaultMMKV().encode(KVKey.avatar,avatar)
+                            MMKV.defaultMMKV().encode(KVKey.avatar, avatar)
                             EventBus.getDefault().post(UpdateHeadPicEvent())
                         }
                     }
@@ -247,40 +294,34 @@ class MineFragment : BaseFragment() {
     }
 
 
-
     override fun initListener() {
         tv_logout.setOnClickListener {
-                CustomDialog
-                    .build()
-                    .setMaskColor(requireContext().getColor(R.color.dialogMaskColor))
-                    .setCustomView(object : OnBindView<CustomDialog>(R.layout.dialog_tips) {
-                        override fun onBind(dialog: CustomDialog?, v: View?) {
-                            v!!.let {
-                                val tip = v.findViewById<TextView>(R.id.tv_tip)
-                                tip.text = "Are you sure to exit?"
-                                val confirm = v.findViewById<TextView>(R.id.tv_confirm)
-                                val cancel = v.findViewById<TextView>(R.id.tv_cancel)
-                                cancel.setOnClickListener {
-                                    dialog!!.dismiss()
-                                }
-                                confirm.setOnClickListener {
-                                    dialog!!.dismiss()
-                                    MMKV.defaultMMKV().clearAll()
-                                    ActivityUtils.finishAllActivities()
-                                    startActivity(Intent(requireContext(), LoginActivity::class.java))
-                                }
+            CustomDialog.build().setMaskColor(requireContext().getColor(R.color.dialogMaskColor))
+                .setCustomView(object : OnBindView<CustomDialog>(R.layout.dialog_tips) {
+                    override fun onBind(dialog: CustomDialog?, v: View?) {
+                        v!!.let {
+                            val tip = v.findViewById<TextView>(R.id.tv_tip)
+                            tip.text = "Are you sure to exit?"
+                            val confirm = v.findViewById<TextView>(R.id.tv_confirm)
+                            val cancel = v.findViewById<TextView>(R.id.tv_cancel)
+                            cancel.setOnClickListener {
+                                dialog!!.dismiss()
+                            }
+                            confirm.setOnClickListener {
+                                dialog!!.dismiss()
+                                MMKV.defaultMMKV().clearAll()
+                                ActivityUtils.finishAllActivities()
+                                startActivity(Intent(requireContext(), LoginActivity::class.java))
                             }
                         }
-                    })
-                    .show()
+                    }
+                }).show()
 
         }
 
         iv_head.setOnClickListener {
-            PictureSelector.create(requireContext())
-                .openGallery(SelectMimeType.ofImage())
-                .setMaxSelectNum(1)
-                .setImageEngine(GlideEngine.createGlideEngine())
+            PictureSelector.create(requireContext()).openGallery(SelectMimeType.ofImage())
+                .setMaxSelectNum(1).setImageEngine(GlideEngine.createGlideEngine())
                 .setLanguage(LanguageConfig.ENGLISH)
                 .setCompressEngine(CompressFileEngine { _, source, call ->
                     Luban.with(MyApplication.context).load(source)
@@ -297,26 +338,27 @@ class MineFragment : BaseFragment() {
                                 call?.onCallback(source, "")
                             }
                         }).launch()
-                })
-                .forResult(object : OnResultCallbackListener<LocalMedia?> {
+                }).forResult(object : OnResultCallbackListener<LocalMedia?> {
                     override fun onResult(result: ArrayList<LocalMedia?>?) {
-                        UploadUtils.uploadFile(File(result!![0]!!.compressPath),object : RxSubscriber<UploadBean>(requireContext(),true){
-                            override fun onSubscribe(d: Disposable) {
+                        UploadUtils.uploadFile(File(result!![0]!!.compressPath),
+                            object : RxSubscriber<UploadBean>(requireContext(), true) {
+                                override fun onSubscribe(d: Disposable) {
 
-                            }
-
-                            override fun _onNext(t: UploadBean?) {
-                                if (t!!.code==200){
-                                    showToast(t.msg)
-                                    editAvatar(t.data.fullurl)
                                 }
-                            }
 
-                            override fun _onError(message: String?) {
-                                showToast(message!!)
-                            }
-                        })
+                                override fun _onNext(t: UploadBean?) {
+                                    if (t!!.code == 200) {
+                                        showToast(t.msg)
+                                        editAvatar(t.data.fullurl)
+                                    }
+                                }
+
+                                override fun _onError(message: String?) {
+                                    showToast(message!!)
+                                }
+                            })
                     }
+
                     override fun onCancel() {
                         showToast("Cancel")
                     }
