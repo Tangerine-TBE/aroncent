@@ -122,6 +122,9 @@ class ShakeFlashSettingActivity : BaseActivity() {
             override fun onStopTrackingTouch(seekBar: IndicatorSeekBar) {
                 Log.e("shaking_levels", seekBar.progress.toString())
                 shaking_levels = seekBar.progress.toString()
+                if (shaking_levels == "0"){
+                    showToast(getString(R.string.no_vibration_notification))
+                }
             }
         }
 
