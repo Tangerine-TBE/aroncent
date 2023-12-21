@@ -2,8 +2,12 @@ package com.aroncent.module.mine
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.util.Log
 import android.view.View
+import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.aroncent.R
 import com.aroncent.app.KVKey
@@ -28,10 +32,13 @@ import com.kongzue.dialogx.interfaces.OnBindView
 import com.aroncent.api.RetrofitManager
 import com.aroncent.app.MyApplication
 import com.aroncent.ble.BleTool
+import com.aroncent.ble.DeviceConfig
 import com.aroncent.event.ReConnectEvent
 import com.aroncent.module.main.BatteryBean
 import com.aroncent.module.main.UpdateHeadPicEvent
 import com.aroncent.utils.GlideEngine
+import com.aroncent.utils.addZeroForNum
+import com.aroncent.utils.binaryToHexString
 import com.blankj.utilcode.util.FileUtils
 import com.clj.fastble.BleManager
 import com.luck.picture.lib.basic.PictureSelector
@@ -46,6 +53,7 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.frag_mine.*
 import kotlinx.android.synthetic.main.item_menu.view.*
+import kotlinx.android.synthetic.main.item_not_disturb.not_disturb
 import kotlinx.android.synthetic.main.top_bar.iv_battery
 import kotlinx.android.synthetic.main.top_bar.tv_battery
 import org.greenrobot.eventbus.EventBus
@@ -69,6 +77,7 @@ class MineFragment : BaseFragment() {
 
     override fun initView() {
         EventBus.getDefault().register(this)
+        not_disturb.setCheckedNoEvent(MMKV.defaultMMKV().getBoolean(KVKey.not_disturb,false))
         tv_name.text = "Hello," + MMKV.defaultMMKV().decodeString(KVKey.username, "")
         Glide.with(this).load(MMKV.defaultMMKV().decodeString(KVKey.avatar, "")).circleCrop()
             .error(R.drawable.head_default_pic).into(iv_head)
@@ -79,7 +88,6 @@ class MineFragment : BaseFragment() {
                 MenuBean(2, "Light Color Settings"),
                 MenuBean(3, "My Morsecode Templates Settings"),
                 MenuBean(4, "Bind My Facebook Account"),
-                MenuBean(5, "Do not disturb"),
                 MenuBean(6, "Upload My Video"),
                 MenuBean(7, "Unbind your partner"),
                 MenuBean(8, "UnSet your equipment")
@@ -114,7 +122,6 @@ class MineFragment : BaseFragment() {
                     2 -> startActivity(Intent(requireContext(), LightColorActivity::class.java))
                     3 -> startActivity(Intent(requireContext(), AddPhraseActivity::class.java))
                     4 -> showToast("Coming Soon")
-                    5 -> showToast("Coming Soon")
                     6 -> {
                         PictureSelector.create(requireContext())
                             .openCamera(SelectMimeType.ofVideo())
@@ -300,6 +307,14 @@ class MineFragment : BaseFragment() {
 
 
     override fun initListener() {
+        not_disturb.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (BleManager.getInstance().isConnected(BleTool.mBleDevice)){
+                MMKV.defaultMMKV().putBoolean(KVKey.not_disturb,isChecked)
+                setShakeToDevice()
+            }else{
+               showToast("Please connect Bluetooth device")
+            }
+        }
         tv_logout.setOnClickListener {
             CustomDialog.build().setMaskColor(requireContext().getColor(R.color.dialogMaskColor))
                 .setCustomView(object : OnBindView<CustomDialog>(R.layout.dialog_tips) {
@@ -370,4 +385,43 @@ class MineFragment : BaseFragment() {
                 })
         }
     }
+
+    private fun setShakeToDevice(){
+        //给设备设置默认参数，灯光颜色，长短震，长短闪
+        val long_shake = DeviceConfig.long_shake
+        val short_shake = DeviceConfig.short_shake
+        val long_flash = DeviceConfig.long_flash
+        val short_flash = DeviceConfig.short_flash
+        val shaking_levels = DeviceConfig.shaking_levels
+        val lightColor = if (DeviceConfig.lightColor =="") "FFFFFF" else DeviceConfig.lightColor
+        val binary_short_flash = addZeroForNum((short_flash.toFloat()*10).toInt().toString(2),4)
+        val binary_long_flash = addZeroForNum((long_flash.toFloat()*10).toInt().toString(2),4)
+        val binary_short_shake = addZeroForNum((short_shake.toFloat()*10).toInt().toString(2),4)
+        val binary_long_shake = addZeroForNum((long_shake.toFloat()*10).toInt().toString(2),4)
+        val vibration_intensity = addZeroForNum(shaking_levels,2) //震动强度 0-3
+
+        Log.e("short_flash",binary_short_flash)
+        Log.e("long_flash",binary_long_flash)
+        Log.e("short_shake",binary_short_shake)
+        Log.e("long_shake",binary_long_shake)
+        Log.e("vibration_intensity",vibration_intensity)
+
+        Log.e("flash", binaryToHexString(binary_short_flash+binary_long_flash))
+        Log.e("shake", binaryToHexString(binary_short_shake+binary_long_shake))
+
+        val xorStr = BleTool.getXOR("02"
+                +lightColor
+                + binaryToHexString(binary_short_flash+binary_long_flash)
+                +vibration_intensity
+                + binaryToHexString(binary_short_shake+binary_long_shake)
+        )
+
+        BleTool.sendInstruct("A5AAAC"+xorStr+"02"
+                +lightColor
+                + binaryToHexString(binary_short_flash+binary_long_flash)
+                +vibration_intensity
+                + binaryToHexString(binary_short_shake+binary_long_shake)
+                +"C5CCCA")
+    }
+
 }

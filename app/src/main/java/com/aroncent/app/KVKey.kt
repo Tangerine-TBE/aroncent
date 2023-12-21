@@ -19,6 +19,7 @@ object KVKey {
     const val shaking_levels = "shaking_levels"
     const val loop_number = "loop_number" //循环次数
     const val equipment = "equipment"
+    const val not_disturb = "not_disturb"
 
     //用户信息
     const val TOKEN = "token"

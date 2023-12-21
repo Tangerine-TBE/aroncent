@@ -37,7 +37,11 @@ object DeviceConfig {
     @JvmStatic
     val shaking_levels : String
         get() {
-            return MMKV.defaultMMKV().decodeString(KVKey.shaking_levels,"1")
+            return if (MMKV.defaultMMKV().decodeBool(KVKey.not_disturb,false)){
+                "0"
+            }else{
+                MMKV.defaultMMKV().decodeString(KVKey.shaking_levels,"1")
+            }
         }
 
     @JvmStatic

@@ -185,4 +185,7 @@ dependencies {
     implementation  'io.github.scwang90:refresh-header-classics:2.1.0'
     implementation  'io.github.scwang90:refresh-footer-classics:2.1.0'
 
+    implementation 'com.kyleduo.switchbutton:library:2.1.0'
+
+
 }
