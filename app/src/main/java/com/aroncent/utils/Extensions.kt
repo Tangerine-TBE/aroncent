@@ -175,7 +175,7 @@ fun getShortPressHex(morseDelay: String?): String {
             var third_frame = "00000003"
             if (morseDelay != null) {
                 val rgb = "000000"
-                third_frame = rgb+binaryToHexString("001${toBinary(morseDelay,5)}")
+                third_frame = rgb+binaryToHexString("000${toBinary(morseDelay,5)}")
             }
             Log.e("ShortPressHex", first_frame + second_frame + third_frame)
             return (first_frame + second_frame + third_frame).uppercase()
@@ -209,7 +209,7 @@ fun getShortPressHex(morseDelay: String?): String {
             var third_frame = "00000003"
             if (morseDelay != null) {
                 val rgb = "000000"
-                third_frame = rgb+binaryToHexString("001${toBinary(morseDelay,5)}")
+                third_frame = rgb+binaryToHexString("000${toBinary(morseDelay,5)}")
             }
             Log.e("ShortPressHex",first_frame+second_frame+third_frame)
             return (first_frame + second_frame + third_frame).uppercase()
@@ -230,7 +230,7 @@ fun getShortPressHex(morseDelay: String?): String {
             var second_frame = "00000003"
             if (morseDelay != null) {
                 val rgb = "000000"
-                second_frame = rgb+binaryToHexString("001${toBinary(morseDelay,5)}")
+                second_frame = rgb+binaryToHexString("000${toBinary(morseDelay,5)}")
             }
             Log.e("ShortPressHex",first_frame+second_frame)
             return (first_frame + second_frame).uppercase()
@@ -271,7 +271,7 @@ fun getLongPressHex(morseDelay: String?): String {
             var third_frame = "00000003"
             if (morseDelay != null) {
                 val rgb = "000000"
-                third_frame = rgb+binaryToHexString("001${toBinary(morseDelay,5)}")
+                third_frame = rgb+binaryToHexString("000${toBinary(morseDelay,5)}")
             }
             Log.e("LongPressHex", first_frame + second_frame + third_frame)
             return (first_frame + second_frame + third_frame).uppercase()
@@ -305,7 +305,7 @@ fun getLongPressHex(morseDelay: String?): String {
             var third_frame = "00000003"
             if (morseDelay != null) {
                 val rgb = "000000"
-                third_frame = rgb+binaryToHexString("001${toBinary(morseDelay,5)}")
+                third_frame = rgb+binaryToHexString("000${toBinary(morseDelay,5)}")
             }
             Log.e("LongPressHex", first_frame + second_frame + third_frame)
             return (first_frame + second_frame + third_frame).uppercase()
@@ -326,7 +326,7 @@ fun getLongPressHex(morseDelay: String?): String {
             var second_frame = "00000003"
             if (morseDelay != null) {
                 val rgb = "000000"
-                second_frame = rgb+binaryToHexString("001${toBinary(morseDelay,5)}")
+                second_frame = rgb+binaryToHexString("000${toBinary(morseDelay,5)}")
             }
             return (first_frame + second_frame).uppercase()
         }

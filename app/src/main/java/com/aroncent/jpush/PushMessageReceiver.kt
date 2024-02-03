@@ -14,6 +14,7 @@ import com.aroncent.event.ReadMsgEvent
 import com.aroncent.utils.*
 import com.blankj.utilcode.util.GsonUtils
 import com.blankj.utilcode.util.LogUtils
+import com.blankj.utilcode.util.ViewUtils
 import org.greenrobot.eventbus.EventBus
 
 class PushMessageReceiver : JPushMessageReceiver() {
@@ -61,7 +62,7 @@ class PushMessageReceiver : JPushMessageReceiver() {
                 Log.e("JPush morseData", morseData.substring(0, length.toInt()))
                 //组装01指令的数据域
                 var instructData = ""
-                morseData.forEachIndexed { index,it->
+                morseData.forEachIndexed { index, it ->
                     instructData += if (it.toString() == "0") {
                         getShortPressHex(morseDelay[index])
                     } else {
@@ -75,6 +76,7 @@ class PushMessageReceiver : JPushMessageReceiver() {
                     "A5AAAC" + BleTool.getXOR("01$frame_length" + DeviceConfig.loop_number + instructData) + "01$frame_length" + DeviceConfig.loop_number + instructData + "C5CCCA"
 
                 Log.e("JPush 03指令转成01指令：", instruct)
+                Thread.sleep(2000)
                 BleTool.sendInstruct(instruct)
             }
 
