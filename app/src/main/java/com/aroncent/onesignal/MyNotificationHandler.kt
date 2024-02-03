@@ -81,6 +81,7 @@ class MyNotificationHandler :OneSignal.OSRemoteNotificationReceivedHandler {
                     "A5AAAC" + BleTool.getXOR("01$frame_length" + DeviceConfig.loop_number + instructData) + "01$frame_length" + DeviceConfig.loop_number + instructData + "C5CCCA"
 
                 Log.e("JPush 03指令转成01指令：", instruct)
+                Thread.sleep(2000)
                 BleTool.sendInstruct(instruct)
             }
 
@@ -105,6 +106,7 @@ class MyNotificationHandler :OneSignal.OSRemoteNotificationReceivedHandler {
                         "01$frame_length" + DeviceConfig.loop_number + instructData + "C5CCCA"
 
                 Log.e("OPush 摩斯短语转01指令：",instruct)
+                Thread.sleep(2000)
                 BleTool.sendInstruct(instruct)
             }
         }

@@ -101,6 +101,7 @@ class PushMessageReceiver : JPushMessageReceiver() {
                     "A5AAAC" + BleTool.getXOR("01$frame_length" + DeviceConfig.loop_number + instructData) + "01$frame_length" + DeviceConfig.loop_number + instructData + "C5CCCA"
 
                 Log.e("JPush 摩斯短语转01指令：", instruct)
+                Thread.sleep(2000)
                 BleTool.sendInstruct(instruct)
             }
         }
