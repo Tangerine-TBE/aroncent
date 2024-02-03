@@ -264,13 +264,28 @@ class MainActivity : BaseActivity() {
     }
 
     private fun test1() {
-        val str = "A5AAAC130312AAAA02C5CCCA"
+        val str = "A5AAAC0103030F0E00C5CCCA"
         val length = addZeroForNum((str.substring(10, 12).toInt(16)).toString().uppercase(), 2)
         val content = str.substring(12, str.length - 6)
         var morseData = ""
-        BleTool.getInstructStringArray(content).forEach {
-            val char = toBinary(it!!, 8).reversed()
-            morseData += char
+        val morseDelay = arrayOfNulls<String>(length.toInt())
+        BleTool.getInstructStringArray(content).forEachIndexed { index, it ->
+            if (it != null) {
+                val unKnowNum = it.toInt(16)
+                if (unKnowNum < 128) {
+                    morseDelay[index] = it.toInt(16).toString()
+                    LogUtils.e("短按间隔-$it-${it.toInt(16)}-${it.toInt(16) * 0.1}秒")
+                } else if (unKnowNum == 128) {
+                    morseDelay[index] = 1.toString()
+                    LogUtils.e("长按间隔-$it-${it.toInt(16)}-0.1秒")
+                } else {
+                    morseDelay[index] = (unKnowNum - 128).toString()
+                    LogUtils.e("长按间隔-$it-${it.toInt(16)}-${(unKnowNum - 128) * 0.1}秒")
+                }
+                val char = it.let { it1 -> toBinary(it1, 8).reversed() }
+                morseData += char
+            }
+
         }
 
         morseData = morseData.substring(0, length.toInt())
@@ -279,11 +294,11 @@ class MainActivity : BaseActivity() {
 
         //组装01指令的数据域
         var instructData = ""
-        morseData.forEach {
+        morseData.forEachIndexed { index, it ->
             instructData += if (it.toString() == "0") {
-                getShortPressHex(null)
+                getShortPressHex(morseDelay[index])
             } else {
-                getLongPressHex(null)
+                getLongPressHex(morseDelay[index])
             }
         }
         //帧数长度
@@ -534,7 +549,7 @@ class MainActivity : BaseActivity() {
                     ThreadUtils.runOnUiThreadDelayed({
                         BleTool.sendInstruct("A5AAAC1706AABBCCDDEEFFC5CCCA")
                     },1000)
-
+//                    test1()
 
                 }
 

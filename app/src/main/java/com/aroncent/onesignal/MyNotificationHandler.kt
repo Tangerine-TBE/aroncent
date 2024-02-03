@@ -49,7 +49,7 @@ class MyNotificationHandler :OneSignal.OSRemoteNotificationReceivedHandler {
                         val unKnowNum = it.toInt(16)
                         if (unKnowNum < 128) {
                             morseDelay[index] = it.toInt(16).toString()
-                            LogUtils.e("短按间隔-$it-${it.toInt(16)}-${it.toInt() * 0.1}秒")
+                            LogUtils.e("短按间隔-$it-${it.toInt(16)}-${it.toInt(16) * 0.1}秒")
                         } else if (unKnowNum == 128) {
                             morseDelay[index] = 1.toString()
                             LogUtils.e("长按间隔-$it-${it.toInt(16)}-0.1秒")
