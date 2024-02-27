@@ -328,6 +328,7 @@ fun getLongPressHex(morseDelay: String?): String {
                 val rgb = "000000"
                 second_frame = rgb+binaryToHexString("000${toBinary(morseDelay,5)}")
             }
+            Log.e("LongPressHex", first_frame + second_frame)
             return (first_frame + second_frame).uppercase()
         }
     }

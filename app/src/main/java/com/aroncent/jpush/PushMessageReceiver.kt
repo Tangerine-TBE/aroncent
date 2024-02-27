@@ -44,22 +44,22 @@ class PushMessageReceiver : JPushMessageReceiver() {
                         val unKnowNum = it.toInt(16)
                         if (unKnowNum < 128) {
                             morseDelay[index] = it.toInt(16).toString()
+                            morseData += '0'
                             LogUtils.e("短按间隔-$it-${it.toInt(16)}-${it.toInt(16) * 0.1}秒")
                         } else if (unKnowNum == 128) {
                             morseDelay[index] = 1.toString()
+                            morseData += '1'
                             LogUtils.e("长按间隔-$it-${it.toInt(16)}-0.1秒")
                         } else {
                             morseDelay[index] = (unKnowNum - 128).toString()
+                            morseData += '1'
                             LogUtils.e("长按间隔-$it-${it.toInt(16)}-${(unKnowNum - 128) * 0.1}秒")
                         }
-                        val char = it.let { it1 -> toBinary(it1, 8).reversed() }
-                        morseData += char
                     }
 
                 }
-                morseData = morseData.substring(0, length.toInt())
                 //这里得到摩斯密码表示的长按和短按 eg: 010100
-                Log.e("JPush morseData", morseData.substring(0, length.toInt()))
+                Log.e("JPush morseData", morseData)
                 //组装01指令的数据域
                 var instructData = ""
                 morseData.forEachIndexed { index, it ->
@@ -69,6 +69,7 @@ class PushMessageReceiver : JPushMessageReceiver() {
                         getLongPressHex(morseDelay[index])
                     }
                 }
+                Log.e("instructData",instructData)
                 //帧数长度
                 val frame_length =
                     addZeroForNum((instructData.length / 8).toString(16), 2).uppercase()
