@@ -20,6 +20,7 @@ object KVKey {
     const val loop_number = "loop_number" //循环次数
     const val equipment = "equipment"
     const val not_disturb = "not_disturb"
+    const val morse_model = "morse_model"
 
     //用户信息
     const val TOKEN = "token"

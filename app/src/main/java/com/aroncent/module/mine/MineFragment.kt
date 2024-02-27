@@ -54,6 +54,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.frag_mine.*
 import kotlinx.android.synthetic.main.item_menu.view.*
 import kotlinx.android.synthetic.main.item_not_disturb.not_disturb
+import kotlinx.android.synthetic.main.item_press_send_morse.morse_model
 import kotlinx.android.synthetic.main.top_bar.iv_battery
 import kotlinx.android.synthetic.main.top_bar.tv_battery
 import org.greenrobot.eventbus.EventBus
@@ -78,6 +79,7 @@ class MineFragment : BaseFragment() {
     override fun initView() {
         EventBus.getDefault().register(this)
         not_disturb.setCheckedNoEvent(MMKV.defaultMMKV().getBoolean(KVKey.not_disturb,false))
+        morse_model.setCheckedNoEvent(MMKV.defaultMMKV().getBoolean(KVKey.morse_model,false))
         tv_name.text = "Hello," + MMKV.defaultMMKV().decodeString(KVKey.username, "")
         Glide.with(this).load(MMKV.defaultMMKV().decodeString(KVKey.avatar, "")).circleCrop()
             .error(R.drawable.head_default_pic).into(iv_head)
@@ -314,6 +316,33 @@ class MineFragment : BaseFragment() {
             }else{
                showToast("Please connect Bluetooth device")
             }
+        }
+        morse_model.setOnCheckedChangeListener{ buttonView,isChecked ->
+            val map = hashMapOf<String,String>()
+            if (isChecked){
+                map["isonpress"] = 1.toString()
+            }else{
+                map["isonpress"] = 0.toString()
+            }
+            RetrofitManager.service.setIsonPressSendMorse(map)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : RxSubscriber<BaseBean?>(requireContext(), true) {
+                    override fun _onError(message: String?) {
+                    }
+
+                    override fun onSubscribe(d: Disposable) {
+
+                    }
+
+                    @SuppressLint("SetTextI18n")
+                    override fun _onNext(t: BaseBean?) {
+                        if (t!!.code == 200) {
+                            MMKV.defaultMMKV().putBoolean(KVKey.morse_model,isChecked)
+                            showToast("Success")
+                        }
+                    }
+                })
         }
         tv_logout.setOnClickListener {
             CustomDialog.build().setMaskColor(requireContext().getColor(R.color.dialogMaskColor))

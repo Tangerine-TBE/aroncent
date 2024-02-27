@@ -188,4 +188,8 @@ interface ApiService {
     @POST("addons/litestore/api.Sendphrase/historysend")
     fun historySend(@FieldMap map:HashMap<String,String>):Observable<BaseBean>
 
+    @FormUrlEncoded
+    @POST("addons/litestore/api.Usersettings/setisonpresssendmorse")
+    fun setIsonPressSendMorse(@FieldMap map: HashMap<String, String>):Observable<BaseBean>
+
 }

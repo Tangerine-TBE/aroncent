@@ -88,7 +88,10 @@
             tools:listitem="@layout/item_menu" />
 
         <include layout="@layout/item_not_disturb" />
-
+        <include layout="@layout/item_press_send_morse" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_24"/>
     </LinearLayout>
 
 </androidx.core.widget.NestedScrollView>

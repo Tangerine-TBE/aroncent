@@ -61,7 +61,6 @@ class MyNotificationHandler :OneSignal.OSRemoteNotificationReceivedHandler {
                             LogUtils.e("长按间隔-$it-${it.toInt(16)}-${(unKnowNum - 128) * 0.1}秒")
                         }
                     }
-
                 }
                 //这里得到摩斯密码表示的长按和短按 eg: 010100
                 Log.e("JPush morseData", morseData)
