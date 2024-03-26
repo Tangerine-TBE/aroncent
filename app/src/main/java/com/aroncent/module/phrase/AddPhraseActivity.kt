@@ -16,6 +16,8 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.act_add_phrase.*
+import kotlinx.android.synthetic.main.act_edit_phrase.nested_scroll_view
+import kotlinx.android.synthetic.main.act_edit_phrase.tv_morse_code
 import kotlinx.android.synthetic.main.item_morse_code.view.*
 import kotlinx.android.synthetic.main.item_select_morse_code.view.*
 import kotlinx.android.synthetic.main.top_bar.iv_back
@@ -76,6 +78,7 @@ class AddPhraseActivity : BaseActivity() {
                 if (selectCode.size < 7){
                     selectCode.add(item)
                     refreshSelectCode()
+                    nested_scroll_view.smoothScrollTo(0,moute.top)
                 }
             }
         }
@@ -105,6 +108,10 @@ class AddPhraseActivity : BaseActivity() {
                 if (char.toString()=="1"){
                     text += "一"
                 }
+
+            }
+            if(index < selectCode.size - 1){
+                text +=","
             }
             selectCodeArray[index].code = dataBean.code
         }

@@ -18,5 +18,6 @@ public class UserPhraseListBean {
         public String shake;
         public String createtime;
         public String updatetime;
+        public String morseword;
     }
 }

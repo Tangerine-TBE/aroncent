@@ -2,8 +2,11 @@ package com.aroncent.module.history
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.view.KeyEvent
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.widget.TextView
+import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.aroncent.R
 import com.aroncent.base.BaseFragment
@@ -16,7 +19,9 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.clj.fastble.BleManager
 import com.aroncent.api.RetrofitManager
 import com.aroncent.app.KVKey
+import com.aroncent.app.MyApplication
 import com.aroncent.base.BaseBean
+import com.aroncent.db.MsgData
 import com.aroncent.jpush.PushInfoType
 import com.aroncent.module.home.SendPhraseBean
 import com.aroncent.module.login.LoginActivity
@@ -39,6 +44,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.frag_history.*
 import kotlinx.android.synthetic.main.frag_history.left_pic
 import kotlinx.android.synthetic.main.frag_history.view.refresh
+import kotlinx.android.synthetic.main.item_history_left.view.item_edit_info
 import kotlinx.android.synthetic.main.item_history_left.view.item_history_code
 import kotlinx.android.synthetic.main.item_history_left.view.item_history_content
 import kotlinx.android.synthetic.main.item_history_left.view.item_history_time
@@ -180,8 +186,35 @@ class HistoryFragment : BaseFragment(), OnRefreshListener, OnLoadMoreListener {
                     }
                 }
             }
+            val appDataBase = (activity?.application as MyApplication).getAppDatabase()
+           val list = appDataBase.msgDao()!!.searchDataWithMorse(item.morsecode)
+            var beizhu ="";
+            if(list.isNotEmpty()){
+                beizhu = list[0].beizhu;
+            }
+            itemView.item_edit_info.setText(beizhu)
             itemView.item_history_time.text = time
             itemView.item_history_code.text = code
+            itemView.item_edit_info.setOnEditorActionListener(object:TextView.OnEditorActionListener{
+                override fun onEditorAction(p0: TextView?, p1: Int, p2: KeyEvent?): Boolean {
+                    if(p1 ==EditorInfo.IME_ACTION_DONE){
+                        val editText = itemView.item_edit_info.text.toString()
+                        if(list.isNotEmpty()){
+                            list[0].beizhu = editText
+                            appDataBase.msgDao()!!.insertData(list[0])
+                        }else{
+                            val msgData = MsgData()
+                            msgData.morsecode = item.morsecode;
+                            msgData.beizhu = editText;
+                            appDataBase.msgDao()!!.insertData(msgData)
+                        }
+                        return false
+                    }else{
+                        itemView.item_edit_info.setText(beizhu)
+                        return false
+                    }
+                }
+            })
             itemView.setOnClickListener{
                 CustomDialog.build().setMaskColor(requireContext().getColor(R.color.dialogMaskColor))
                     .setCustomView(object : OnBindView<CustomDialog>(R.layout.dialog_tips) {

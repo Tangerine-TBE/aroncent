@@ -2,7 +2,9 @@ package com.aroncent.app
 
 import android.app.Application
 import android.content.Context
+import androidx.room.Room
 import cn.jpush.android.api.JPushInterface
+import com.aroncent.db.AppDatabase
 import com.clj.fastble.BleManager
 import com.facebook.FacebookSdk
 import com.hjq.language.MultiLanguages
@@ -22,6 +24,7 @@ import kotlin.properties.Delegates
  */
 
 class MyApplication : Application(){
+    private lateinit var mAppDatabase: AppDatabase
     private val ONESIGNAL_APP_ID = "1831d749-003d-4c23-9adf-6a72322a79db"
     companion object {
         private val TAG = "MyApplication"
@@ -35,7 +38,9 @@ class MyApplication : Application(){
             return sDefault
         }
     }
-
+    fun getAppDatabase() : AppDatabase {
+        return mAppDatabase
+    }
     override fun onCreate() {
         super.onCreate()
         FacebookSdk.sdkInitialize(this)
@@ -67,7 +72,10 @@ class MyApplication : Application(){
             .enableLog(BuildConfig.DEBUG)
 //            .setConnectOverTime(20000)
             .setOperateTimeout(5000)
-
+        mAppDatabase = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "xlite_device.db")
+            .allowMainThreadQueries()
+            .fallbackToDestructiveMigration()
+            .build()
     }
 
     override fun attachBaseContext(base: Context?) {

@@ -19,13 +19,19 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.aroncent.api.RetrofitManager
 import com.aroncent.app.KVKey
 import com.aroncent.event.ReadMsgEvent
+import com.aroncent.module.history.HistoryFragment
+import com.aroncent.module.history.HistoryListBean
 import com.aroncent.module.main.BatteryBean
 import com.aroncent.module.main.UpdateHeadPicEvent
+import com.aroncent.module.phrase.AddPhraseActivity
 import com.bumptech.glide.Glide
 import com.tencent.mmkv.MMKV
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.android.synthetic.main.frag_history.refresh
+import kotlinx.android.synthetic.main.frag_history.rv_history
+import kotlinx.android.synthetic.main.frag_history.tv_heartbeat
 import kotlinx.android.synthetic.main.frag_home.*
 import kotlinx.android.synthetic.main.frag_mine.*
 import kotlinx.android.synthetic.main.item_phrase_model.view.*
@@ -96,7 +102,33 @@ class HomeFragment : BaseFragment() {
     fun onReceiveMsg(msg: ReadMsgEvent) {
         tv_new_msg.text = "Receive the new massage from "+tv_right_name.text
         tv_new_msg2.visibility = View.VISIBLE
-        tv_new_msg2.text = msg.content
+
+        RetrofitManager.service.getHistory(hashMapOf(Pair("page","1"))).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : RxSubscriber<HistoryListBean?>(requireContext(), true) {
+                override fun _onError(message: String?) {
+                    tv_heartbeat.text = "0"
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                @SuppressLint("SetTextI18n")
+                override fun _onNext(t: HistoryListBean?) {
+                    t?.let {
+                        if (t.code == 200) {
+                            if (t.data.list.isNotEmpty()) {
+                              val listBean =   t.data.list[0]
+                                tv_new_msg2.text = listBean.content
+                            }
+                        }
+                    }
+                }
+
+                override fun onComplete() {
+                    super.onComplete()
+                }
+            })
     }
     override fun initView() {
         Glide.with(this)
@@ -118,7 +150,8 @@ class HomeFragment : BaseFragment() {
         BaseQuickAdapter<UserPhraseListBean.DataBean, BaseViewHolder>(R.layout.item_phrase_model, data) {
         override fun convert(helper: BaseViewHolder, item: UserPhraseListBean.DataBean) {
             val itemView = helper.itemView
-            itemView.tv_content.text = item.content
+            itemView.tv_content.text = "${(helper.position+1)}.${item.content}"
+            itemView.tv_real_morse_code.text = item.morseword
             var code = ""
             if (item.shake != null) {
                 item.shake.forEach {
@@ -202,5 +235,8 @@ class HomeFragment : BaseFragment() {
     }
 
     override fun initListener() {
+        tv_my_template.setOnClickListener {
+            startActivity(Intent(requireContext(), AddPhraseActivity::class.java))
+        }
     }
 }

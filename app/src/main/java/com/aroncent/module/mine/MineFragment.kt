@@ -2,45 +2,52 @@ package com.aroncent.module.mine
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.provider.Telephony.Carriers.AUTH_TYPE
 import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.aroncent.R
+import com.aroncent.api.RetrofitManager
 import com.aroncent.app.KVKey
+import com.aroncent.app.MyApplication
 import com.aroncent.base.BaseBean
 import com.aroncent.base.BaseFragment
 import com.aroncent.base.RxSubscriber
 import com.aroncent.base.UploadBean
-import com.aroncent.module.light_color.LightColorActivity
-import com.aroncent.module.login.LoginActivity
-import com.aroncent.module.main.MainActivity
-import com.aroncent.module.phrase.AddPhraseActivity
-import com.aroncent.module.shake_flash_settings.ShakeFlashSettingActivity
-import com.aroncent.utils.UploadUtils
-import com.aroncent.utils.showToast
-import com.blankj.utilcode.util.ActivityUtils
-import com.blankj.utilcode.util.ClickUtils
-import com.bumptech.glide.Glide
-import com.chad.library.adapter.base.BaseQuickAdapter
-import com.chad.library.adapter.base.viewholder.BaseViewHolder
-import com.kongzue.dialogx.dialogs.CustomDialog
-import com.kongzue.dialogx.interfaces.OnBindView
-import com.aroncent.api.RetrofitManager
-import com.aroncent.app.MyApplication
 import com.aroncent.ble.BleTool
 import com.aroncent.ble.DeviceConfig
 import com.aroncent.event.ReConnectEvent
-import com.aroncent.module.main.BatteryBean
+import com.aroncent.module.light_color.LightColorActivity
+import com.aroncent.module.login.LoginActivity
+import com.aroncent.module.login.RequestUserInfoBean
+import com.aroncent.module.main.MainActivity
 import com.aroncent.module.main.UpdateHeadPicEvent
+import com.aroncent.module.phrase.AddPhraseActivity
+import com.aroncent.module.shake_flash_settings.ShakeFlashSettingActivity
 import com.aroncent.utils.GlideEngine
+import com.aroncent.utils.UploadUtils
 import com.aroncent.utils.addZeroForNum
 import com.aroncent.utils.binaryToHexString
+import com.aroncent.utils.setUserInfoToSp
+import com.aroncent.utils.showToast
+import com.aroncent.utils.startActivity
+import com.blankj.utilcode.util.ActivityUtils
+import com.blankj.utilcode.util.ClickUtils
 import com.blankj.utilcode.util.FileUtils
+import com.bumptech.glide.Glide
+import com.chad.library.adapter.base.BaseQuickAdapter
+import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.clj.fastble.BleManager
+import com.facebook.AccessToken
+import com.facebook.CallbackManager
+import com.facebook.FacebookCallback
+import com.facebook.FacebookException
+import com.facebook.appevents.UserDataStore.EMAIL
+import com.facebook.login.LoginManager
+import com.facebook.login.LoginResult
+import com.kongzue.dialogx.dialogs.CustomDialog
+import com.kongzue.dialogx.interfaces.OnBindView
 import com.luck.picture.lib.basic.PictureSelector
 import com.luck.picture.lib.config.SelectMimeType
 import com.luck.picture.lib.engine.CompressFileEngine
@@ -51,18 +58,18 @@ import com.tencent.mmkv.MMKV
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.android.synthetic.main.act_login.fb_login
 import kotlinx.android.synthetic.main.frag_mine.*
 import kotlinx.android.synthetic.main.item_menu.view.*
 import kotlinx.android.synthetic.main.item_not_disturb.not_disturb
 import kotlinx.android.synthetic.main.item_press_send_morse.morse_model
-import kotlinx.android.synthetic.main.top_bar.iv_battery
-import kotlinx.android.synthetic.main.top_bar.tv_battery
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import top.zibin.luban.Luban
 import top.zibin.luban.OnNewCompressListener
 import java.io.File
+import java.util.Arrays
 
 
 class MineFragment : BaseFragment() {
@@ -123,7 +130,55 @@ class MineFragment : BaseFragment() {
 
                     2 -> startActivity(Intent(requireContext(), LightColorActivity::class.java))
                     3 -> startActivity(Intent(requireContext(), AddPhraseActivity::class.java))
-                    4 -> showToast("Coming Soon")
+                    4 -> {
+                        val accessToken: AccessToken? =
+                            AccessToken.getCurrentAccessToken()
+                        val isLoggedIn = accessToken != null && !accessToken.isExpired
+                        if(isLoggedIn){
+                            showToast("already bind facebook !")
+                            return@applySingleDebouncing
+                        }
+                        val callbackManager = CallbackManager.Factory.create()
+                        LoginManager.getInstance().setAuthType(EMAIL)
+                        // If you are using in a fragment, call loginButton.setFragment(this);
+                        // Callback registration
+                        LoginManager.getInstance().registerCallback(callbackManager, object :
+                            FacebookCallback<LoginResult> {
+                            override fun onSuccess(result: LoginResult) {
+                                val map = hashMapOf<String, String>()
+                                map["Facebook"] = result.accessToken.userId
+                                RetrofitManager.service.bindfacebook(map).subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread()).subscribe(object :
+                                        RxSubscriber<BaseBean?>(context, true) {
+                                        override fun _onError(message: String?) {
+                                        }
+
+                                        override fun onSubscribe(d: Disposable) {
+
+                                        }
+                                        @SuppressLint("SetTextI18n")
+                                        override fun _onNext(t: BaseBean?) {
+                                            t?.let {
+                                                if (t.code == 200) {
+                                                    showToast("success")
+                                                } else {
+                                                    showToast(t.msg)
+                                                }
+                                            }
+                                        }
+                                    })
+                            }
+
+                            override fun onCancel() {
+                                Log.e("facebook", "cancel")
+                            }
+
+                            override fun onError(error: FacebookException) {
+                                Log.e("facebook", error.message!!)
+                            }
+                        })
+                        LoginManager.getInstance().logInWithReadPermissions(requireActivity(), Arrays.asList("public_profile", "email"))
+                    }
                     6 -> {
                         PictureSelector.create(requireContext())
                             .openCamera(SelectMimeType.ofVideo())
@@ -359,6 +414,12 @@ class MineFragment : BaseFragment() {
                             confirm.setOnClickListener {
                                 dialog!!.dismiss()
                                 MMKV.defaultMMKV().clearAll()
+                                val accessToken: AccessToken? =
+                                    AccessToken.getCurrentAccessToken()
+                                val isLoggedIn = accessToken != null && !accessToken.isExpired
+                                if(isLoggedIn){
+                                    LoginManager.getInstance().logOut()
+                                }
                                 ActivityUtils.finishAllActivities()
                                 startActivity(Intent(requireContext(), LoginActivity::class.java))
                             }

@@ -13,7 +13,17 @@
         android:layout_marginEnd="@dimen/dp_24"
         android:background="@drawable/phrase_model_bg"
         android:orientation="vertical">
-
+        <TextView
+            android:id="@+id/tv_real_morse_code"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_12"
+            android:layout_marginTop="@dimen/dp_12"
+            android:layout_marginEnd="@dimen/dp_12"
+            android:textColor="#D2B6FE"
+            android:textSize="@dimen/sp_18"
+            android:textStyle="bold"
+            tools:text="" />
 
         <TextView
             android:id="@+id/tv_morse_code"

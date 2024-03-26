@@ -192,4 +192,8 @@ interface ApiService {
     @POST("addons/litestore/api.Usersettings/setisonpresssendmorse")
     fun setIsonPressSendMorse(@FieldMap map: HashMap<String, String>):Observable<BaseBean>
 
+    @FormUrlEncoded
+    @POST("api/user/loginforfacebook")
+    fun faceBookLogin(@FieldMap map: HashMap<String,String>):Observable<RequestUserInfoBean>
+
 }

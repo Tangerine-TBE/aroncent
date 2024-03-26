@@ -70,9 +70,16 @@ class ShakeFlashSettingActivity : BaseActivity() {
         shaking_levels = DeviceConfig.shaking_levels
 
         seekBar_long.setProgress(long_shake.toFloat())
+        seekBar_long.setIndicatorTextFormat("\${PROGRESS} S")
         seekBar_short.setProgress(short_shake.toFloat())
+        seekBar_short.setIndicatorTextFormat("\${PROGRESS} S")
+
         seekBar_long_flash.setProgress(long_flash.toFloat())
+        seekBar_long_flash.setIndicatorTextFormat("\${PROGRESS} S")
+
         seekBar_short_flash.setProgress(short_flash.toFloat())
+        seekBar_short_flash.setIndicatorTextFormat("\${PROGRESS} S")
+
         seekBar_shaking_levels.setProgress(shaking_levels.toFloat())
     }
 

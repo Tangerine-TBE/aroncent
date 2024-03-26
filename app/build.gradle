@@ -186,6 +186,11 @@ dependencies {
     implementation  'io.github.scwang90:refresh-footer-classics:2.1.0'
 
     implementation 'com.kyleduo.switchbutton:library:2.1.0'
-
+    //room数据库
+    def room_version = "2.4.2"
+    implementation "androidx.room:room-runtime:$room_version"
+    kapt "androidx.room:room-compiler:$room_version" // Kotlin 的话用kapt
+    // 如果需要用到 rxjava
+    implementation "androidx.room:room-rxjava3:$room_version"
 
 }
