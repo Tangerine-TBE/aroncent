@@ -14,8 +14,8 @@ android {
         applicationId "com.aroncent"
         minSdk 23
         targetSdk 31
-        versionCode 3
-        versionName "3.0.0"
+        versionCode 4
+        versionName "3.0.1"
         flavorDimensions "versionCode"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 

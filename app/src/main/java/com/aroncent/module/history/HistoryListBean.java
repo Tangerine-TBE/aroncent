@@ -27,7 +27,9 @@ public class HistoryListBean {
             public int partnerid;
             public String content;
             public String morsecode;
-
+            public String morseword;
+            public String formatted_createtime;
+            public String remark;
             @Override
             public int getItemType() {
                 return userid == MMKV.defaultMMKV().decodeInt(KVKey.user_id,0) ? 0 : 1;

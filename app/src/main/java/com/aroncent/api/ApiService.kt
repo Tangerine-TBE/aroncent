@@ -46,7 +46,7 @@ interface ApiService {
     /**绑定FACEBOOK帐号**/
     @FormUrlEncoded
     @POST("api/user/bindfacebook")
-    fun bindfacebook(@FieldMap map: HashMap<String, String>) : Observable<BaseBean>
+    fun bindfacebook(@FieldMap map: HashMap<String, String>) : Observable<BindResponse>
 
     /**添加情侣帐号**/
     @FormUrlEncoded
@@ -186,7 +186,7 @@ interface ApiService {
     /**重新发送历史记录**/
     @FormUrlEncoded
     @POST("addons/litestore/api.Sendphrase/historysend")
-    fun historySend(@FieldMap map:HashMap<String,String>):Observable<BaseBean>
+    fun historySend(@FieldMap map:HashMap<String,String>):Observable<SendNoRsp>
 
     @FormUrlEncoded
     @POST("addons/litestore/api.Usersettings/setisonpresssendmorse")
@@ -196,4 +196,7 @@ interface ApiService {
     @POST("api/user/loginforfacebook")
     fun faceBookLogin(@FieldMap map: HashMap<String,String>):Observable<RequestUserInfoBean>
 
+
+    @POST("api/User/profile")
+    fun editProfile(@FieldMap map:HashMap<String,String>):Observable<BaseBean>
 }

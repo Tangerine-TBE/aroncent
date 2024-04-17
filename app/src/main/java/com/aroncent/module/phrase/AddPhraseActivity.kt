@@ -32,7 +32,7 @@ class AddPhraseActivity : BaseActivity() {
     }
 
     override fun initData() {
-        rv_morse_code.layoutManager = GridLayoutManager(this, 2)
+        rv_morse_code.layoutManager = GridLayoutManager(this, 3)
         rv_select_code.layoutManager = GridLayoutManager(this, 7)
         for (i in 1..7){
             selectCodeArray.add(MorseCodeListBean.DataBean())
@@ -78,7 +78,6 @@ class AddPhraseActivity : BaseActivity() {
                 if (selectCode.size < 7){
                     selectCode.add(item)
                     refreshSelectCode()
-                    nested_scroll_view.smoothScrollTo(0,moute.top)
                 }
             }
         }
@@ -111,7 +110,7 @@ class AddPhraseActivity : BaseActivity() {
 
             }
             if(index < selectCode.size - 1){
-                text +=","
+                text +="   "
             }
             selectCodeArray[index].code = dataBean.code
         }
@@ -153,6 +152,7 @@ class AddPhraseActivity : BaseActivity() {
             return
         }
         var shake = ""
+        var moreword = ""
         selectCode.forEach {
             it.shake.forEach { char->
                 if (char.toString()=="0"){
@@ -162,10 +162,12 @@ class AddPhraseActivity : BaseActivity() {
                     shake = "$shake,1"
                 }
             }
+            moreword += it.code
         }
         val map = hashMapOf<String,String>()
         map["content"] = et_content.text.toString()
         map["shake"] = shake.substring(1)
+        map["morseword"] = moreword
         RetrofitManager.service.addPhrase(map)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())

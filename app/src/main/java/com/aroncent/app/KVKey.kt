@@ -24,10 +24,12 @@ object KVKey {
 
     //用户信息
     const val TOKEN = "token"
+    const val PASS_WORLD =""
     const val avatar = "avatar"
     const val username = "username"
     const val nickname = "nickname"
     const val user_id = "user_id"
+    const val email = "email"
 
     //用户伴侣信息
     const val partner_avatar = "partner_avatar"

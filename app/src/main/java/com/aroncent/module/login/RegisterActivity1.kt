@@ -2,12 +2,15 @@ package com.aroncent.module.login
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.text.TextUtils
 import com.aroncent.BuildConfig
 import com.aroncent.R
 import com.aroncent.base.BaseBean
 import com.aroncent.base.RxSubscriber
 import com.aroncent.api.RetrofitManager
 import com.aroncent.utils.showToast
+import com.facebook.login.LoginManager
+import com.tencent.mmkv.MMKV
 import com.xlitebt.base.BaseActivity
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
@@ -31,6 +34,12 @@ class RegisterActivity1 : BaseActivity() {
         tv_ok.setOnClickListener {
             sendCode()
         }
+    }
+
+    override fun onDestroy() {
+        MMKV.defaultMMKV().encode("userId","")
+        LoginManager.getInstance().logOut()
+        super.onDestroy()
     }
 
     private fun sendCode(){

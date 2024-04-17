@@ -2,6 +2,7 @@ package com.aroncent.module.home
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.text.TextUtils
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.aroncent.R
@@ -22,6 +23,7 @@ import com.aroncent.event.ReadMsgEvent
 import com.aroncent.module.history.HistoryFragment
 import com.aroncent.module.history.HistoryListBean
 import com.aroncent.module.main.BatteryBean
+import com.aroncent.module.main.MainActivity
 import com.aroncent.module.main.UpdateHeadPicEvent
 import com.aroncent.module.phrase.AddPhraseActivity
 import com.bumptech.glide.Glide
@@ -29,6 +31,7 @@ import com.tencent.mmkv.MMKV
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.android.synthetic.main.act_add_phrase.rv_morse_code
 import kotlinx.android.synthetic.main.frag_history.refresh
 import kotlinx.android.synthetic.main.frag_history.rv_history
 import kotlinx.android.synthetic.main.frag_history.tv_heartbeat
@@ -41,6 +44,7 @@ import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 
 class HomeFragment : BaseFragment() {
+    private var list  =  arrayListOf<MorseCodeListBean.DataBean>()
     override fun getLayoutId(): Int {
         return R.layout.frag_home
     }
@@ -51,7 +55,7 @@ class HomeFragment : BaseFragment() {
     }
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onReceiveMsg(msg: GetUserPhraseEvent) {
-        getUserPhraseList()
+        getMorseCodeList()
     }
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onReceiveMsg(msg: BatteryBean) {
@@ -96,6 +100,7 @@ class HomeFragment : BaseFragment() {
             .into(right_pic)
         tv_right_name.text = MMKV.defaultMMKV().decodeString(KVKey.partner_nickname,"")
 
+
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -138,7 +143,7 @@ class HomeFragment : BaseFragment() {
             .into(left_pic)
         EventBus.getDefault().register(this)
         rv_phrase.layoutManager = LinearLayoutManager(requireContext())
-        getUserPhraseList()
+        getMorseCodeList()
     }
 
     override fun onDestroy() {
@@ -150,21 +155,36 @@ class HomeFragment : BaseFragment() {
         BaseQuickAdapter<UserPhraseListBean.DataBean, BaseViewHolder>(R.layout.item_phrase_model, data) {
         override fun convert(helper: BaseViewHolder, item: UserPhraseListBean.DataBean) {
             val itemView = helper.itemView
-            itemView.tv_content.text = "${(helper.position+1)}.${item.content}"
+            itemView.tv_content.text = "${(helper.position+1)}. ${item.content}"
             itemView.tv_real_morse_code.text = item.morseword
             var code = ""
-            if (item.shake != null) {
-                item.shake.forEach {
-                    if (it.toString() == "0") {
-                        code = "$code•"
-                    }
-                    if (it.toString() == "1") {
-                        code += "一"
+            if (!TextUtils.isEmpty(item.morseword)){
+                var shake = ""
+                item.morseword.forEachIndexed { index, c ->
+                    val value = c.toString()
+                    for(i in list){
+                        if(i.code == value){
+                            shake = i.shake
+                            shake.forEach {
+                                if (it.toString() == "0") {
+                                    code = "$code•"
+                                }
+                                if (it.toString() == "1") {
+                                    code += "一"
+                                }
+                            }
+                            if(index != item.morseword.length-1){
+                                code +="    "
+                            }
+                            break
+                        }
                     }
                 }
             }
-            itemView.tv_morse_code.text = code
 
+
+
+            itemView.tv_morse_code.text = code
             ClickUtils.applySingleDebouncing(itemView.tv_send,500){
                 sendPhrase(item.id)
             }
@@ -172,6 +192,7 @@ class HomeFragment : BaseFragment() {
             itemView.tv_edit.setOnClickListener {
                 startActivity(Intent(requireContext(), EditPhraseActivity::class.java)
                     .putExtra("id",item.id.toString())
+                    .putExtra("morseword",item.morseword)
                     .putExtra("content",item.content)
                 )
             }
@@ -179,6 +200,28 @@ class HomeFragment : BaseFragment() {
 
             }
         }
+    }
+    private fun getMorseCodeList() {
+        RetrofitManager.service.getMorseCodeList(hashMapOf())
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : RxSubscriber<MorseCodeListBean?>(requireContext(), true) {
+                override fun _onError(message: String?) {
+
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                @SuppressLint("SetTextI18n")
+                override fun _onNext(t: MorseCodeListBean?) {
+                    if (t?.data?.isNotEmpty() == true) {
+                        list.addAll(t.data)
+                        getUserPhraseList()
+                    }
+                }
+            })
     }
 
     private fun sendPhrase(id:Int){
@@ -237,6 +280,11 @@ class HomeFragment : BaseFragment() {
     override fun initListener() {
         tv_my_template.setOnClickListener {
             startActivity(Intent(requireContext(), AddPhraseActivity::class.java))
+        }
+        tv_new_msg.setOnClickListener {
+            if(tv_new_msg.text.isNotEmpty()){
+                ( activity as MainActivity ).setSelect(1)
+            }
         }
     }
 }

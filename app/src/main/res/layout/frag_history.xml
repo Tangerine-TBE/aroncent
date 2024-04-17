@@ -107,22 +107,25 @@
 
     <com.scwang.smart.refresh.layout.SmartRefreshLayout
         android:id="@+id/refresh"
-        app:srlAccentColor="@android:color/white"
         android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_height="0dp">
+        app:srlAccentColor="@android:color/white">
+
         <com.scwang.smart.refresh.header.ClassicsHeader
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_history"
-            tools:listitem="@layout/item_history_left"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            tools:listitem="@layout/item_history_left" />
+
         <com.scwang.smart.refresh.footer.ClassicsFooter
-            app:srlAccentColor="@android:color/white"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            app:srlAccentColor="@android:color/white" />
     </com.scwang.smart.refresh.layout.SmartRefreshLayout>
 
 </LinearLayout>

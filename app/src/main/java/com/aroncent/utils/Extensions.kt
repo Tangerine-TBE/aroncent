@@ -47,6 +47,7 @@ fun setUserInfoToSp(data: UserinfoBean) {
     MMKV.defaultMMKV().encode(KVKey.username, data.username)
     MMKV.defaultMMKV().encode(KVKey.nickname, data.nickname)
     MMKV.defaultMMKV().encode(KVKey.partnerStatus, data.partnerstatus)
+    MMKV.defaultMMKV().encode(KVKey.email,data.email)
     MMKV.defaultMMKV().encode(KVKey.user_id, data.user_id)
     OneSignal.setExternalUserId(
         data.user_id.toString(),

@@ -1,13 +1,10 @@
 package com.aroncent.module.history
 
 import android.annotation.SuppressLint
-import android.content.Intent
-import android.view.KeyEvent
+import android.text.TextUtils
 import android.view.View
-import android.view.inputmethod.EditorInfo
+import android.widget.EditText
 import android.widget.TextView
-import androidx.core.widget.addTextChangedListener
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.aroncent.R
 import com.aroncent.base.BaseFragment
 import com.aroncent.base.RxSubscriber
@@ -18,22 +15,20 @@ import com.chad.library.adapter.base.BaseMultiItemQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.clj.fastble.BleManager
 import com.aroncent.api.RetrofitManager
+import com.aroncent.api.SendNoRsp
 import com.aroncent.app.KVKey
 import com.aroncent.app.MyApplication
 import com.aroncent.base.BaseBean
 import com.aroncent.db.MsgData
-import com.aroncent.jpush.PushInfoType
-import com.aroncent.module.home.SendPhraseBean
-import com.aroncent.module.login.LoginActivity
+import com.aroncent.module.home.MorseCodeListBean
+import com.aroncent.module.home.weight.MyLinearLayoutManager
 import com.aroncent.module.main.BatteryBean
 import com.aroncent.module.main.UpdateHeadPicEvent
 import com.aroncent.utils.showToast
-import com.blankj.utilcode.util.ActivityUtils
-import com.blankj.utilcode.util.TimeUtils
+import com.blankj.utilcode.util.ColorUtils.getColor
 import com.bumptech.glide.Glide
 import com.kongzue.dialogx.dialogs.CustomDialog
 import com.kongzue.dialogx.interfaces.OnBindView
-import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.scwang.smart.refresh.layout.api.RefreshLayout
 import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener
 import com.scwang.smart.refresh.layout.listener.OnRefreshListener
@@ -48,6 +43,8 @@ import kotlinx.android.synthetic.main.item_history_left.view.item_edit_info
 import kotlinx.android.synthetic.main.item_history_left.view.item_history_code
 import kotlinx.android.synthetic.main.item_history_left.view.item_history_content
 import kotlinx.android.synthetic.main.item_history_left.view.item_history_time
+import kotlinx.android.synthetic.main.item_history_right.view.btn_edit
+import kotlinx.android.synthetic.main.item_history_right.view.btn_send
 import kotlinx.android.synthetic.main.top_bar.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -55,9 +52,10 @@ import org.greenrobot.eventbus.ThreadMode
 import java.util.HashMap
 
 class HistoryFragment : BaseFragment(), OnRefreshListener, OnLoadMoreListener {
+    private var list = arrayListOf<MorseCodeListBean.DataBean>()
     private var currentPage = "1"
     private fun loadMoreSize(): String {
-        currentPage =  (currentPage.toInt() + 1).toString()
+        currentPage = (currentPage.toInt() + 1).toString()
         return currentPage
     }
 
@@ -67,7 +65,7 @@ class HistoryFragment : BaseFragment(), OnRefreshListener, OnLoadMoreListener {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onReceiveMsg(msg: GetHistoryEvent) {
-        getHistory(true)
+        getMorseCodeList(true)
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -108,6 +106,30 @@ class HistoryFragment : BaseFragment(), OnRefreshListener, OnLoadMoreListener {
         tv_connected.visibility = if (msg.type == 1) View.VISIBLE else View.GONE
     }
 
+    private fun getMorseCodeList(isRefresh: Boolean) {
+        RetrofitManager.service.getMorseCodeList(hashMapOf())
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : RxSubscriber<MorseCodeListBean?>(requireContext(), true) {
+                override fun _onError(message: String?) {
+
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                @SuppressLint("SetTextI18n")
+                override fun _onNext(t: MorseCodeListBean?) {
+                    if (t!!.data.isNotEmpty()) {
+                        list.addAll(t.data)
+                        getHistory(isRefresh)
+//                        getUserPhraseList()
+                    }
+                }
+            })
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onGetMessage(event: UpdateHeadPicEvent) {
         Glide.with(this).load(MMKV.defaultMMKV().decodeString(KVKey.avatar, "")).circleCrop()
@@ -124,7 +146,7 @@ class HistoryFragment : BaseFragment(), OnRefreshListener, OnLoadMoreListener {
         Glide.with(this).load(MMKV.defaultMMKV().decodeString(KVKey.partner_avatar, ""))
             .circleCrop().error(R.drawable.head_default_pic).into(right_pic)
         EventBus.getDefault().register(this)
-        rv_history.layoutManager = LinearLayoutManager(requireContext())
+        rv_history.layoutManager = MyLinearLayoutManager(requireContext())
         val adapter = HistoryAdapter(mutableListOf())
         rv_history.adapter = adapter
 
@@ -169,80 +191,119 @@ class HistoryFragment : BaseFragment(), OnRefreshListener, OnLoadMoreListener {
         override fun convert(helper: BaseViewHolder, item: HistoryListBean.DataBean.ListBean) {
             val itemView = helper.itemView
             itemView.item_history_content.text = item.content
-            var time = TimeUtils.millis2String(item.createtime.toLong() * 1000, "yyyy/MM/dd HH:mm")
-            time = if (item.isread == 1) {
-                "$time [Read]"
+            var time: String? = if (item.isread == 1) {
+                "${item.formatted_createtime} [Read]"
             } else {
-                "$time [Unread]"
+                "${item.formatted_createtime} [Unread]"
             }
             var code = ""
-            if (item.morsecode != null) {
-                item.morsecode.forEach {
-                    if (it.toString() == "0") {
-                        code = "$code•"
-                    }
-                    if (it.toString() == "1") {
-                        code += "一"
-                    }
-                }
-            }
-            val appDataBase = (activity?.application as MyApplication).getAppDatabase()
-           val list = appDataBase.msgDao()!!.searchDataWithMorse(item.morsecode)
-            var beizhu ="";
-            if(list.isNotEmpty()){
-                beizhu = list[0].beizhu;
-            }
-            itemView.item_edit_info.setText(beizhu)
-            itemView.item_history_time.text = time
-            itemView.item_history_code.text = code
-            itemView.item_edit_info.setOnEditorActionListener(object:TextView.OnEditorActionListener{
-                override fun onEditorAction(p0: TextView?, p1: Int, p2: KeyEvent?): Boolean {
-                    if(p1 ==EditorInfo.IME_ACTION_DONE){
-                        val editText = itemView.item_edit_info.text.toString()
-                        if(list.isNotEmpty()){
-                            list[0].beizhu = editText
-                            appDataBase.msgDao()!!.insertData(list[0])
-                        }else{
-                            val msgData = MsgData()
-                            msgData.morsecode = item.morsecode;
-                            msgData.beizhu = editText;
-                            appDataBase.msgDao()!!.insertData(msgData)
-                        }
-                        return false
-                    }else{
-                        itemView.item_edit_info.setText(beizhu)
-                        return false
-                    }
-                }
-            })
-            itemView.setOnClickListener{
-                CustomDialog.build().setMaskColor(requireContext().getColor(R.color.dialogMaskColor))
-                    .setCustomView(object : OnBindView<CustomDialog>(R.layout.dialog_tips) {
-                        override fun onBind(dialog: CustomDialog, v: View) {
-                            v.let {
-                                val tip = v.findViewById<TextView>(R.id.tv_tip)
-                                tip.text = "Resend the msg ?"
-                                val confirm = v.findViewById<TextView>(R.id.tv_confirm)
-                                val cancel = v.findViewById<TextView>(R.id.tv_cancel)
-                                cancel.setOnClickListener {
-                                    dialog.dismiss()
+            if (!TextUtils.isEmpty(item.morseword)) {
+                var shake: String
+                item.morseword.forEachIndexed { index, c ->
+                    val value = c.toString()
+                    for (i in list) {
+                        if (i.code == value) {
+                            shake = i.shake
+                            shake.forEach {
+                                if (it.toString() == "0") {
+                                    code = "$code•"
                                 }
-                                confirm.setOnClickListener {
-                                    dialog.dismiss()
-                                    sendPhrase(item.id)
+                                if (it.toString() == "1") {
+                                    code += "一"
                                 }
                             }
+                            if (index != item.morseword.length - 1) {
+                                code += "    "
+                            }
+                            break
                         }
-                    }).show()
+                    }
+                }
+            }
+            itemView.item_edit_info.text = item.remark
+            itemView.item_history_time.text = time
+            itemView.item_history_code.text = code
+            if (itemView.btn_send != null) {
+                itemView.btn_send.setOnClickListener {
+                    CustomDialog.build()
+                        .setMaskColor(requireContext().getColor(R.color.dialogMaskColor))
+                        .setCustomView(object : OnBindView<CustomDialog>(R.layout.dialog_tips) {
+                            override fun onBind(dialog: CustomDialog, v: View) {
+                                v.let {
+                                    val tip = v.findViewById<TextView>(R.id.tv_tip)
+                                    tip.text = "Resend the msg ?"
+                                    val confirm = v.findViewById<TextView>(R.id.tv_confirm)
+                                    val cancel = v.findViewById<TextView>(R.id.tv_cancel)
+                                    cancel.setOnClickListener {
+
+                                        dialog.dismiss()
+                                    }
+                                    confirm.setOnClickListener {
+
+
+                                        dialog.dismiss()
+                                        sendPhrase(item.id)
+                                    }
+                                }
+                            }
+                        }).show()
+                }
+            }
+            if (itemView.btn_edit != null) {
+                itemView.btn_edit.setOnClickListener {
+                    CustomDialog
+                        .build()
+                        .setMaskColor(getColor(R.color.dialogMaskColor))
+                        .setCustomView(object : OnBindView<CustomDialog>(R.layout.dialog_edit) {
+                            override fun onBind(dialog: CustomDialog?, v: View?) {
+                                v!!.let {
+                                    val tip = v.findViewById<EditText>(R.id.tv_tip)
+                                    tip.setText(itemView.item_edit_info.text)
+                                    val confirm = v.findViewById<TextView>(R.id.tv_confirm)
+                                    val cancel = v.findViewById<TextView>(R.id.tv_cancel)
+                                    cancel.setOnClickListener {
+                                        dialog!!.dismiss()
+                                    }
+                                    confirm.setOnClickListener {
+                                        val map = hashMapOf<String, String>()
+                                        map["Id"] = item.id.toString()
+                                        map["Content"] = item.content
+                                        map["remark"] = tip.text.toString()
+                                        RetrofitManager.service.updateHistory(map).subscribeOn(Schedulers.io())
+                                            .observeOn(AndroidSchedulers.mainThread())
+                                            .subscribe(object : RxSubscriber<BaseBean?>(requireContext(), true) {
+                                                override fun _onError(message: String?) {
+                                                }
+
+                                                override fun onSubscribe(d: Disposable) {
+
+                                                }
+
+                                                @SuppressLint("SetTextI18n")
+                                                override fun _onNext(t: BaseBean?) {
+                                                    if (t!!.code == 200) {
+                                                        showToast("Success")
+                                                        refresh.autoRefresh()
+                                                    }
+                                                }
+                                            })
+                                        dialog!!.dismiss()
+                                    }
+                                }
+                            }
+                        })
+                        .show()
+                }
             }
         }
-        private fun sendPhrase(id:Int){
-            val map = hashMapOf<String,String>()
+
+        private fun sendPhrase(id: Int) {
+            val map = hashMapOf<String, String>()
             map["id"] = id.toString()
             RetrofitManager.service.historySend(map)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object : RxSubscriber<BaseBean?>(requireContext(), true) {
+                .subscribe(object : RxSubscriber<SendNoRsp?>(requireContext(), true) {
                     override fun _onError(message: String?) {
                     }
 
@@ -251,9 +312,10 @@ class HistoryFragment : BaseFragment(), OnRefreshListener, OnLoadMoreListener {
                     }
 
                     @SuppressLint("SetTextI18n")
-                    override fun _onNext(t: BaseBean?) {
+                    override fun _onNext(t: SendNoRsp?) {
                         if (t!!.code == 200) {
                             showToast("Success")
+                            getMorseCodeList(true)
                         }
                     }
                 })
@@ -262,7 +324,14 @@ class HistoryFragment : BaseFragment(), OnRefreshListener, OnLoadMoreListener {
     }
 
     private fun getHistory(isRefresh: Boolean) {
-        RetrofitManager.service.getHistory(hashMapOf(Pair("page", if (isRefresh) "1" else loadMoreSize())))
+        RetrofitManager.service.getHistory(
+            hashMapOf(
+                Pair(
+                    "page",
+                    if (isRefresh) "1" else loadMoreSize()
+                )
+            )
+        )
             .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : RxSubscriber<HistoryListBean?>(requireContext(), true) {
                 override fun _onError(message: String?) {
@@ -279,10 +348,11 @@ class HistoryFragment : BaseFragment(), OnRefreshListener, OnLoadMoreListener {
                         if (t.code == 200) {
                             if (t.data.list.isNotEmpty()) {
                                 tv_heartbeat.text = t.data.list.size.toString()
-                                if (isRefresh){
+                                if (isRefresh) {
                                     (rv_history.adapter as HistoryAdapter).refreshData(t.data.list)
+                                    rv_history.scrollToPosition(0)
                                     currentPage = "1"
-                                }else{
+                                } else {
                                     (rv_history.adapter as HistoryAdapter).loadMoreData(t.data.list)
                                 }
                             }
@@ -310,11 +380,10 @@ class HistoryFragment : BaseFragment(), OnRefreshListener, OnLoadMoreListener {
     }
 
     override fun onRefresh(refreshLayout: RefreshLayout) {
-        getHistory(true)
+        getMorseCodeList(true)
     }
 
     override fun onLoadMore(refreshLayout: RefreshLayout) {
-        getHistory(false)
-
+        getMorseCodeList(false)
     }
 }

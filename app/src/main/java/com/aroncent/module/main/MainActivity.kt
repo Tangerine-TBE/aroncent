@@ -34,6 +34,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 import androidx.recyclerview.widget.RecyclerView.Orientation
 import androidx.recyclerview.widget.RecyclerView.VERTICAL
+import cn.jpush.android.api.JPushInterface
 import cn.jzvd.Jzvd
 import cn.jzvd.JzvdStd
 import com.aroncent.R
@@ -76,6 +77,7 @@ import com.kongzue.dialogx.dialogs.CustomDialog
 import com.kongzue.dialogx.dialogs.WaitDialog
 import com.kongzue.dialogx.interfaces.DialogLifecycleCallback
 import com.kongzue.dialogx.interfaces.OnBindView
+import com.onesignal.OneSignal
 import com.tencent.mmkv.MMKV
 import com.xlitebt.base.BaseActivity
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -95,7 +97,7 @@ class MainActivity : BaseActivity() {
     private var mTab1: Fragment? = null
     private var mTab2: Fragment? = null
     private var mTab3: Fragment? = null
-    private lateinit var deviceConfirmDialog:CustomDialog;
+    private lateinit var deviceConfirmDialog: CustomDialog;
     private lateinit var mainViewModel: MainViewModel
 
     //请求BLUETOOTH_CONNECT权限意图
@@ -181,9 +183,33 @@ class MainActivity : BaseActivity() {
 
     override fun initData() {
         if (getUserToken() != "") {
+            updateRid()
             getPartnerRequest()
             getUserInfo()
         }
+    }
+
+    private fun updateRid() {
+        val map = hashMapOf<String, String>()
+        map["jg_pushid"] = JPushInterface.getRegistrationID(this)
+        map["onesignal_pushid"] = OneSignal.getDeviceState()?.userId ?: ""
+        RetrofitManager.service.updaterid(map).subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : RxSubscriber<BaseBean?>(this, false) {
+                override fun _onError(message: String?) {
+                }
+
+                override fun onSubscribe(d: Disposable) {
+
+                }
+
+                @SuppressLint("SetTextI18n")
+                override fun _onNext(t: BaseBean?) {
+                    t?.let {
+
+                    }
+                }
+            })
     }
 
     fun resetBg() {
@@ -195,7 +221,7 @@ class MainActivity : BaseActivity() {
         tv_tab_3.setTextColor(ContextCompat.getColor(this, R.color.tabTextNormal))
     }
 
-    private fun setSelect(i: Int) {
+    public fun setSelect(i: Int) {
         resetBg()
         val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
         hideFragment(transaction)
@@ -313,8 +339,9 @@ class MainActivity : BaseActivity() {
     fun onReceiveMsg(msg: ReadMsgEvent) {
         readMsg(msg.msgId)
     }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onReconnect(msg: ReConnectEvent){
+    fun onReconnect(msg: ReConnectEvent) {
         connectBle()
     }
 
@@ -345,10 +372,11 @@ class MainActivity : BaseActivity() {
         BleManager.getInstance().scan(object : BleScanCallback() {
             override fun onScanStarted(success: Boolean) {
             }
+
             override fun onScanning(bleDevice: BleDevice) {
-               val bondedDevice =  MMKV.defaultMMKV().decodeString(KVKey.equipment,"")
-                if ("" == bondedDevice){
-                    if (!TextUtils.isEmpty(bleDevice.mac) ) {
+                val bondedDevice = MMKV.defaultMMKV().decodeString(KVKey.equipment, "")
+                if ("" == bondedDevice) {
+                    if (!TextUtils.isEmpty(bleDevice.mac)) {
                         BleManager.getInstance().cancelScan()
                         deviceConfirmDialog = CustomDialog.build()
                             .setMaskColor(getColor(R.color.dialogMaskColor))
@@ -364,7 +392,8 @@ class MainActivity : BaseActivity() {
                                     val deviceContentString =
                                         "when connected,all notifications you receive on you telphne will alsobe sent to ${bleDevice.name} and may be shown n its display"
                                     val titleSpanString = SpannableStringBuilder(deviceTitleString)
-                                    val contentSpanString = SpannableStringBuilder(deviceContentString)
+                                    val contentSpanString =
+                                        SpannableStringBuilder(deviceContentString)
                                     val titleSpanForeground = ForegroundColorSpan(
                                         Color.YELLOW
                                     )
@@ -393,7 +422,7 @@ class MainActivity : BaseActivity() {
                                         BleManager.getInstance()
                                             .connect(bleDevice, object : BleGattCallback() {
                                                 override fun onStartConnect() {
-                                                    Log.e(TAG,"onStartConnect")
+                                                    Log.e(TAG, "onStartConnect")
                                                 }
 
                                                 override fun onConnectFail(
@@ -437,7 +466,7 @@ class MainActivity : BaseActivity() {
                                                     EventBus.getDefault()
                                                         .post(ConnectStatusEvent(0))
                                                     showToast(getString(R.string.device_disconnected))
-                                                    if (!isActiveDisConnected){
+                                                    if (!isActiveDisConnected) {
                                                         showDisconnectDialog()
                                                     }
                                                 }
@@ -453,14 +482,14 @@ class MainActivity : BaseActivity() {
                             .setAlignBaseViewGravity(Gravity.BOTTOM).setCancelable(false).show()
                     }
 
-                }else{
-                    if (!TextUtils.isEmpty(bleDevice.mac) && bondedDevice == bleDevice.mac){
+                } else {
+                    if (!TextUtils.isEmpty(bleDevice.mac) && bondedDevice == bleDevice.mac) {
                         BleTool.setBleDevice(bleDevice)
                         BleManager.getInstance().cancelScan()
                         BleManager.getInstance()
                             .connect(bleDevice, object : BleGattCallback() {
                                 override fun onStartConnect() {
-                                    Log.e(TAG,"onStartConnect")
+                                    Log.e(TAG, "onStartConnect")
                                 }
 
                                 override fun onConnectFail(
@@ -511,17 +540,17 @@ class MainActivity : BaseActivity() {
                 if (scanResultList == null) {
                     /**附近没有匹配的蓝牙*/
                     showDisconnectDialog()
-                }else {
-                    if (scanResultList.size == 0){
+                } else {
+                    if (scanResultList.size == 0) {
                         /**附近没有匹配的蓝牙*/
                         showDisconnectDialog()
                         return
                     }
                     /**附近有匹配的蓝牙*/
-                    val bondedDevice =  MMKV.defaultMMKV().decodeString(KVKey.equipment,"")
-                    if (!TextUtils.isEmpty(bondedDevice) ){
+                    val bondedDevice = MMKV.defaultMMKV().decodeString(KVKey.equipment, "")
+                    if (!TextUtils.isEmpty(bondedDevice)) {
                         /**在有绑定的情况下,绑定的蓝牙与附近蓝牙不匹配*/
-                        if (BleTool.mBleDevice == null){
+                        if (BleTool.mBleDevice == null) {
                             showDisconnectDialog()
                         }
                     }
@@ -548,7 +577,7 @@ class MainActivity : BaseActivity() {
                     }, 100)
                     ThreadUtils.runOnUiThreadDelayed({
                         BleTool.sendInstruct("A5AAAC1706AABBCCDDEEFFC5CCCA")
-                    },1000)
+                    }, 1000)
 //                    test1()
 
                 }
@@ -559,15 +588,14 @@ class MainActivity : BaseActivity() {
                 @SuppressLint("SetTextI18n")
                 override fun onCharacteristicChanged(data: ByteArray?) {
                     ViewUtils.runOnUiThread {
-                        LogUtils.eTag("$TAG Answer", ByteTransformUtil.bytesToHex(data).uppercase())
-                        //03指令示例： A5AAAC00030400C5CCCA
-                        val str = ByteTransformUtil.bytesToHex(data).uppercase()
-                        when {
-                            str.contains("0241434B") || str.contains("024E41434B") -> {
+                        try {
+                            LogUtils.eTag("$TAG Answer", ByteTransformUtil.bytesToHex(data).uppercase())
+                            //03指令示例： A5AAAC00030400C5CCCA
+                            val str = ByteTransformUtil.bytesToHex(data).uppercase()
+                            if (str.contains("0241434B") || str.contains("024E41434B")) {
                                 EventBus.getDefault().post(BleAnswerEvent("notify", str))
                             }
-
-                            str.substring(8, 10) == "03" -> {
+                            else if (str.substring(8, 10) == "03") {
                                 //发送通知给对方 eg:A5AAAC00030304C5CCCA
                                 //比如摩斯密码 （  –  –   – – – ）
                                 //A5 AA AC 88 03 09 05 84 04 84 07 05 82 83 80 C5 CC CA
@@ -578,12 +606,14 @@ class MainActivity : BaseActivity() {
                                 LogUtils.e("接收到的信息为:$str")
                                 sendMorseCode(str)
                             }
-
-                            str.substring(8, 10) == "05" -> {
+                            else if (str.substring(8, 10) == "05") {
                                 EventBus.getDefault()
                                     .post(BatteryBean(str.substring(10, 12).toInt(16).toString()))
                             }
+                        }catch (e:Exception){
+                            e.printStackTrace()
                         }
+
                     }
                 }
             })

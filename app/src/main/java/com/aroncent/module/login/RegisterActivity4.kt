@@ -2,10 +2,12 @@ package com.aroncent.module.login
 
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
+import android.text.TextUtils
 import android.widget.RadioButton
 import cn.jpush.android.api.JPushInterface
 import com.aroncent.BuildConfig
 import com.aroncent.R
+import com.aroncent.api.BindResponse
 import com.aroncent.api.RetrofitManager
 import com.aroncent.base.RxSubscriber
 import com.aroncent.module.main.MainActivity
@@ -17,6 +19,7 @@ import com.blankj.utilcode.util.RegexUtils
 import com.onesignal.OneSignal
 import com.onesignal.OneSignalAPIClient
 import com.onesignal.OneSignalNotificationManager
+import com.tencent.mmkv.MMKV
 import com.xlitebt.base.BaseActivity
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
@@ -129,9 +132,30 @@ class RegisterActivity4 : BaseActivity() {
                 override fun _onNext(t: RequestUserInfoBean?) {
                     t?.let {
                         if (t.code == 200) {
-                            setUserInfoToSp(t.data.userInfo)
-                            ActivityUtils.finishAllActivities()
-                            startActivity(MainActivity::class.java)
+                            if(!TextUtils.isEmpty(MMKV.defaultMMKV().decodeString("userId"))){
+                                val map = hashMapOf<String,String>()
+                                map["token"] = MMKV.defaultMMKV().decodeString("userId")
+                                RetrofitManager.service.bindfacebook(map).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(object:RxSubscriber<BindResponse>(this@RegisterActivity4,true){
+                                    override fun onSubscribe(d: Disposable) {
+
+                                    }
+
+                                    override fun _onNext(a: BindResponse) {
+                                        if(a.code == 200L){
+                                            setUserInfoToSp(t.data.userInfo)
+                                            ActivityUtils.finishAllActivities()
+                                            startActivity(MainActivity::class.java)
+                                        }
+                                    }
+                                    override fun _onError(message: String?) {
+                                    }
+                                })
+                            }else{
+                                setUserInfoToSp(t.data.userInfo)
+                                ActivityUtils.finishAllActivities()
+                                startActivity(MainActivity::class.java)
+                            }
+
                         } else {
                             showToast(t.msg)
                         }

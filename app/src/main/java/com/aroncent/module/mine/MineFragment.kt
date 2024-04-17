@@ -2,15 +2,15 @@ package com.aroncent.module.mine
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.provider.Telephony.Carriers.AUTH_TYPE
+import android.provider.Settings.Global
 import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.aroncent.R
+import com.aroncent.api.BindResponse
 import com.aroncent.api.RetrofitManager
 import com.aroncent.app.KVKey
-import com.aroncent.app.MyApplication
 import com.aroncent.base.BaseBean
 import com.aroncent.base.BaseFragment
 import com.aroncent.base.RxSubscriber
@@ -18,20 +18,17 @@ import com.aroncent.base.UploadBean
 import com.aroncent.ble.BleTool
 import com.aroncent.ble.DeviceConfig
 import com.aroncent.event.ReConnectEvent
+import com.aroncent.module.info.EditInfoActivity
 import com.aroncent.module.light_color.LightColorActivity
 import com.aroncent.module.login.LoginActivity
-import com.aroncent.module.login.RequestUserInfoBean
 import com.aroncent.module.main.MainActivity
 import com.aroncent.module.main.UpdateHeadPicEvent
 import com.aroncent.module.phrase.AddPhraseActivity
 import com.aroncent.module.shake_flash_settings.ShakeFlashSettingActivity
-import com.aroncent.utils.GlideEngine
 import com.aroncent.utils.UploadUtils
 import com.aroncent.utils.addZeroForNum
 import com.aroncent.utils.binaryToHexString
-import com.aroncent.utils.setUserInfoToSp
 import com.aroncent.utils.showToast
-import com.aroncent.utils.startActivity
 import com.blankj.utilcode.util.ActivityUtils
 import com.blankj.utilcode.util.ClickUtils
 import com.blankj.utilcode.util.FileUtils
@@ -43,14 +40,14 @@ import com.facebook.AccessToken
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException
-import com.facebook.appevents.UserDataStore.EMAIL
+import com.facebook.Profile
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
 import com.kongzue.dialogx.dialogs.CustomDialog
+import com.kongzue.dialogx.dialogs.WaitDialog
 import com.kongzue.dialogx.interfaces.OnBindView
 import com.luck.picture.lib.basic.PictureSelector
 import com.luck.picture.lib.config.SelectMimeType
-import com.luck.picture.lib.engine.CompressFileEngine
 import com.luck.picture.lib.entity.LocalMedia
 import com.luck.picture.lib.interfaces.OnResultCallbackListener
 import com.luck.picture.lib.language.LanguageConfig
@@ -58,17 +55,18 @@ import com.tencent.mmkv.MMKV
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
-import kotlinx.android.synthetic.main.act_login.fb_login
 import kotlinx.android.synthetic.main.frag_mine.*
 import kotlinx.android.synthetic.main.item_menu.view.*
 import kotlinx.android.synthetic.main.item_not_disturb.not_disturb
 import kotlinx.android.synthetic.main.item_press_send_morse.morse_model
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
-import top.zibin.luban.Luban
-import top.zibin.luban.OnNewCompressListener
-import java.io.File
+import java.net.InetAddress
 import java.util.Arrays
 
 
@@ -76,6 +74,7 @@ class MineFragment : BaseFragment() {
     override fun getLayoutId(): Int {
         return R.layout.frag_mine
     }
+    private lateinit var  callbackManager:CallbackManager
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onGetMessage(event: UpdateHeadPicEvent) {
@@ -83,7 +82,16 @@ class MineFragment : BaseFragment() {
             .error(R.drawable.head_default_pic).into(iv_head)
     }
 
+    override fun onHiddenChanged(hidden: Boolean) {
+        if(hidden){
+
+        }else{
+        }
+        super.onHiddenChanged(hidden)
+    }
+
     override fun initView() {
+         callbackManager = CallbackManager.Factory.create()
         EventBus.getDefault().register(this)
         not_disturb.setCheckedNoEvent(MMKV.defaultMMKV().getBoolean(KVKey.not_disturb,false))
         morse_model.setCheckedNoEvent(MMKV.defaultMMKV().getBoolean(KVKey.morse_model,false))
@@ -99,7 +107,7 @@ class MineFragment : BaseFragment() {
                 MenuBean(4, "Bind My Facebook Account"),
                 MenuBean(6, "Upload My Video"),
                 MenuBean(7, "Unbind your partner"),
-                MenuBean(8, "UnSet your equipment")
+                MenuBean(8, "Unpair your device")
             )
         )
     }
@@ -108,7 +116,10 @@ class MineFragment : BaseFragment() {
         super.onDestroy()
         EventBus.getDefault().unregister(this)
     }
-
+     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        callbackManager.onActivityResult(requestCode, resultCode, data)
+        super.onActivityResult(requestCode, resultCode, data)
+    }
     inner class ProfileAdapter(layoutResId: Int, data: MutableList<MenuBean>) :
         BaseQuickAdapter<MenuBean, BaseViewHolder>(layoutResId, data) {
         override fun convert(helper: BaseViewHolder, item: MenuBean) {
@@ -133,15 +144,12 @@ class MineFragment : BaseFragment() {
                     4 -> {
                         val accessToken: AccessToken? =
                             AccessToken.getCurrentAccessToken()
+                        Profile.getCurrentProfile()
                         val isLoggedIn = accessToken != null && !accessToken.isExpired
                         if(isLoggedIn){
                             showToast("already bind facebook !")
                             return@applySingleDebouncing
                         }
-                        val callbackManager = CallbackManager.Factory.create()
-                        LoginManager.getInstance().setAuthType(EMAIL)
-                        // If you are using in a fragment, call loginButton.setFragment(this);
-                        // Callback registration
                         LoginManager.getInstance().registerCallback(callbackManager, object :
                             FacebookCallback<LoginResult> {
                             override fun onSuccess(result: LoginResult) {
@@ -149,22 +157,20 @@ class MineFragment : BaseFragment() {
                                 map["Facebook"] = result.accessToken.userId
                                 RetrofitManager.service.bindfacebook(map).subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.mainThread()).subscribe(object :
-                                        RxSubscriber<BaseBean?>(context, true) {
-                                        override fun _onError(message: String?) {
-                                        }
-
+                                        RxSubscriber<BindResponse>(context, true) {
                                         override fun onSubscribe(d: Disposable) {
 
                                         }
-                                        @SuppressLint("SetTextI18n")
-                                        override fun _onNext(t: BaseBean?) {
-                                            t?.let {
-                                                if (t.code == 200) {
-                                                    showToast("success")
-                                                } else {
-                                                    showToast(t.msg)
-                                                }
+                                        override fun _onNext(t: BindResponse) {
+                                            if (t.code == 200L) {
+                                                showToast("success")
+                                            } else {
+                                                showToast(t.msg)
                                             }
+                                        }
+
+                                        override fun _onError(message: String?) {
+
                                         }
                                     })
                             }
@@ -177,7 +183,20 @@ class MineFragment : BaseFragment() {
                                 Log.e("facebook", error.message!!)
                             }
                         })
-                        LoginManager.getInstance().logInWithReadPermissions(requireActivity(), Arrays.asList("public_profile", "email"))
+                        //检查是否可以到达www.google.com
+                        GlobalScope.launch {
+                            withContext(Dispatchers.IO){
+                                WaitDialog.show("checking")
+                                val address = InetAddress.getByName("www.google.com")
+                                val reachable = address.isReachable(3000) // 10 seconds timeout
+                                if (reachable) {
+                                    LoginManager.getInstance().logInWithReadPermissions(requireActivity(), Arrays.asList("public_profile"))
+                                } else {
+                                    WaitDialog.dismiss()
+                                    showToast("Network is not reachable")
+                                }
+                            }
+                        }
                     }
                     6 -> {
                         PictureSelector.create(requireContext())
@@ -240,7 +259,7 @@ class MineFragment : BaseFragment() {
                                 override fun onBind(dialog: CustomDialog?, v: View?) {
                                     v!!.let {
                                         val tip = v.findViewById<TextView>(R.id.tv_tip)
-                                        tip.text = "UnSet your equipment?"
+                                        tip.text = "Before connecting your phone to a new device, you need to unpair it from any previously connected devices. Are you sure you want to unpair it?"
                                         val confirm = v.findViewById<TextView>(R.id.tv_confirm)
                                         val cancel = v.findViewById<TextView>(R.id.tv_cancel)
                                         cancel.setOnClickListener {
@@ -430,49 +449,10 @@ class MineFragment : BaseFragment() {
         }
 
         iv_head.setOnClickListener {
-            PictureSelector.create(requireContext()).openGallery(SelectMimeType.ofImage())
-                .setMaxSelectNum(1).setImageEngine(GlideEngine.createGlideEngine())
-                .setLanguage(LanguageConfig.ENGLISH)
-                .setCompressEngine(CompressFileEngine { _, source, call ->
-                    Luban.with(MyApplication.context).load(source)
-                        .ignoreBy(100)//当原始图像文件大小小于一个值时，请勿压缩
-                        .setCompressListener(object : OnNewCompressListener {
-                            override fun onStart() {
-                            }
 
-                            override fun onSuccess(source: String?, compressFile: File?) {
-                                call?.onCallback(source, compressFile!!.absolutePath)
-                            }
+            startActivity(Intent(activity, EditInfoActivity::class.java))
+            return@setOnClickListener
 
-                            override fun onError(source: String?, e: Throwable?) {
-                                call?.onCallback(source, "")
-                            }
-                        }).launch()
-                }).forResult(object : OnResultCallbackListener<LocalMedia?> {
-                    override fun onResult(result: ArrayList<LocalMedia?>?) {
-                        UploadUtils.uploadFile(File(result!![0]!!.compressPath),
-                            object : RxSubscriber<UploadBean>(requireContext(), true) {
-                                override fun onSubscribe(d: Disposable) {
-
-                                }
-
-                                override fun _onNext(t: UploadBean?) {
-                                    if (t!!.code == 200) {
-                                        showToast(t.msg)
-                                        editAvatar(t.data.fullurl)
-                                    }
-                                }
-
-                                override fun _onError(message: String?) {
-                                    showToast(message!!)
-                                }
-                            })
-                    }
-
-                    override fun onCancel() {
-                        showToast("Cancel")
-                    }
-                })
         }
     }
 

@@ -22,28 +22,76 @@
             android:text="Hello, Sally"
             android:textColor="@color/white"
             android:textSize="@dimen/sp_16" />
-        <EditText
+        <TextView
+            android:textColorHint="@color/white"
             android:imeOptions="actionDone"
             android:singleLine="true"
+            android:layout_gravity="center"
             android:id="@+id/item_edit_info"
             android:layout_width="match_parent"
             android:text=""
-            android:textSize="@dimen/sp_16"
+            android:textSize="@dimen/sp_12"
             android:textColor="@color/white"
-            android:backgroundTint="@color/white"
             android:layout_marginStart="@dimen/dp_4"
             android:layout_marginTop="@dimen/dp_4"
             android:layout_height="wrap_content"/>
-        <TextView
-            android:id="@+id/item_history_time"
+        <View
+            android:background="@drawable/line_grap"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"/>
+        <LinearLayout
+            android:paddingTop="@dimen/dp_10"
+            android:paddingBottom="@dimen/dp_10"
+            android:paddingStart="@dimen/dp_4"
+            android:paddingEnd="@dimen/dp_4"
+
+            android:layout_gravity="center"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginTop="@dimen/dp_6"
-            android:layout_marginEnd="@dimen/dp_4"
-            android:text="Today at 10:30 AM   [Read]"
-            android:textColor="@color/white"
-            android:textSize="@dimen/sp_11" />
+            android:orientation="horizontal"
+            android:layout_height="wrap_content">
+            <LinearLayout
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content">
+                <Button
+                    android:id="@+id/btn_send"
+                    android:text="@string/send"
+                    android:textAllCaps="false"
+                    android:layout_weight="1"
+                    android:textColor="@color/white"
+                    android:background="@drawable/btn_white_border"
+                    android:textSize="@dimen/sp_10"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/dp_20"/>
+                <View
+                    android:layout_width="@dimen/dp_15"
+                    android:layout_height="@dimen/dp_30"/>
+                <Button
+                    android:text="@string/edit"
+                    android:textAllCaps="false"
+                    android:id="@+id/btn_edit"
+                    android:textColor="@color/white"
+                    android:layout_weight="1"
+                    android:textSize="@dimen/sp_10"
+                    android:background="@drawable/btn_white_border"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/dp_20"/>
+            </LinearLayout>
+            <TextView
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:id="@+id/item_history_time"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="@dimen/dp_4"
+                android:text="Today at 10:30 AM   [Read]"
+                android:textColor="@color/white"
+                android:textSize="@dimen/sp_10" />
+        </LinearLayout>
+
     </LinearLayout>
 
     <TextView

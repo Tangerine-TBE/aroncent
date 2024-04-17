@@ -1,6 +1,7 @@
 package com.aroncent.module.phrase
 
 import android.annotation.SuppressLint
+import android.text.TextUtils
 import android.view.View
 import android.widget.TextView
 import androidx.recyclerview.widget.GridLayoutManager
@@ -29,16 +30,19 @@ class EditPhraseActivity : BaseActivity() {
 
     val selectCode = arrayListOf<MorseCodeListBean.DataBean>()
     val selectCodeArray = arrayListOf<MorseCodeListBean.DataBean>()
+    var itemList :String?= ""
     override fun layoutId(): Int {
         return R.layout.act_edit_phrase
     }
 
     override fun initData() {
-        rv_morse_code.layoutManager = GridLayoutManager(this, 2)
+         itemList = intent.getStringExtra("morseword")
+        rv_morse_code.layoutManager = GridLayoutManager(this, 3)
         rv_select_code.layoutManager = GridLayoutManager(this, 7)
         for (i in 1..7){
             selectCodeArray.add(MorseCodeListBean.DataBean())
         }
+
         rv_select_code.adapter = SelectMorseCodeAdapter(selectCodeArray)
         getMorseCodeList()
     }
@@ -134,6 +138,9 @@ class EditPhraseActivity : BaseActivity() {
                     text += "一"
                 }
             }
+            if(index < selectCode.size - 1){
+                text +="   "
+            }
             selectCodeArray[index].code = dataBean.code
         }
         tv_morse_code.text = text
@@ -159,6 +166,16 @@ class EditPhraseActivity : BaseActivity() {
                     if (t!!.data.isNotEmpty()) {
                         val adapter = MorseCodeAdapter(t.data)
                         rv_morse_code.adapter = adapter
+                        if(!TextUtils.isEmpty(itemList)) {
+                            itemList?.forEach {
+                                for (i in t.data){
+                                    if (i.code == it.toString()){
+                                        selectCode.add(i)
+                                    }
+                                }
+                            }
+                            refreshSelectCode()
+                        }
                     }
                 }
             })
@@ -174,6 +191,7 @@ class EditPhraseActivity : BaseActivity() {
             return
         }
         var shake = ""
+        var moreword = ""
         selectCode.forEach {
             it.shake.forEach { char->
                 if (char.toString()=="0"){
@@ -183,11 +201,13 @@ class EditPhraseActivity : BaseActivity() {
                     shake = "$shake,1"
                 }
             }
+            moreword += it.code
         }
         val map = hashMapOf<String,String>()
         map["id"] = intent.getStringExtra("id")!!
         map["content"] = et_content.text.toString()
         map["shake"] = shake.substring(1)
+        map["morseword"] = moreword
         RetrofitManager.service.editphrase(map)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())

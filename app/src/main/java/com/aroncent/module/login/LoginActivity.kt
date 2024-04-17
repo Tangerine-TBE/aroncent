@@ -1,8 +1,11 @@
 package com.aroncent.module.login
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.TextView
 import cn.jpush.android.api.JPushInterface
 import com.aroncent.R
 import com.aroncent.api.RetrofitManager
@@ -20,16 +23,23 @@ import com.facebook.FacebookCallback
 import com.facebook.FacebookException
 import com.facebook.GraphRequest
 import com.facebook.GraphResponse
+import com.facebook.appevents.AppEventsLogger
+import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
+import com.kongzue.dialogx.dialogs.CustomDialog
+import com.kongzue.dialogx.interfaces.OnBindView
 import com.onesignal.OneSignal
+import com.tencent.mmkv.MMKV
 import com.xlitebt.base.BaseActivity
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.act_login.*
+import kotlinx.android.synthetic.main.act_register_4.et_password
 import org.json.JSONException
 import org.json.JSONObject
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 
 class LoginActivity : BaseActivity() {
@@ -44,17 +54,20 @@ class LoginActivity : BaseActivity() {
 
     override fun initData() {
         val callbackManager = CallbackManager.Factory.create()
-        fb_login.setPermissions(EMAIL)
+        AppEventsLogger.activateApp(getApplication())
         // If you are using in a fragment, call loginButton.setFragment(this);
         // Callback registration
         fb_login.registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
             override fun onSuccess(result: LoginResult) {
                 val map = hashMapOf<String, String>()
                 map["token"] = result.accessToken.token
+                LogUtils.e(result.accessToken.token)
                 RetrofitManager.service.faceBookLogin(map).subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread()).subscribe(object :
                         RxSubscriber<RequestUserInfoBean?>(this@LoginActivity, true) {
                         override fun _onError(message: String?) {
+                            MMKV.defaultMMKV().encode("userId",result.accessToken.userId)
+                            startActivity(Intent(this@LoginActivity,RegisterActivity1::class.java))
                         }
 
                         override fun onSubscribe(d: Disposable) {
@@ -65,7 +78,6 @@ class LoginActivity : BaseActivity() {
                             t?.let {
                                 if (t.code == 200) {
                                     setUserInfoToSp(t.data.userInfo)
-                                    updateRid()
                                     ActivityUtils.finishAllActivities()
                                     startActivity(MainActivity::class.java)
                                 } else {
@@ -119,7 +131,6 @@ class LoginActivity : BaseActivity() {
                     t?.let {
                         if (t.code == 200) {
                             setUserInfoToSp(t.data.userInfo)
-                            updateRid()
                             ActivityUtils.finishAllActivities()
                             startActivity(MainActivity::class.java)
                         } else {
@@ -130,28 +141,7 @@ class LoginActivity : BaseActivity() {
             })
     }
 
-    private fun updateRid() {
-        val map = hashMapOf<String, String>()
-        map["jg_pushid"] = JPushInterface.getRegistrationID(this)
-        map["onesignal_pushid"] = OneSignal.getDeviceState()?.userId ?: ""
-        RetrofitManager.service.updaterid(map).subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : RxSubscriber<BaseBean?>(this, false) {
-                override fun _onError(message: String?) {
-                }
 
-                override fun onSubscribe(d: Disposable) {
-
-                }
-
-                @SuppressLint("SetTextI18n")
-                override fun _onNext(t: BaseBean?) {
-                    t?.let {
-
-                    }
-                }
-            })
-    }
 
     override fun start() {
     }

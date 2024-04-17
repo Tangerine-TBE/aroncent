@@ -7,6 +7,7 @@ import cn.jpush.android.api.JPushInterface
 import com.aroncent.db.AppDatabase
 import com.clj.fastble.BleManager
 import com.facebook.FacebookSdk
+import com.google.android.gms.common.api.internal.LifecycleActivity
 import com.hjq.language.MultiLanguages
 import com.kongzue.dialogx.DialogX
 import com.onesignal.OneSignal
