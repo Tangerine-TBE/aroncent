@@ -22,6 +22,15 @@
             android:layout_marginTop="@dimen/dp_4"
             android:layout_height="wrap_content"/>
         <TextView
+            android:id="@+id/item_history_content1"
+            android:layout_width="wrap_content"
+            android:text="Hello, Sally"
+            android:textSize="@dimen/sp_16"
+            android:textColor="@color/white"
+            android:layout_marginStart="@dimen/dp_4"
+            android:layout_marginTop="@dimen/dp_4"
+            android:layout_height="wrap_content"/>
+        <TextView
             android:imeOptions="actionDone"
             android:singleLine="true"
             android:id="@+id/item_edit_info"

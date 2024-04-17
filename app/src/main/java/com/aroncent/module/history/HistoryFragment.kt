@@ -42,6 +42,7 @@ import kotlinx.android.synthetic.main.frag_history.view.refresh
 import kotlinx.android.synthetic.main.item_history_left.view.item_edit_info
 import kotlinx.android.synthetic.main.item_history_left.view.item_history_code
 import kotlinx.android.synthetic.main.item_history_left.view.item_history_content
+import kotlinx.android.synthetic.main.item_history_left.view.item_history_content1
 import kotlinx.android.synthetic.main.item_history_left.view.item_history_time
 import kotlinx.android.synthetic.main.item_history_right.view.btn_edit
 import kotlinx.android.synthetic.main.item_history_right.view.btn_send
@@ -191,7 +192,8 @@ class HistoryFragment : BaseFragment(), OnRefreshListener, OnLoadMoreListener {
         override fun convert(helper: BaseViewHolder, item: HistoryListBean.DataBean.ListBean) {
             val itemView = helper.itemView
             itemView.item_history_content.text = item.content
-            var time: String? = if (item.isread == 1) {
+            itemView.item_history_content1.text = item.morseword
+            val time: String = if (item.isread == 1) {
                 "${item.formatted_createtime} [Read]"
             } else {
                 "${item.formatted_createtime} [Unread]"

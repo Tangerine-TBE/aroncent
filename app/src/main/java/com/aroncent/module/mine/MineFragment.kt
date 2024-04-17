@@ -13,6 +13,7 @@ import com.aroncent.api.RetrofitManager
 import com.aroncent.app.KVKey
 import com.aroncent.base.BaseBean
 import com.aroncent.base.BaseFragment
+import com.aroncent.base.Disclaimers
 import com.aroncent.base.RxSubscriber
 import com.aroncent.base.UploadBean
 import com.aroncent.ble.BleTool
@@ -21,6 +22,8 @@ import com.aroncent.event.ReConnectEvent
 import com.aroncent.module.info.EditInfoActivity
 import com.aroncent.module.light_color.LightColorActivity
 import com.aroncent.module.login.LoginActivity
+import com.aroncent.module.login.RegisterActivity1
+import com.aroncent.module.login.RequestUserInfoBean
 import com.aroncent.module.main.MainActivity
 import com.aroncent.module.main.UpdateHeadPicEvent
 import com.aroncent.module.phrase.AddPhraseActivity
@@ -28,7 +31,9 @@ import com.aroncent.module.shake_flash_settings.ShakeFlashSettingActivity
 import com.aroncent.utils.UploadUtils
 import com.aroncent.utils.addZeroForNum
 import com.aroncent.utils.binaryToHexString
+import com.aroncent.utils.setUserInfoToSp
 import com.aroncent.utils.showToast
+import com.aroncent.utils.startActivity
 import com.blankj.utilcode.util.ActivityUtils
 import com.blankj.utilcode.util.ClickUtils
 import com.blankj.utilcode.util.FileUtils
@@ -192,9 +197,9 @@ class MineFragment : BaseFragment() {
                                 if (reachable) {
                                     LoginManager.getInstance().logInWithReadPermissions(requireActivity(), Arrays.asList("public_profile"))
                                 } else {
-                                    WaitDialog.dismiss()
                                     showToast("Network is not reachable")
                                 }
+                                WaitDialog.dismiss()
                             }
                         }
                     }
@@ -231,25 +236,46 @@ class MineFragment : BaseFragment() {
                     }
 
                     7 -> {
-                        CustomDialog.build()
-                            .setMaskColor(requireContext().getColor(R.color.dialogMaskColor))
-                            .setCustomView(object : OnBindView<CustomDialog>(R.layout.dialog_tips) {
-                                override fun onBind(dialog: CustomDialog?, v: View?) {
-                                    v!!.let {
-                                        val tip = v.findViewById<TextView>(R.id.tv_tip)
-                                        tip.text = "Unbind your partner?"
-                                        val confirm = v.findViewById<TextView>(R.id.tv_confirm)
-                                        val cancel = v.findViewById<TextView>(R.id.tv_cancel)
-                                        cancel.setOnClickListener {
-                                            dialog!!.dismiss()
-                                        }
-                                        confirm.setOnClickListener {
-                                            dialog!!.dismiss()
-                                            unbind()
+                        RetrofitManager.service.getDisclaimers(hashMapOf()).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(object :
+                                RxSubscriber<Disclaimers?>(requireContext(), true) {
+                                override fun _onError(message: String?) {
+
+                                }
+
+                                override fun onSubscribe(d: Disposable) {
+
+                                }
+                                @SuppressLint("SetTextI18n")
+                                override fun _onNext(t: Disclaimers?) {
+                                    t?.let {
+                                        if (t.code == 200) {
+                                            CustomDialog.build()
+                                                .setMaskColor(requireContext().getColor(R.color.dialogMaskColor))
+                                                .setCustomView(object : OnBindView<CustomDialog>(R.layout.dialog_tips) {
+                                                    override fun onBind(dialog: CustomDialog?, v: View?) {
+                                                        v!!.let {
+                                                            val tip = v.findViewById<TextView>(R.id.tv_tip)
+                                                            tip.text = t.data.content
+                                                            val confirm = v.findViewById<TextView>(R.id.tv_confirm)
+                                                            val cancel = v.findViewById<TextView>(R.id.tv_cancel)
+                                                            cancel.setOnClickListener {
+                                                                dialog!!.dismiss()
+                                                            }
+                                                            confirm.setOnClickListener {
+                                                                dialog!!.dismiss()
+                                                                unbind()
+                                                            }
+                                                        }
+                                                    }
+                                                }).show()
+                                        } else {
+                                            showToast(t.msg)
                                         }
                                     }
                                 }
-                            }).show()
+                            })
+
                     }
 
                     8 -> {

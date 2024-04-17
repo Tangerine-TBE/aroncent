@@ -281,7 +281,7 @@ class HomeFragment : BaseFragment() {
         tv_my_template.setOnClickListener {
             startActivity(Intent(requireContext(), AddPhraseActivity::class.java))
         }
-        tv_new_msg.setOnClickListener {
+        tv_new_msg2.setOnClickListener {
             if(tv_new_msg.text.isNotEmpty()){
                 ( activity as MainActivity ).setSelect(1)
             }

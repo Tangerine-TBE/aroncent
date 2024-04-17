@@ -23,6 +23,15 @@
             android:textColor="@color/white"
             android:textSize="@dimen/sp_16" />
         <TextView
+            android:id="@+id/item_history_content1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_4"
+            android:layout_marginTop="@dimen/dp_4"
+            android:text="Hello, Sally"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_16" />
+        <TextView
             android:textColorHint="@color/white"
             android:imeOptions="actionDone"
             android:singleLine="true"

@@ -1,6 +1,7 @@
 package com.aroncent.api
 
 import com.aroncent.base.BaseBean
+import com.aroncent.base.Disclaimers
 import com.aroncent.base.UploadBean
 import com.aroncent.module.add_partner.PartnerAddBean
 import com.aroncent.module.history.HistoryListBean
@@ -197,6 +198,11 @@ interface ApiService {
     fun faceBookLogin(@FieldMap map: HashMap<String,String>):Observable<RequestUserInfoBean>
 
 
+    @FormUrlEncoded
     @POST("api/User/profile")
     fun editProfile(@FieldMap map:HashMap<String,String>):Observable<BaseBean>
+
+    @FormUrlEncoded
+    @POST("api/law/disclaimers")
+    fun getDisclaimers(@FieldMap map:HashMap<String,String>):Observable<Disclaimers>
 }
