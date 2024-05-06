@@ -22,6 +22,7 @@ import com.aroncent.app.KVKey
 import com.aroncent.event.ReadMsgEvent
 import com.aroncent.module.history.HistoryFragment
 import com.aroncent.module.history.HistoryListBean
+import com.aroncent.module.main.BATTERY
 import com.aroncent.module.main.BatteryBean
 import com.aroncent.module.main.MainActivity
 import com.aroncent.module.main.UpdateHeadPicEvent
@@ -81,6 +82,11 @@ class HomeFragment : BaseFragment() {
             else->{
                 iv_battery.setImageResource(R.drawable.b_100)
             }
+        }
+        if (msg.battery.toString() == BATTERY.charging.toString()) {
+            tv_charging.text = "+"
+        } else {
+            tv_charging.text = ""
         }
         tv_battery.text = msg.value+"%"
     }

@@ -71,6 +71,7 @@ import com.clj.fastble.callback.BleScanCallback
 import com.clj.fastble.data.BleDevice
 import com.clj.fastble.exception.BleException
 import com.clj.fastble.scan.BleScanRuleConfig
+import com.facebook.CallbackManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.dialog.MaterialDialogs
 import com.kongzue.dialogx.dialogs.CustomDialog
@@ -87,8 +88,10 @@ import kotlinx.android.synthetic.main.activity_main.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import java.lang.Thread.sleep
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
+import kotlin.concurrent.thread
 
 
 class MainActivity : BaseActivity() {
@@ -99,6 +102,7 @@ class MainActivity : BaseActivity() {
     private var mTab3: Fragment? = null
     private lateinit var deviceConfirmDialog: CustomDialog;
     private lateinit var mainViewModel: MainViewModel
+    public lateinit var callbackManager : CallbackManager
 
     //请求BLUETOOTH_CONNECT权限意图
     private val requestBluetoothConnect =
@@ -280,6 +284,7 @@ class MainActivity : BaseActivity() {
 
     override fun initView() {
         getkeyhash()
+        callbackManager = CallbackManager.Factory.create();
         if (getUserToken() == "") {
             finish()
             startActivity(LoginActivity::class.java)
@@ -572,9 +577,15 @@ class MainActivity : BaseActivity() {
                 override fun onNotifySuccess() {
                     LogUtils.eTag(TAG, "notify success")
                     //测试指令
-                    ThreadUtils.runOnUiThreadDelayed({
-                        BleTool.sendInstruct("A5AAACFA05FFC5CCCA")
-                    }, 100)
+
+                    thread {
+                        while (true){
+                            ThreadUtils.runOnUiThreadDelayed({
+                                BleTool.sendInstruct("A5AAACFA05FFC5CCCA")
+                            }, 100)
+                            sleep(5000)
+                        }
+                    }
                     ThreadUtils.runOnUiThreadDelayed({
                         BleTool.sendInstruct("A5AAAC1706AABBCCDDEEFFC5CCCA")
                     }, 1000)
@@ -607,8 +618,21 @@ class MainActivity : BaseActivity() {
                                 sendMorseCode(str)
                             }
                             else if (str.substring(8, 10) == "05") {
+                              val batteryType: BATTERY
+                                val type =  str.substring(12,14).toInt(16)
+                                batteryType = when (type) {
+                                    0 -> {
+                                        BATTERY.unCharging;
+                                    }
+                                    1 -> {
+                                        BATTERY.charging;
+                                    }
+                                    else -> {
+                                        BATTERY.fullBattery
+                                    }
+                                }
                                 EventBus.getDefault()
-                                    .post(BatteryBean(str.substring(10, 12).toInt(16).toString()))
+                                    .post(BatteryBean(str.substring(10, 12).toInt(16).toString(),batteryType))
                             }
                         }catch (e:Exception){
                             e.printStackTrace()
@@ -1041,6 +1065,10 @@ class MainActivity : BaseActivity() {
         fun onItemClicked(bleDevice: BleDevice)
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        callbackManager.onActivityResult(requestCode, resultCode, data)
+        super.onActivityResult(requestCode, resultCode, data)
+    }
 
     inner class DeviceItemAdapter(private val clickListener: OnDeviceItemClicked) :
         RecyclerView.Adapter<DeviceItemAdapter.ViewHolder>() {

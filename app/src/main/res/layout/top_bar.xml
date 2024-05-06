@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
+    tools:background="@color/black"
     android:layout_height="wrap_content">
 
     <ImageView
@@ -39,6 +40,7 @@
         app:layout_constraintTop_toBottomOf="@+id/tv_connected" />
 
     <ImageView
+        tools:visibility="visible"
         android:visibility="gone"
         android:id="@+id/iv_battery"
         android:layout_width="42dp"
@@ -49,5 +51,13 @@
         app:layout_constraintEnd_toStartOf="@+id/tv_battery"
         app:layout_constraintTop_toBottomOf="@+id/tv_connected"
         app:srcCompat="@drawable/b_100" />
+    <TextView
+        android:id="@+id/tv_charging"
+        app:layout_constraintTop_toTopOf="@id/iv_battery"
+        app:layout_constraintBottom_toBottomOf="@id/iv_battery"
+        app:layout_constraintStart_toStartOf="@id/iv_battery"
+        app:layout_constraintEnd_toEndOf="@id/iv_battery"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

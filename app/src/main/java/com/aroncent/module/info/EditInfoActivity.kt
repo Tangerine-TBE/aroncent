@@ -1,6 +1,7 @@
 package com.aroncent.module.info
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import androidx.core.content.ContentProviderCompat.requireContext
 import com.aroncent.R
 import com.aroncent.api.RetrofitManager
@@ -9,11 +10,15 @@ import com.aroncent.app.MyApplication
 import com.aroncent.base.BaseBean
 import com.aroncent.base.RxSubscriber
 import com.aroncent.base.UploadBean
+import com.aroncent.module.login.LoginActivity
 import com.aroncent.module.main.UpdateHeadPicEvent
 import com.aroncent.utils.GlideEngine
 import com.aroncent.utils.UploadUtils
 import com.bumptech.glide.Glide
 import com.aroncent.utils.showToast
+import com.blankj.utilcode.util.ActivityUtils
+import com.facebook.AccessToken
+import com.facebook.login.LoginManager
 
 import com.luck.picture.lib.basic.PictureSelector
 import com.luck.picture.lib.config.SelectMimeType
@@ -161,6 +166,15 @@ class EditInfoActivity : BaseActivity() {
                                 MMKV.defaultMMKV().encode(KVKey.email, edit_email.text.toString())
                                 MMKV.defaultMMKV().encode(KVKey.nickname, edit_name.text.toString())
                                 EventBus.getDefault().post(UpdateHeadPicEvent())
+                                MMKV.defaultMMKV().clearAll()
+                                val accessToken: AccessToken? =
+                                    AccessToken.getCurrentAccessToken()
+                                val isLoggedIn = accessToken != null && !accessToken.isExpired
+                                if(isLoggedIn){
+                                    LoginManager.getInstance().logOut()
+                                }
+                                ActivityUtils.finishAllActivities()
+                                startActivity(Intent(this@EditInfoActivity, LoginActivity::class.java))
                                 showToast("Success")
                             }
                         }

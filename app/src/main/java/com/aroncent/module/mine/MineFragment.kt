@@ -3,8 +3,10 @@ package com.aroncent.module.mine
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.provider.Settings.Global
+import android.text.Html
 import android.util.Log
 import android.view.View
+import android.widget.CheckBox
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.aroncent.R
@@ -76,10 +78,13 @@ import java.util.Arrays
 
 
 class MineFragment : BaseFragment() {
+    private lateinit var callbackManager : CallbackManager
+
     override fun getLayoutId(): Int {
         return R.layout.frag_mine
     }
-    private lateinit var  callbackManager:CallbackManager
+
+
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onGetMessage(event: UpdateHeadPicEvent) {
@@ -88,18 +93,18 @@ class MineFragment : BaseFragment() {
     }
 
     override fun onHiddenChanged(hidden: Boolean) {
-        if(hidden){
+        if (hidden) {
 
-        }else{
+        } else {
         }
         super.onHiddenChanged(hidden)
     }
 
     override fun initView() {
-         callbackManager = CallbackManager.Factory.create()
+        callbackManager = (requireActivity() as MainActivity).callbackManager
         EventBus.getDefault().register(this)
-        not_disturb.setCheckedNoEvent(MMKV.defaultMMKV().getBoolean(KVKey.not_disturb,false))
-        morse_model.setCheckedNoEvent(MMKV.defaultMMKV().getBoolean(KVKey.morse_model,false))
+        not_disturb.setCheckedNoEvent(MMKV.defaultMMKV().getBoolean(KVKey.not_disturb, false))
+        morse_model.setCheckedNoEvent(MMKV.defaultMMKV().getBoolean(KVKey.morse_model, false))
         tv_name.text = "Hello," + MMKV.defaultMMKV().decodeString(KVKey.username, "")
         Glide.with(this).load(MMKV.defaultMMKV().decodeString(KVKey.avatar, "")).circleCrop()
             .error(R.drawable.head_default_pic).into(iv_head)
@@ -121,10 +126,11 @@ class MineFragment : BaseFragment() {
         super.onDestroy()
         EventBus.getDefault().unregister(this)
     }
-     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        callbackManager.onActivityResult(requestCode, resultCode, data)
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
     }
+
     inner class ProfileAdapter(layoutResId: Int, data: MutableList<MenuBean>) :
         BaseQuickAdapter<MenuBean, BaseViewHolder>(layoutResId, data) {
         override fun convert(helper: BaseViewHolder, item: MenuBean) {
@@ -151,7 +157,7 @@ class MineFragment : BaseFragment() {
                             AccessToken.getCurrentAccessToken()
                         Profile.getCurrentProfile()
                         val isLoggedIn = accessToken != null && !accessToken.isExpired
-                        if(isLoggedIn){
+                        if (isLoggedIn) {
                             showToast("already bind facebook !")
                             return@applySingleDebouncing
                         }
@@ -160,12 +166,14 @@ class MineFragment : BaseFragment() {
                             override fun onSuccess(result: LoginResult) {
                                 val map = hashMapOf<String, String>()
                                 map["Facebook"] = result.accessToken.userId
-                                RetrofitManager.service.bindfacebook(map).subscribeOn(Schedulers.io())
+                                RetrofitManager.service.bindfacebook(map)
+                                    .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.mainThread()).subscribe(object :
                                         RxSubscriber<BindResponse>(context, true) {
                                         override fun onSubscribe(d: Disposable) {
 
                                         }
+
                                         override fun _onNext(t: BindResponse) {
                                             if (t.code == 200L) {
                                                 showToast("success")
@@ -190,12 +198,15 @@ class MineFragment : BaseFragment() {
                         })
                         //检查是否可以到达www.google.com
                         GlobalScope.launch {
-                            withContext(Dispatchers.IO){
+                            withContext(Dispatchers.IO) {
                                 WaitDialog.show("checking")
                                 val address = InetAddress.getByName("www.google.com")
                                 val reachable = address.isReachable(3000) // 10 seconds timeout
                                 if (reachable) {
-                                    LoginManager.getInstance().logInWithReadPermissions(requireActivity(), Arrays.asList("public_profile"))
+                                    LoginManager.getInstance().logInWithReadPermissions(
+                                        requireActivity(),
+                                        Arrays.asList("public_profile")
+                                    )
                                 } else {
                                     showToast("Network is not reachable")
                                 }
@@ -203,6 +214,7 @@ class MineFragment : BaseFragment() {
                             }
                         }
                     }
+
                     6 -> {
                         PictureSelector.create(requireContext())
                             .openCamera(SelectMimeType.ofVideo())
@@ -236,7 +248,8 @@ class MineFragment : BaseFragment() {
                     }
 
                     7 -> {
-                        RetrofitManager.service.getDisclaimers(hashMapOf()).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                        RetrofitManager.service.getDisclaimers(hashMapOf())
+                            .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                             .subscribe(object :
                                 RxSubscriber<Disclaimers?>(requireContext(), true) {
                                 override fun _onError(message: String?) {
@@ -246,25 +259,40 @@ class MineFragment : BaseFragment() {
                                 override fun onSubscribe(d: Disposable) {
 
                                 }
+
                                 @SuppressLint("SetTextI18n")
                                 override fun _onNext(t: Disclaimers?) {
                                     t?.let {
                                         if (t.code == 200) {
                                             CustomDialog.build()
                                                 .setMaskColor(requireContext().getColor(R.color.dialogMaskColor))
-                                                .setCustomView(object : OnBindView<CustomDialog>(R.layout.dialog_tips) {
-                                                    override fun onBind(dialog: CustomDialog?, v: View?) {
+                                                .setCustomView(object :
+                                                    OnBindView<CustomDialog>(R.layout.dialog_tips2) {
+                                                    override fun onBind(
+                                                        dialog: CustomDialog?,
+                                                        v: View?
+                                                    ) {
                                                         v!!.let {
-                                                            val tip = v.findViewById<TextView>(R.id.tv_tip)
-                                                            tip.text = t.data.content
-                                                            val confirm = v.findViewById<TextView>(R.id.tv_confirm)
-                                                            val cancel = v.findViewById<TextView>(R.id.tv_cancel)
+                                                            val tip =
+                                                                v.findViewById<TextView>(R.id.tv_tip)
+                                                            tip.text = Html.fromHtml(t.data.content)
+                                                            val confirm =
+                                                                v.findViewById<TextView>(R.id.tv_confirm)
+                                                            val cancel =
+                                                                v.findViewById<TextView>(R.id.tv_cancel)
+                                                            val cb_check =
+                                                                v.findViewById<CheckBox>(R.id.cb_check)
                                                             cancel.setOnClickListener {
                                                                 dialog!!.dismiss()
                                                             }
                                                             confirm.setOnClickListener {
-                                                                dialog!!.dismiss()
-                                                                unbind()
+                                                                if (cb_check.isChecked) {
+                                                                    dialog!!.dismiss()
+                                                                    unbind()
+                                                                } else {
+                                                                    showToast("please read and confirm the content")
+                                                                }
+
                                                             }
                                                         }
                                                     }
@@ -285,7 +313,8 @@ class MineFragment : BaseFragment() {
                                 override fun onBind(dialog: CustomDialog?, v: View?) {
                                     v!!.let {
                                         val tip = v.findViewById<TextView>(R.id.tv_tip)
-                                        tip.text = "Before connecting your phone to a new device, you need to unpair it from any previously connected devices. Are you sure you want to unpair it?"
+                                        tip.text =
+                                            "Before connecting your phone to a new device, you need to unpair it from any previously connected devices. Are you sure you want to unpair it?"
                                         val confirm = v.findViewById<TextView>(R.id.tv_confirm)
                                         val cancel = v.findViewById<TextView>(R.id.tv_cancel)
                                         cancel.setOnClickListener {
@@ -410,18 +439,18 @@ class MineFragment : BaseFragment() {
 
     override fun initListener() {
         not_disturb.setOnCheckedChangeListener { buttonView, isChecked ->
-            if (BleManager.getInstance().isConnected(BleTool.mBleDevice)){
-                MMKV.defaultMMKV().putBoolean(KVKey.not_disturb,isChecked)
+            if (BleManager.getInstance().isConnected(BleTool.mBleDevice)) {
+                MMKV.defaultMMKV().putBoolean(KVKey.not_disturb, isChecked)
                 setShakeToDevice()
-            }else{
-               showToast("Please connect Bluetooth device")
+            } else {
+                showToast("Please connect Bluetooth device")
             }
         }
-        morse_model.setOnCheckedChangeListener{ buttonView,isChecked ->
-            val map = hashMapOf<String,String>()
-            if (isChecked){
+        morse_model.setOnCheckedChangeListener { buttonView, isChecked ->
+            val map = hashMapOf<String, String>()
+            if (isChecked) {
                 map["isonpress"] = 1.toString()
-            }else{
+            } else {
                 map["isonpress"] = 0.toString()
             }
             RetrofitManager.service.setIsonPressSendMorse(map)
@@ -438,7 +467,7 @@ class MineFragment : BaseFragment() {
                     @SuppressLint("SetTextI18n")
                     override fun _onNext(t: BaseBean?) {
                         if (t!!.code == 200) {
-                            MMKV.defaultMMKV().putBoolean(KVKey.morse_model,isChecked)
+                            MMKV.defaultMMKV().putBoolean(KVKey.morse_model, isChecked)
                             showToast("Success")
                         }
                     }
@@ -462,7 +491,7 @@ class MineFragment : BaseFragment() {
                                 val accessToken: AccessToken? =
                                     AccessToken.getCurrentAccessToken()
                                 val isLoggedIn = accessToken != null && !accessToken.isExpired
-                                if(isLoggedIn){
+                                if (isLoggedIn) {
                                     LoginManager.getInstance().logOut()
                                 }
                                 ActivityUtils.finishAllActivities()
@@ -482,42 +511,45 @@ class MineFragment : BaseFragment() {
         }
     }
 
-    private fun setShakeToDevice(){
+    private fun setShakeToDevice() {
         //给设备设置默认参数，灯光颜色，长短震，长短闪
         val long_shake = DeviceConfig.long_shake
         val short_shake = DeviceConfig.short_shake
         val long_flash = DeviceConfig.long_flash
         val short_flash = DeviceConfig.short_flash
         val shaking_levels = DeviceConfig.shaking_levels
-        val lightColor = if (DeviceConfig.lightColor =="") "FFFFFF" else DeviceConfig.lightColor
-        val binary_short_flash = addZeroForNum((short_flash.toFloat()*10).toInt().toString(2),4)
-        val binary_long_flash = addZeroForNum((long_flash.toFloat()*10).toInt().toString(2),4)
-        val binary_short_shake = addZeroForNum((short_shake.toFloat()*10).toInt().toString(2),4)
-        val binary_long_shake = addZeroForNum((long_shake.toFloat()*10).toInt().toString(2),4)
-        val vibration_intensity = addZeroForNum(shaking_levels,2) //震动强度 0-3
+        val lightColor = if (DeviceConfig.lightColor == "") "FFFFFF" else DeviceConfig.lightColor
+        val binary_short_flash = addZeroForNum((short_flash.toFloat() * 10).toInt().toString(2), 4)
+        val binary_long_flash = addZeroForNum((long_flash.toFloat() * 10).toInt().toString(2), 4)
+        val binary_short_shake = addZeroForNum((short_shake.toFloat() * 10).toInt().toString(2), 4)
+        val binary_long_shake = addZeroForNum((long_shake.toFloat() * 10).toInt().toString(2), 4)
+        val vibration_intensity = addZeroForNum(shaking_levels, 2) //震动强度 0-3
 
-        Log.e("short_flash",binary_short_flash)
-        Log.e("long_flash",binary_long_flash)
-        Log.e("short_shake",binary_short_shake)
-        Log.e("long_shake",binary_long_shake)
-        Log.e("vibration_intensity",vibration_intensity)
+        Log.e("short_flash", binary_short_flash)
+        Log.e("long_flash", binary_long_flash)
+        Log.e("short_shake", binary_short_shake)
+        Log.e("long_shake", binary_long_shake)
+        Log.e("vibration_intensity", vibration_intensity)
 
-        Log.e("flash", binaryToHexString(binary_short_flash+binary_long_flash))
-        Log.e("shake", binaryToHexString(binary_short_shake+binary_long_shake))
+        Log.e("flash", binaryToHexString(binary_short_flash + binary_long_flash))
+        Log.e("shake", binaryToHexString(binary_short_shake + binary_long_shake))
 
-        val xorStr = BleTool.getXOR("02"
-                +lightColor
-                + binaryToHexString(binary_short_flash+binary_long_flash)
-                +vibration_intensity
-                + binaryToHexString(binary_short_shake+binary_long_shake)
+        val xorStr = BleTool.getXOR(
+            "02"
+                    + lightColor
+                    + binaryToHexString(binary_short_flash + binary_long_flash)
+                    + vibration_intensity
+                    + binaryToHexString(binary_short_shake + binary_long_shake)
         )
 
-        BleTool.sendInstruct("A5AAAC"+xorStr+"02"
-                +lightColor
-                + binaryToHexString(binary_short_flash+binary_long_flash)
-                +vibration_intensity
-                + binaryToHexString(binary_short_shake+binary_long_shake)
-                +"C5CCCA")
+        BleTool.sendInstruct(
+            "A5AAAC" + xorStr + "02"
+                    + lightColor
+                    + binaryToHexString(binary_short_flash + binary_long_flash)
+                    + vibration_intensity
+                    + binaryToHexString(binary_short_shake + binary_long_shake)
+                    + "C5CCCA"
+        )
     }
 
 }

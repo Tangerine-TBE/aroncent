@@ -22,6 +22,8 @@ import com.aroncent.base.BaseBean
 import com.aroncent.db.MsgData
 import com.aroncent.module.home.MorseCodeListBean
 import com.aroncent.module.home.weight.MyLinearLayoutManager
+import com.aroncent.module.main.BATTERY
+import com.aroncent.module.main.BATTERY.*
 import com.aroncent.module.main.BatteryBean
 import com.aroncent.module.main.UpdateHeadPicEvent
 import com.aroncent.utils.showToast
@@ -51,6 +53,7 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import java.util.HashMap
+import kotlin.*
 
 class HistoryFragment : BaseFragment(), OnRefreshListener, OnLoadMoreListener {
     private var list = arrayListOf<MorseCodeListBean.DataBean>()
@@ -99,6 +102,11 @@ class HistoryFragment : BaseFragment(), OnRefreshListener, OnLoadMoreListener {
                 iv_battery.setImageResource(R.drawable.b_100)
             }
         }
+        if (msg.battery.toString() == charging.toString()) {
+            tv_charging.text = "+"
+        } else {
+            tv_charging.text = ""
+        }
         tv_battery.text = msg.value + "%"
     }
 
@@ -108,8 +116,7 @@ class HistoryFragment : BaseFragment(), OnRefreshListener, OnLoadMoreListener {
     }
 
     private fun getMorseCodeList(isRefresh: Boolean) {
-        RetrofitManager.service.getMorseCodeList(hashMapOf())
-            .subscribeOn(Schedulers.io())
+        RetrofitManager.service.getMorseCodeList(hashMapOf()).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : RxSubscriber<MorseCodeListBean?>(requireContext(), true) {
                 override fun _onError(message: String?) {
@@ -122,7 +129,7 @@ class HistoryFragment : BaseFragment(), OnRefreshListener, OnLoadMoreListener {
 
                 @SuppressLint("SetTextI18n")
                 override fun _onNext(t: MorseCodeListBean?) {
-                    if (t!!.data.isNotEmpty()) {
+                    if (t?.data?.isNotEmpty() == true) {
                         list.addAll(t.data)
                         getHistory(isRefresh)
 //                        getUserPhraseList()
@@ -253,9 +260,7 @@ class HistoryFragment : BaseFragment(), OnRefreshListener, OnLoadMoreListener {
             }
             if (itemView.btn_edit != null) {
                 itemView.btn_edit.setOnClickListener {
-                    CustomDialog
-                        .build()
-                        .setMaskColor(getColor(R.color.dialogMaskColor))
+                    CustomDialog.build().setMaskColor(getColor(R.color.dialogMaskColor))
                         .setCustomView(object : OnBindView<CustomDialog>(R.layout.dialog_edit) {
                             override fun onBind(dialog: CustomDialog?, v: View?) {
                                 v!!.let {
@@ -271,9 +276,11 @@ class HistoryFragment : BaseFragment(), OnRefreshListener, OnLoadMoreListener {
                                         map["Id"] = item.id.toString()
                                         map["Content"] = item.content
                                         map["remark"] = tip.text.toString()
-                                        RetrofitManager.service.updateHistory(map).subscribeOn(Schedulers.io())
+                                        RetrofitManager.service.updateHistory(map)
+                                            .subscribeOn(Schedulers.io())
                                             .observeOn(AndroidSchedulers.mainThread())
-                                            .subscribe(object : RxSubscriber<BaseBean?>(requireContext(), true) {
+                                            .subscribe(object :
+                                                RxSubscriber<BaseBean?>(requireContext(), true) {
                                                 override fun _onError(message: String?) {
                                                 }
 
@@ -293,8 +300,7 @@ class HistoryFragment : BaseFragment(), OnRefreshListener, OnLoadMoreListener {
                                     }
                                 }
                             }
-                        })
-                        .show()
+                        }).show()
                 }
             }
         }
@@ -302,8 +308,7 @@ class HistoryFragment : BaseFragment(), OnRefreshListener, OnLoadMoreListener {
         private fun sendPhrase(id: Int) {
             val map = hashMapOf<String, String>()
             map["id"] = id.toString()
-            RetrofitManager.service.historySend(map)
-                .subscribeOn(Schedulers.io())
+            RetrofitManager.service.historySend(map).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(object : RxSubscriber<SendNoRsp?>(requireContext(), true) {
                     override fun _onError(message: String?) {
@@ -329,12 +334,10 @@ class HistoryFragment : BaseFragment(), OnRefreshListener, OnLoadMoreListener {
         RetrofitManager.service.getHistory(
             hashMapOf(
                 Pair(
-                    "page",
-                    if (isRefresh) "1" else loadMoreSize()
+                    "page", if (isRefresh) "1" else loadMoreSize()
                 )
             )
-        )
-            .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+        ).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : RxSubscriber<HistoryListBean?>(requireContext(), true) {
                 override fun _onError(message: String?) {
                     tv_heartbeat.text = "0"
